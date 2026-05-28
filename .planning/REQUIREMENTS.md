@@ -4,11 +4,11 @@
 
 ### Core Flow
 
-- [ ] **CORE-01**: User can run the CLI tool that reads the base LaTeX resume from a configurable path in `config.py`
+- [x] **CORE-01**: User can run the CLI tool that reads the base LaTeX resume from a configurable path in `config.py`
 - [ ] **CORE-02**: User can input a multiline job description via terminal prompt (type END on a new line to submit); EOFError treated as submission
 - [ ] **CORE-03**: User sees a progress message before the LLM call starts (so the tool does not appear frozen during cold model load)
 - [ ] **CORE-04**: Tool calls Ollama `/api/chat` (non-streaming) with `num_ctx: 8192`, `timeout=(10, 300)`, and role-separated system/user messages
-- [ ] **CORE-05**: Tool writes the tailored LaTeX output to `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex` (directory created if missing)
+- [x] **CORE-05**: Tool writes the tailored LaTeX output to `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex` (directory created if missing)
 - [ ] **CORE-06**: Tool prints a success message with the full output file path on completion
 
 ### Output Quality & Safety
@@ -20,14 +20,14 @@
 
 ### Error Handling
 
-- [ ] **ERR-01**: If base resume file is not found, tool prints a human-readable error to stderr and exits with code 1
+- [x] **ERR-01**: If base resume file is not found, tool prints a human-readable error to stderr and exits with code 1
 - [ ] **ERR-02**: If Ollama connection fails or times out, tool prints a human-readable error to stderr and exits with code 1 (no raw traceback)
 - [ ] **ERR-03**: Tool performs an Ollama health check at startup (`GET /api/tags`) and fails fast with a clear message if Ollama is not reachable
 
 ### Configuration
 
-- [ ] **CONF-01**: `config.py` exposes `BASE_RESUME_PATH`, `OLLAMA_MODEL`, `OLLAMA_BASE_URL`, `OUTPUT_DIR`, and `TIMEOUT` as named constants — changing any of these requires no changes to other modules
-- [ ] **CONF-02**: All paths in `config.py` are anchored to `Path(__file__)` so the tool works regardless of which directory it is invoked from
+- [x] **CONF-01**: `config.py` exposes `BASE_RESUME_PATH`, `OLLAMA_MODEL`, `OLLAMA_BASE_URL`, `OUTPUT_DIR`, and `TIMEOUT` as named constants — changing any of these requires no changes to other modules
+- [x] **CONF-02**: All paths in `config.py` are anchored to `Path(__file__)` so the tool works regardless of which directory it is invoked from
 
 ### Packaging
 

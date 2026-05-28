@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-05-28T13:27:39.725Z"
-last_activity: 2026-05-28 -- Phase 01 planning complete
+last_updated: "2026-05-28T13:32:13Z"
+last_activity: 2026-05-28 -- Phase 01 Plan 01 completed
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-28)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Phase 1 — Foundation
+**Current focus:** Phase 01 — foundation
 
 ## Current Position
 
-Phase: 1 of 3 (Foundation)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-05-28 -- Phase 01 planning complete
+Phase: 01 (foundation) — EXECUTING
+Plan: 2 of 2
+Status: Executing Phase 01 (Plan 01 complete)
+Last activity: 2026-05-28 -- Phase 01 Plan 01 completed
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - Build order: config.py → resume_reader.py + resume_writer.py → llm_client.py → main.py (research-informed)
 - All output safety guards (fence stripping, validation, done_reason check) belong in Phase 2 llm_client.py, not retrofitted later
 - All exception catches handled at main.py boundary only — keeps individual modules testable in isolation
+- OLLAMA_MODEL = 'mistral-small3.2:24b' — exact model string per D-03, single change point for model swaps
+- BASE_RESUME_PATH anchored via Path(__file__) — survives uv tool install (D-01, CONF-02)
+- cli.py Phase 1 stub created early so uv tool install can resolve the entry point before Phase 3
 
 ### Pending Todos
 
@@ -71,6 +74,10 @@ None yet.
 ### Blockers/Concerns
 
 None yet.
+
+### Completed Plans
+
+- Phase 01 / Plan 01 (01-01): resume_tailor package — config, reader, writer, cli stub (2026-05-28, 2 min)
 
 ## Deferred Items
 
@@ -82,6 +89,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-28T13:11:11.698Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundation/01-CONTEXT.md
+Last session: 2026-05-28T13:32:13Z
+Stopped at: Completed Phase 01 Plan 01 (01-01-PLAN.md)
+Resume file: .planning/phases/01-foundation/01-02-PLAN.md

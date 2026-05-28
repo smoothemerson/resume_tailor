@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plansPlans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Create resume_tailor package: config.py (D-01/D-02/D-03), resume_reader.py (CORE-01/ERR-01), resume_writer.py (CORE-05), __init__.py, cli.py stub
+- [x] 01-01-PLAN.md — Create resume_tailor package: config.py (D-01/D-02/D-03), resume_reader.py (CORE-01/ERR-01), resume_writer.py (CORE-05), __init__.py, cli.py stub
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -76,6 +76,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/2 | Not started | - |
+| 1. Foundation | 1/2 | In progress | - |
 | 2. LLM Integration | 0/TBD | Not started | - |
 | 3. CLI Wiring | 0/TBD | Not started | - |

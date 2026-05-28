@@ -57,22 +57,22 @@
 
 | REQ-ID | Phase | Notes |
 |--------|-------|-------|
-| CORE-01 | — | |
-| CORE-02 | — | |
-| CORE-03 | — | |
-| CORE-04 | — | |
-| CORE-05 | — | |
-| CORE-06 | — | |
-| QUAL-01 | — | |
-| QUAL-02 | — | |
-| QUAL-03 | — | |
-| QUAL-04 | — | |
-| ERR-01  | — | |
-| ERR-02  | — | |
-| ERR-03  | — | |
-| CONF-01 | — | |
-| CONF-02 | — | |
-| PKG-01  | — | |
+| CORE-01 | Phase 1 | File I/O foundation — reader uses config path |
+| CORE-02 | Phase 3 | CLI wiring — multiline input loop in main.py |
+| CORE-03 | Phase 3 | CLI wiring — progress message before LLM call |
+| CORE-04 | Phase 2 | LLM integration — /api/chat call with num_ctx and timeout |
+| CORE-05 | Phase 1 | File I/O foundation — writer creates timestamped output |
+| CORE-06 | Phase 3 | CLI wiring — success message with output path |
+| QUAL-01 | Phase 2 | LLM integration — unconditional fence stripping |
+| QUAL-02 | Phase 2 | LLM integration — in-memory validation before write |
+| QUAL-03 | Phase 2 | LLM integration — done_reason check |
+| QUAL-04 | Phase 2 | LLM integration — XML delimiter wrapping in prompt |
+| ERR-01  | Phase 1 | Foundation — FileNotFoundError for missing resume |
+| ERR-02  | Phase 2 | LLM integration — connection/timeout error handling |
+| ERR-03  | Phase 2 | LLM integration — startup health check via GET /api/tags |
+| CONF-01 | Phase 1 | Foundation — config.py named constants |
+| CONF-02 | Phase 1 | Foundation — __file__-anchored paths |
+| PKG-01  | Phase 1 | Foundation — pyproject.toml + uv packaging |
 
 ---
 

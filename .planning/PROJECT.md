@@ -12,7 +12,9 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Call local Ollama model via REST API using only `requests` — Validated in Phase 2: LLM Integration
+- [x] Handle file-not-found and Ollama connection errors explicitly — Validated in Phase 2: LLM Integration
+- [x] System prompt preserves LaTeX structure, rewrites summary/skills/bullets, forbids hallucinated experiences — Validated in Phase 2: LLM Integration
 
 ### Active
 
@@ -75,4 +77,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-28 after initialization*
+*Last updated: 2026-05-28 after Phase 2: LLM Integration complete*

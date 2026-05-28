@@ -1,0 +1,8 @@
+{
+    "file_scan_exclusions": [
+        "__pycache__",
+        "**/.pytest_cache",
+        "**/*.pyc",
+        ".git"
+    ]
+}

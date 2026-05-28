@@ -28,14 +28,19 @@ key-files:
   created: []
   modified:
     - pyproject.toml
+  deviations:
+    - README.md added (required by hatchling build backend — not in plan)
 
 key-decisions:
   - "Project name set to 'resume-tailor' per decision D-02 (renamed from 'en-cv-ai-engineer')"
   - "hatchling chosen as build backend — PyPA-maintained, uv's default, approved in RESEARCH.md audit"
   - "requests pinned at >=2.32.0 to capture GHSA-9wx4-h78v-vm56 urllib3 CVE fix"
+  - "README.md added to satisfy hatchling build requirement (plan listed readme = README.md but did not create it)"
+
+requirements-completed: [PKG-01]
 
 # Metrics
-duration: 1min
+duration: 5min
 completed: 2026-05-28
 ---
 
@@ -48,8 +53,8 @@ completed: 2026-05-28
 - **Duration:** 1 min
 - **Started:** 2026-05-28T13:35:08Z
 - **Completed:** 2026-05-28T13:35:38Z
-- **Tasks:** 1 of 2 auto-executed (Task 2 is a human-verify checkpoint)
-- **Files modified:** 1
+- **Tasks:** 2 of 2 (Task 1: auto, Task 2: human-verify — APPROVED)
+- **Files modified:** 2 (pyproject.toml updated, README.md created)
 
 ## Accomplishments
 
@@ -66,10 +71,12 @@ completed: 2026-05-28
 Each task was committed atomically:
 
 1. **Task 1: Update pyproject.toml with build-system, scripts, and dependencies** - `1da7288` (feat)
+2. **Deviation: Add README.md required by hatchling** - `348913c` (docs)
 
 ## Files Created/Modified
 
 - `pyproject.toml` — Updated with all four required sections ([project], [project.scripts], [project.optional-dependencies], [build-system])
+- `README.md` — Created (deviation: required by hatchling build backend; plan referenced it but did not create it)
 
 ## Decisions Made
 
@@ -79,7 +86,14 @@ Each task was committed atomically:
 
 ## Deviations from Plan
 
-None — plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 3 - Blocking] Added README.md required by hatchling build backend**
+- **Found during:** Task 2 (human-verify checkpoint)
+- **Issue:** pyproject.toml declares `readme = "README.md"` but the file did not exist; hatchling refused to build without it
+- **Fix:** Added minimal README.md with project name and one-line description
+- **Files modified:** README.md (created)
+- **Commit:** 348913c
 
 ## Issues Encountered
 
@@ -87,29 +101,30 @@ None.
 
 ## Checkpoint Status
 
-**Task 2 (checkpoint:human-verify)** is pending human verification. The user must run:
+**Task 2 (checkpoint:human-verify) — APPROVED**
 
-1. `uv tool install .` — expected output: "Installed 1 executable: resume-tailor"
-2. `resume-tailor --help` — expected: usage message with "Tailor a LaTeX resume" and exit code 0
+Human verification completed:
 
-Until this checkpoint is approved, PKG-01 is not fully verified.
+1. `uv tool install .` — output: "Installed 1 executable: resume-tailor" (PASS)
+2. `resume-tailor --help` — showed usage message with "Tailor a LaTeX resume" (PASS)
+3. Exit code: 0 (PASS)
 
-## User Setup Required
-
-Run the following from `/workspace` to complete Phase 1 verification:
-
-```bash
-uv tool install .
-resume-tailor --help
-```
-
-Expected exit code: 0. Expected output includes: "resume-tailor" and "Tailor a LaTeX resume".
+PKG-01 is fully verified. Phase 1 is complete.
 
 ## Next Phase Readiness
 
-- pyproject.toml is now valid for `uv tool install .`
-- Phase 2 (llm_client.py) can begin immediately — it imports from `resume_tailor.config` which is already implemented
-- Phase 3 (cli.py full implementation) replaces the stub body while keeping the same entry point
+**Phase 1 is complete.** All five success criteria verified:
+
+1. `resume-tailor --help` (after `uv tool install .`) works — exit code 0, usage message shown (PASS)
+2. config.py constants are importable and paths are anchored via Path(__file__) (PASS)
+3. read_resume returns file content as string for valid .tex path (PASS)
+4. write_resume creates timestamped .tex under resumes/output/ (PASS)
+5. Missing resume file: prints stderr error, exits 1, no traceback (PASS)
+
+Phase 2 (llm_client.py) can begin immediately:
+- `from resume_tailor.config import OLLAMA_BASE_URL, OLLAMA_MODEL, TIMEOUT` resolves correctly
+- The `resume-tailor` shell command is registered and functional
+- Phase 3 (full cli.py) replaces the stub body while keeping the same entry point
 
 ---
 *Phase: 01-foundation*

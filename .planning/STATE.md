@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-05-28T13:32:13Z"
-last_activity: 2026-05-28 -- Phase 01 Plan 01 completed
+stopped_at: Phase 1 complete — all plans verified
+last_updated: "2026-05-28T13:40:22Z"
+last_activity: 2026-05-28 -- Phase 01 Plan 02 completed (Phase 1 complete)
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 25
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-05-28)
 
 ## Current Position
 
-Phase: 01 (foundation) — EXECUTING
-Plan: 2 of 2
-Status: Executing Phase 01 (Plan 01 complete)
-Last activity: 2026-05-28 -- Phase 01 Plan 01 completed
+Phase: 01 (foundation) — COMPLETE
+Plan: 2 of 2 (all plans complete)
+Status: Phase 01 complete — ready to begin Phase 02
+Last activity: 2026-05-28 -- Phase 01 Plan 02 completed; Phase 1 all success criteria verified
 
-Progress: [██░░░░░░░░] 25%
+Progress: [████░░░░░░] 50%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Recent decisions affecting current work:
 - OLLAMA_MODEL = 'mistral-small3.2:24b' — exact model string per D-03, single change point for model swaps
 - BASE_RESUME_PATH anchored via Path(__file__) — survives uv tool install (D-01, CONF-02)
 - cli.py Phase 1 stub created early so uv tool install can resolve the entry point before Phase 3
+- README.md required by hatchling build backend (plan referenced readme = README.md but did not create it; added as deviation Rule 3)
 
 ### Pending Todos
 
@@ -78,6 +79,7 @@ None yet.
 ### Completed Plans
 
 - Phase 01 / Plan 01 (01-01): resume_tailor package — config, reader, writer, cli stub (2026-05-28, 2 min)
+- Phase 01 / Plan 02 (01-02): pyproject.toml packaging — hatchling build, resume-tailor entry point, requests dep (2026-05-28, 5 min)
 
 ## Deferred Items
 
@@ -89,6 +91,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-28T13:32:13Z
-Stopped at: Completed Phase 01 Plan 01 (01-01-PLAN.md)
-Resume file: .planning/phases/01-foundation/01-02-PLAN.md
+Last session: 2026-05-28T13:40:22Z
+Stopped at: Completed Phase 01 Plan 02 (01-02-PLAN.md) — Phase 1 complete
+Resume file: None (Phase 1 complete — begin Phase 2 planning)

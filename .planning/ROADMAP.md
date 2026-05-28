@@ -13,7 +13,7 @@ Three phases deliver a working CLI tool: Phase 1 builds the pure file I/O founda
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Project scaffold, config, file I/O modules, and packaging — testable without Ollama
+- [x] **Phase 1: Foundation** - Project scaffold, config, file I/O modules, and packaging — testable without Ollama
 - [ ] **Phase 2: LLM Integration** - llm_client.py with Ollama health check, API call, all output safety guards
 - [ ] **Phase 3: CLI Wiring** - main.py orchestration, multiline JD input, progress message, end-to-end working tool
 
@@ -39,7 +39,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Update pyproject.toml with [build-system] + [project.scripts] + dependencies; verify `uv tool install .` registers the resume-tailor command (PKG-01)
+- [x] 01-02-PLAN.md — Update pyproject.toml with [build-system] + [project.scripts] + dependencies; verify `uv tool install .` registers the resume-tailor command (PKG-01)
 
 ### Phase 2: LLM Integration
 
@@ -76,6 +76,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/2 | In progress | - |
+| 1. Foundation | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | 0/TBD | Not started | - |
 | 3. CLI Wiring | 0/TBD | Not started | - |

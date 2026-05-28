@@ -31,7 +31,7 @@
 
 ### Packaging
 
-- [ ] **PKG-01**: Project is packaged with `pyproject.toml` + `uv`; installable as a `resume-tailor` shell command via `uv tool install .`
+- [x] **PKG-01**: Project is packaged with `pyproject.toml` + `uv`; installable as a `resume-tailor` shell command via `uv tool install .`
 
 ---
 

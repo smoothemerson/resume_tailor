@@ -1,6 +1,6 @@
 from pathlib import Path
 
-_ROOT = Path(__file__).parent          # project root
+_ROOT = Path(__file__).parent.parent   # project root (src/ → project root)
 
 OLLAMA_BASE_URL: str = "http://localhost:11434"
 OLLAMA_MODEL: str = "mistral-small3.2:24b"

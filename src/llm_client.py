@@ -42,15 +42,15 @@ def _build_messages(resume_text: str, job_description: str) -> list[dict]:
 
 def _strip_fences(text: str) -> str:
     text = text.strip()
-    text = re.sub(r"^```\w*\n?", "", text)
+    text = re.sub(r"^```\s*\w*\s*\n?", "", text)
     text = re.sub(r"\n?```$", "", text)
     return text.strip()
 
 
 def _validate_latex(text: str) -> str:
-    if "\\documentclass" not in text:
+    if not text.lstrip().startswith("\\documentclass"):
         raise ValueError(
-            "LLM response does not contain \\documentclass — output is not valid LaTeX."
+            "LLM response does not start with \\documentclass — output is not valid LaTeX."
         )
     if "\\end{document}" not in text:
         raise ValueError(
@@ -89,7 +89,12 @@ def generate_tailored_resume(resume_text: str, job_description: str) -> str:
         logger.error(f"Ollama returned HTTP error: {exc}")
         raise RuntimeError(f"Ollama returned HTTP error: {exc}") from exc
 
-    data = response.json()
+    try:
+        data = response.json()
+    except requests.exceptions.JSONDecodeError as exc:
+        raise RuntimeError(
+            f"Ollama returned non-JSON response: {response.text[:200]}"
+        ) from exc
 
     if data.get("done_reason") == "length":
         raise RuntimeError(
@@ -97,7 +102,12 @@ def generate_tailored_resume(resume_text: str, job_description: str) -> str:
             "The resume may be too long for the model context window."
         )
 
-    content = data["message"]["content"]
+    try:
+        content = data["message"]["content"]
+    except KeyError as exc:
+        raise RuntimeError(
+            f"Unexpected Ollama response structure: {data}"
+        ) from exc
     content = _strip_fences(content)
     content = _validate_latex(content)
 

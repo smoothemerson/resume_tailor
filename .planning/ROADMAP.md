@@ -32,7 +32,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Given LaTeX content, the writer creates a timestamped `.tex` file under `resumes/output/` (creating the directory if it does not exist)
   5. If the base resume file is missing, the tool prints a human-readable error to stderr and exits with code 1 — no raw traceback
 
-**Plans**: 2 plansPlans:
+**Plans**: 2 plans
+
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Create resume_tailor package: config.py (D-01/D-02/D-03), resume_reader.py (CORE-01/ERR-01), resume_writer.py (CORE-05), __init__.py, cli.py stub
@@ -54,7 +55,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. If the response does not contain `\documentclass` and `\end{document}`, the function raises an error and no file is written
   5. If `done_reason` is `"length"`, the function aborts with a clear truncation error and no file is written
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Create src/llm_client.py: Ollama health check (ERR-03), /api/chat call (CORE-04), fence stripping (QUAL-01), LaTeX validation (QUAL-02), done_reason check (QUAL-03), XML delimiter wrapping (QUAL-04), exception handling (ERR-02)
 
 ### Phase 3: CLI Wiring
 
@@ -77,5 +82,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-05-28 |
-| 2. LLM Integration | 0/TBD | Not started | - |
+| 2. LLM Integration | 0/1 | Not started | - |
 | 3. CLI Wiring | 0/TBD | Not started | - |

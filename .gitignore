@@ -2,3 +2,4 @@
 .venv
 uv.lock
 resumes/
+.claude/settings.local.json

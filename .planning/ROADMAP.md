@@ -28,7 +28,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Given a valid `.tex` file path, the reader returns the file content as a string
   4. Given LaTeX content, the writer creates a timestamped `.tex` file under `resumes/output/` (creating the directory if it does not exist)
   5. If the base resume file is missing, the tool prints a human-readable error to stderr and exits with code 1 — no raw traceback
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Create resume_tailor package: config.py (D-01/D-02/D-03), resume_reader.py (CORE-01/ERR-01), resume_writer.py (CORE-05), __init__.py, cli.py stub
+- [ ] 01-02-PLAN.md — Update pyproject.toml with [build-system] + [project.scripts] + dependencies; verify `uv tool install .` registers the resume-tailor command (PKG-01)
 
 ### Phase 2: LLM Integration
 **Goal**: llm_client.py can call Ollama, validate its response, and return safe LaTeX content — or fail with a clear error
@@ -59,6 +62,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/2 | Not started | - |
 | 2. LLM Integration | 0/TBD | Not started | - |
 | 3. CLI Wiring | 0/TBD | Not started | - |

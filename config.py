@@ -1,7 +1,6 @@
 from pathlib import Path
 
-_HERE = Path(__file__).parent          # resume_tailor/
-_ROOT = _HERE.parent                   # project root (works after uv tool install)
+_ROOT = Path(__file__).parent          # project root
 
 OLLAMA_BASE_URL: str = "http://localhost:11434"
 OLLAMA_MODEL: str = "mistral-small3.2:24b"

@@ -1,0 +1,17 @@
+[project]
+name = "resume-tailor"
+version = "0.1.0"
+description = "Tailor a LaTeX resume to a job description using a local Ollama LLM"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = ["requests>=2.32.0"]
+
+[project.scripts]
+resume-tailor = "resume_tailor.cli:main"
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

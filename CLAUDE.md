@@ -74,7 +74,7 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
-Conventions not yet established. Will populate as patterns emerge during development.
+- **No comments or docstrings** — no inline comments, no module-level comments, no function docstrings. Names and types are sufficient documentation.
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->

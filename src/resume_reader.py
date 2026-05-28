@@ -1,9 +1,8 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def read_resume(path: Path) -> str:
-    """Read the base resume LaTeX file and return its content as a string."""
     try:
         return path.read_text(encoding="utf-8")
     except FileNotFoundError:

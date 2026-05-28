@@ -14,7 +14,7 @@ Three phases deliver a working CLI tool: Phase 1 builds the pure file I/O founda
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffold, config, file I/O modules, and packaging — testable without Ollama
-- [ ] **Phase 2: LLM Integration** - llm_client.py with Ollama health check, API call, all output safety guards
+- [x] **Phase 2: LLM Integration** - llm_client.py with Ollama health check, API call, all output safety guards (completed 2026-05-28)
 - [ ] **Phase 3: CLI Wiring** - main.py orchestration, multiline JD input, progress message, end-to-end working tool
 
 ## Phase Details
@@ -59,7 +59,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Create src/llm_client.py: Ollama health check (ERR-03), /api/chat call (CORE-04), fence stripping (QUAL-01), LaTeX validation (QUAL-02), done_reason check (QUAL-03), XML delimiter wrapping (QUAL-04), exception handling (ERR-02)
+- [x] 02-01-PLAN.md — Create src/llm_client.py: Ollama health check (ERR-03), /api/chat call (CORE-04), fence stripping (QUAL-01), LaTeX validation (QUAL-02), done_reason check (QUAL-03), XML delimiter wrapping (QUAL-04), exception handling (ERR-02)
 
 ### Phase 3: CLI Wiring
 
@@ -82,5 +82,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-05-28 |
-| 2. LLM Integration | 0/1 | Not started | - |
+| 2. LLM Integration | 1/1 | Complete   | 2026-05-28 |
 | 3. CLI Wiring | 0/TBD | Not started | - |

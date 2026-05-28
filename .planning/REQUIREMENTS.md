@@ -7,22 +7,22 @@
 - [x] **CORE-01**: User can run the CLI tool that reads the base LaTeX resume from a configurable path in `config.py`
 - [ ] **CORE-02**: User can input a multiline job description via terminal prompt (type END on a new line to submit); EOFError treated as submission
 - [ ] **CORE-03**: User sees a progress message before the LLM call starts (so the tool does not appear frozen during cold model load)
-- [ ] **CORE-04**: Tool calls Ollama `/api/chat` (non-streaming) with `num_ctx: 8192`, `timeout=(10, 300)`, and role-separated system/user messages
+- [x] **CORE-04**: Tool calls Ollama `/api/chat` (non-streaming) with `num_ctx: 8192`, `timeout=(10, 300)`, and role-separated system/user messages
 - [x] **CORE-05**: Tool writes the tailored LaTeX output to `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex` (directory created if missing)
 - [ ] **CORE-06**: Tool prints a success message with the full output file path on completion
 
 ### Output Quality & Safety
 
-- [ ] **QUAL-01**: LLM response is unconditionally stripped of markdown code fences before any further processing (do not rely on prompt alone)
-- [ ] **QUAL-02**: Output is validated in memory for `\documentclass` presence and `\end{document}` termination before writing to disk
-- [ ] **QUAL-03**: `done_reason` field in Ollama response is checked; if `"length"`, abort with a clear error message (do not write truncated output)
-- [ ] **QUAL-04**: Job description is wrapped in `<job_description>...</job_description>` XML delimiters in the prompt to prevent LaTeX special characters (`$`, `%`, `&`, `_`) from corrupting the LaTeX context
+- [x] **QUAL-01**: LLM response is unconditionally stripped of markdown code fences before any further processing (do not rely on prompt alone)
+- [x] **QUAL-02**: Output is validated in memory for `\documentclass` presence and `\end{document}` termination before writing to disk
+- [x] **QUAL-03**: `done_reason` field in Ollama response is checked; if `"length"`, abort with a clear error message (do not write truncated output)
+- [x] **QUAL-04**: Job description is wrapped in `<job_description>...</job_description>` XML delimiters in the prompt to prevent LaTeX special characters (`$`, `%`, `&`, `_`) from corrupting the LaTeX context
 
 ### Error Handling
 
 - [x] **ERR-01**: If base resume file is not found, tool prints a human-readable error to stderr and exits with code 1
-- [ ] **ERR-02**: If Ollama connection fails or times out, tool prints a human-readable error to stderr and exits with code 1 (no raw traceback)
-- [ ] **ERR-03**: Tool performs an Ollama health check at startup (`GET /api/tags`) and fails fast with a clear message if Ollama is not reachable
+- [x] **ERR-02**: If Ollama connection fails or times out, tool prints a human-readable error to stderr and exits with code 1 (no raw traceback)
+- [x] **ERR-03**: Tool performs an Ollama health check at startup (`GET /api/tags`) and fails fast with a clear message if Ollama is not reachable
 
 ### Configuration
 

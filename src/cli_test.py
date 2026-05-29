@@ -71,8 +71,45 @@ class TestErrorHandling(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 1)
 
+    @patch("sys.argv", ["resume-tailor"])
+    @patch("cli.generate_tailored_resume")
+    @patch("cli.read_resume")
+    @patch("builtins.input")
+    def test_value_error_from_llm_exits_1(self, mock_input, mock_read, mock_generate):
+        mock_input.side_effect = ["Senior ML Engineer role", "END"]
+        mock_read.return_value = "resume text"
+        mock_generate.side_effect = ValueError("Invalid LaTeX output")
+
+        with self.assertRaises(SystemExit) as cm:
+            with patch("builtins.print"):
+                main()
+
+        self.assertEqual(cm.exception.code, 1)
+
 
 class TestSuccessPath(unittest.TestCase):
+    @patch("sys.argv", ["resume-tailor"])
+    @patch("cli.write_resume")
+    @patch("cli.generate_tailored_resume")
+    @patch("cli.read_resume")
+    @patch("builtins.input")
+    def test_progress_message_printed(self, mock_input, mock_read, mock_generate, mock_write):
+        mock_input.side_effect = ["Software Engineer job", "END"]
+        mock_read.return_value = "resume text"
+        mock_generate.return_value = "\\documentclass{article}\n\\end{document}"
+        output_path = MagicMock()
+        output_path.resolve.return_value = Path("/tmp/tailored_resume_20260529.tex")
+        mock_write.return_value = output_path
+
+        printed_lines = []
+        with patch("builtins.print", side_effect=lambda *a, **kw: printed_lines.append(a[0] if a else "")):
+            main()
+
+        self.assertTrue(
+            any("Tailoring resume" in line for line in printed_lines),
+            f"Expected progress message containing 'Tailoring resume' in print calls, got: {printed_lines}",
+        )
+
     @patch("sys.argv", ["resume-tailor"])
     @patch("cli.write_resume")
     @patch("cli.generate_tailored_resume")

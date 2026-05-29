@@ -3,17 +3,14 @@ import re
 import requests
 
 from config import OLLAMA_BASE_URL, OLLAMA_MODEL, TIMEOUT
-from log_manager import logger
 
 
 def _check_ollama_health() -> None:
     try:
         requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=TIMEOUT[0])
     except requests.ConnectionError as exc:
-        logger.error(f"Ollama is not reachable at {OLLAMA_BASE_URL}")
         raise RuntimeError(f"Ollama is not reachable at {OLLAMA_BASE_URL}") from exc
     except requests.Timeout as exc:
-        logger.error("Ollama health check timed out")
         raise RuntimeError("Ollama health check timed out") from exc
 
 
@@ -59,19 +56,18 @@ def _validate_latex(text: str) -> str:
     return text
 
 
-def generate_tailored_resume(resume_text: str, job_description: str) -> str:
-    logger.info("Checking Ollama health...")
+def generate_tailored_resume(resume_text: str, job_description: str, model: str | None = None) -> str:
+    effective_model = model or OLLAMA_MODEL
     _check_ollama_health()
 
     messages = _build_messages(resume_text, job_description)
     payload = {
-        "model": OLLAMA_MODEL,
+        "model": effective_model,
         "messages": messages,
         "stream": False,
         "options": {"num_ctx": 8192},
     }
 
-    logger.info(f"Calling Ollama /api/chat with model {OLLAMA_MODEL}")
     try:
         response = requests.post(
             f"{OLLAMA_BASE_URL}/api/chat",
@@ -80,13 +76,10 @@ def generate_tailored_resume(resume_text: str, job_description: str) -> str:
         )
         response.raise_for_status()
     except requests.ConnectionError as exc:
-        logger.error(f"Cannot connect to Ollama at {OLLAMA_BASE_URL}")
         raise RuntimeError(f"Cannot connect to Ollama at {OLLAMA_BASE_URL}") from exc
     except requests.Timeout as exc:
-        logger.error(f"Ollama request timed out (timeout={TIMEOUT})")
         raise RuntimeError(f"Ollama request timed out (timeout={TIMEOUT})") from exc
     except requests.HTTPError as exc:
-        logger.error(f"Ollama returned HTTP error: {exc}")
         raise RuntimeError(f"Ollama returned HTTP error: {exc}") from exc
 
     try:
@@ -109,7 +102,4 @@ def generate_tailored_resume(resume_text: str, job_description: str) -> str:
             f"Unexpected Ollama response structure: {data}"
         ) from exc
     content = _strip_fences(content)
-    content = _validate_latex(content)
-
-    logger.info("LLM response validated successfully.")
-    return content
+    return _validate_latex(content)

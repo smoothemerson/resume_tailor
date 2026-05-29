@@ -72,7 +72,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. After job description submission, a progress message appears before the LLM call starts so the terminal does not appear frozen
   3. On success, the tool prints the full absolute path of the written `.tex` file and exits with code 0
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Implement cli.py:main() with banner (D-04), multiline input loop (D-05), progress message (D-08), try/except orchestration (D-01/D-02), success path (CORE-06); create cli_test.py
 
 ## Progress
 
@@ -83,4 +87,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-05-28 |
 | 2. LLM Integration | 1/1 | Complete    | 2026-05-28 |
-| 3. CLI Wiring | 0/TBD | Not started | - |
+| 3. CLI Wiring | 0/1 | Not started | - |

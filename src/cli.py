@@ -1,5 +1,6 @@
 import argparse
 import sys
+from pathlib import Path
 
 from config import BASE_RESUME_PATH, OUTPUT_DIR
 from llm_client import generate_tailored_resume
@@ -12,7 +13,13 @@ def main() -> None:
         prog="resume-tailor",
         description="Tailor a LaTeX resume to a job description using a local Ollama LLM.",
     )
-    parser.parse_args()
+    parser.add_argument("--model", default=None, help="Ollama model name (overrides config)")
+    parser.add_argument("--resume", type=Path, default=None, help="Path to base .tex resume file")
+    parser.add_argument("--output-dir", type=Path, default=None, help="Directory for output files")
+    args = parser.parse_args()
+
+    resume_path = args.resume or BASE_RESUME_PATH
+    output_dir = args.output_dir or OUTPUT_DIR
 
     print("Resume Tailor")
     print("Paste the job description below. Type END on a new line to submit.")
@@ -38,10 +45,10 @@ def main() -> None:
     print("Tailoring resume — this may take a minute...", flush=True)
 
     try:
-        resume_text = read_resume(BASE_RESUME_PATH)
-        content = generate_tailored_resume(resume_text, job_description)
-        output_path = write_resume(content, OUTPUT_DIR)
-    except (RuntimeError, ValueError) as e:
+        resume_text = read_resume(resume_path)
+        content = generate_tailored_resume(resume_text, job_description, model=args.model)
+        output_path = write_resume(content, output_dir)
+    except (RuntimeError, ValueError, FileNotFoundError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 

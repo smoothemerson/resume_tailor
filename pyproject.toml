@@ -15,6 +15,14 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 sources = ["src"]
+include = [
+    "src/cli.py",
+    "src/config.py",
+    "src/llm_client.py",
+    "src/log_manager.py",
+    "src/resume_reader.py",
+    "src/resume_writer.py",
+]
 
 [dependency-groups]
 dev = [

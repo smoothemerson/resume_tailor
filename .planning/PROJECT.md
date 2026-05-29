@@ -15,17 +15,15 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Call local Ollama model via REST API using only `requests` — Validated in Phase 2: LLM Integration
 - [x] Handle file-not-found and Ollama connection errors explicitly — Validated in Phase 2: LLM Integration
 - [x] System prompt preserves LaTeX structure, rewrites summary/skills/bullets, forbids hallucinated experiences — Validated in Phase 2: LLM Integration
+- [x] Accept multiline job description via terminal (END/EOF to submit) — Validated in Phase 3: CLI Wiring
+- [x] Print progress message before LLM call, success message with absolute path on completion — Validated in Phase 3: CLI Wiring
+- [x] RuntimeError/ValueError from LLM client caught at CLI boundary, printed to stderr, exit 1, no traceback — Validated in Phase 3: CLI Wiring
+- [x] Read base resume from configurable .tex file path via config.py — Validated in Phase 3: CLI Wiring
+- [x] Write tailored output to timestamped .tex file — Validated in Phase 3: CLI Wiring
 
 ### Active
 
-- [ ] Read base resume from a configurable .tex file path
-- [ ] Accept multiline job description via terminal (END to submit)
-- [ ] Call local Ollama model via REST API using only `requests`
-- [ ] System prompt preserves LaTeX structure, rewrites summary/skills/bullets, forbids hallucinated experiences
-- [ ] Write tailored output to `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex`
-- [ ] Print success message with output file path
-- [ ] Handle file-not-found and Ollama connection errors explicitly
-- [ ] Model and paths configurable via `config.py` without touching other files
+_(No active requirements — all core requirements validated through Phase 3)_
 
 ### Out of Scope
 
@@ -77,4 +75,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-28 after Phase 2: LLM Integration complete*
+*Last updated: 2026-05-29 after Phase 3: CLI Wiring complete — all core requirements validated, tool end-to-end functional*

@@ -9,6 +9,7 @@ from cli import main
 
 
 class TestInputLoop(unittest.TestCase):
+    @patch("sys.argv", ["resume-tailor"])
     @patch("cli.write_resume")
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
@@ -26,6 +27,7 @@ class TestInputLoop(unittest.TestCase):
         self.assertIn("line one", call_args[0][1])
         self.assertIn("line two", call_args[0][1])
 
+    @patch("sys.argv", ["resume-tailor"])
     @patch("cli.write_resume")
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
@@ -41,6 +43,7 @@ class TestInputLoop(unittest.TestCase):
 
         mock_generate.assert_called_once()
 
+    @patch("sys.argv", ["resume-tailor"])
     @patch("builtins.input")
     def test_empty_jd_exits_1(self, mock_input):
         mock_input.side_effect = ["END"]
@@ -53,6 +56,7 @@ class TestInputLoop(unittest.TestCase):
 
 
 class TestErrorHandling(unittest.TestCase):
+    @patch("sys.argv", ["resume-tailor"])
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
@@ -69,6 +73,7 @@ class TestErrorHandling(unittest.TestCase):
 
 
 class TestSuccessPath(unittest.TestCase):
+    @patch("sys.argv", ["resume-tailor"])
     @patch("cli.write_resume")
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")

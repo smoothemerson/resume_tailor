@@ -5,11 +5,11 @@
 ### Core Flow
 
 - [x] **CORE-01**: User can run the CLI tool that reads the base LaTeX resume from a configurable path in `config.py`
-- [ ] **CORE-02**: User can input a multiline job description via terminal prompt (type END on a new line to submit); EOFError treated as submission
-- [ ] **CORE-03**: User sees a progress message before the LLM call starts (so the tool does not appear frozen during cold model load)
+- [x] **CORE-02**: User can input a multiline job description via terminal prompt (type END on a new line to submit); EOFError treated as submission
+- [x] **CORE-03**: User sees a progress message before the LLM call starts (so the tool does not appear frozen during cold model load)
 - [x] **CORE-04**: Tool calls Ollama `/api/chat` (non-streaming) with `num_ctx: 8192`, `timeout=(10, 300)`, and role-separated system/user messages
 - [x] **CORE-05**: Tool writes the tailored LaTeX output to `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex` (directory created if missing)
-- [ ] **CORE-06**: Tool prints a success message with the full output file path on completion
+- [x] **CORE-06**: Tool prints a success message with the full output file path on completion
 
 ### Output Quality & Safety
 

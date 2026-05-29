@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffold, config, file I/O modules, and packaging — testable without Ollama
 - [x] **Phase 2: LLM Integration** - llm_client.py with Ollama health check, API call, all output safety guards (completed 2026-05-28)
-- [ ] **Phase 3: CLI Wiring** - main.py orchestration, multiline JD input, progress message, end-to-end working tool
+- [x] **Phase 3: CLI Wiring** - main.py orchestration, multiline JD input, progress message, end-to-end working tool (completed 2026-05-29)
 
 ## Phase Details
 
@@ -76,7 +76,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Implement cli.py:main() with banner (D-04), multiline input loop (D-05), progress message (D-08), try/except orchestration (D-01/D-02), success path (CORE-06); create cli_test.py
+- [x] 03-01-PLAN.md — Implement cli.py:main() with banner (D-04), multiline input loop (D-05), progress message (D-08), try/except orchestration (D-01/D-02), success path (CORE-06); create cli_test.py
 
 ## Progress
 
@@ -87,4 +87,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete    | 2026-05-28 |
 | 2. LLM Integration | 1/1 | Complete    | 2026-05-28 |
-| 3. CLI Wiring | 0/1 | Not started | - |
+| 3. CLI Wiring | 1/1 | Complete   | 2026-05-29 |

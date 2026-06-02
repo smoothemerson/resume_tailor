@@ -1,4 +1,265 @@
-# Stack Research
+# Test Stack — Resume Tailor CLI v1.2
+
+**Project:** resume-tailor
+**Milestone:** v1.2 Test Coverage
+**Researched:** 2026-06-02
+**Confidence:** HIGH (all choices verified against pytest 9.0.3 docs, Context7, and PyPI)
+
+---
+
+## Recommended Additions
+
+| Tool | Version | Rationale |
+|------|---------|-----------|
+| pytest | >=9.0.3 (already installed) | Already in `[dependency-groups] dev`. No upgrade needed. Runs unittest.TestCase natively. |
+| pytest-subprocess | 1.6.0 (conditional) | Fakes `subprocess.Popen` for e2e tests needing isolated subprocess mocking. Latest release May 2026, Python 3.6-3.15 compatible. **Add only if a CI environment without Ollama needs full e2e mocking.** For this milestone (real Ollama required for e2e), stdlib `subprocess.run` is sufficient and this dep should be omitted. |
+
+**Net new dependencies for the minimum viable test pyramid: zero.** pytest 9.0.3 is already installed and ships `tmp_path`, `monkeypatch`, `pytest.mark.skipif`, and `pytest.skip()` — everything needed for all three test layers.
+
+---
+
+## What NOT to Add (and Why)
+
+| Tool | Why Not |
+|------|---------|
+| `pytest-subprocess` (default) | Only add if CI must run e2e tests without Ollama. The v1.2 plan calls for real Ollama in e2e. Mocking the subprocess defeats the purpose of an e2e test. Revisit at v1.3 if headless CI is needed. |
+| `responses` / `httpretty` / `respx` | HTTP mocking libraries. The existing `unittest.mock.patch` on `requests.get` / `requests.post` already works for all 11 unit tests. stdlib `unittest.mock` is sufficient; no HTTP interceptor library needed. |
+| `pytest-httpx` | Requires switching HTTP client from `requests` to `httpx`. Direct conflict with the stdlib+requests constraint. |
+| `pytest-asyncio` | The codebase is synchronous end-to-end. Zero async code. |
+| `pytest-cov` / `coverage` | Out of scope for v1.2 (structural test pyramid, not coverage reporting). Add in a future milestone if coverage gates are desired. |
+| `click.testing.CliRunner` | Applicable only to Click-based CLIs. This CLI uses `argparse` + `sys.stdin`. Not applicable. |
+| `pytester` | pytest's built-in plugin for testing pytest plugins. Not application testing. Overkill here. |
+| `factory_boy` / `faker` | No complex domain objects. All fixtures are strings and `Path` objects — Python literals are sufficient. |
+| `pytest-docker` | Overkill. Ollama already runs locally; no container orchestration needed. |
+| Any third-party mock library | `unittest.mock` ships with Python 3.3+, is already used in all 18 existing tests, and covers every mocking need in this codebase. |
+
+---
+
+## unittest vs pytest Style Migration Decision
+
+**Decision: Keep existing unittest.TestCase tests as-is. Write all new tests in pytest function style.**
+
+Rationale:
+- pytest 9.x runs `unittest.TestCase` subclasses natively with full discovery; no configuration change needed.
+- The 18 existing tests use `@patch` decorators which are bound to `TestCase` methods. Migrating them to pytest-style would require rewriting `self.assertRaises` to `pytest.raises`, `self.assertEqual` to plain `assert`, and all `@patch` decorators to `monkeypatch` fixture calls — significant churn with zero behavioral benefit.
+- New tests (unit for `_build_messages`, `read_resume`, `write_resume`, `_check_ollama_health`; integration; e2e) should be written in pytest function style to leverage `tmp_path`, `monkeypatch`, and fixture composition cleanly.
+- This creates a mixed codebase (unittest-style in `src/`, pytest-style in `tests/`), which is explicitly supported and documented by pytest.
+- **Rule:** existing tests stay; all new tests use pytest functions.
+
+---
+
+## E2E Subprocess Pattern
+
+**Decision: Use `subprocess.run` directly. Do not add `pytest-subprocess`.**
+
+The correct e2e pattern — invoking the real CLI entry point via subprocess with real Ollama:
+
+```python
+# tests/e2e/test_cli_e2e.py
+import re
+import subprocess
+import sys
+from pathlib import Path
+import pytest
+
+@pytest.mark.e2e
+def test_golden_path(ollama_health, tmp_path):
+    if not ollama_health:
+        pytest.skip("Ollama not reachable")
+    result = subprocess.run(
+        [sys.executable, "-m", "cli", "--output-dir", str(tmp_path)],
+        input="Senior ML Engineer role\nEND\n",
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent.parent / "src",
+    )
+    assert result.returncode == 0
+    tex_files = list(tmp_path.glob("tailored_resume_*.tex"))
+    assert len(tex_files) == 1
+    assert re.match(r"tailored_resume_\d{8}_\d{6}\.tex", tex_files[0].name)
+
+@pytest.mark.e2e
+def test_ollama_unreachable_exits_1(tmp_path, monkeypatch):
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://localhost:19999")
+    result = subprocess.run(
+        [sys.executable, "-m", "cli", "--output-dir", str(tmp_path)],
+        input="Some job\nEND\n",
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent.parent / "src",
+    )
+    assert result.returncode == 1
+    assert "stderr" or result.stderr  # error message emitted
+```
+
+`pytest-subprocess` is the right tool when faking subprocesses for isolation. For this project, e2e tests exist specifically to confirm real end-to-end behavior with Ollama. Faking the subprocess invocation defeats that purpose.
+
+---
+
+## Integration Test Skip Pattern
+
+**Decision: Session-scoped fixture returning a boolean; `pytest.skip()` inside each test body.**
+
+`@pytest.mark.skipif` evaluates at collection time — it cannot make a live HTTP call. `pytest.skip()` inside a test body (or inside a fixture) fires at execution time, which is required for service availability checks.
+
+```python
+# tests/conftest.py
+import pytest
+import requests as _requests
+
+@pytest.fixture(scope="session")
+def ollama_health() -> bool:
+    try:
+        r = _requests.get("http://localhost:11434/api/tags", timeout=3)
+        return r.status_code == 200
+    except Exception:
+        return False
+```
+
+```python
+# tests/integration/test_ollama_integration.py
+import pytest
+from llm_client import _check_ollama_health, generate_tailored_resume
+
+@pytest.mark.integration
+def test_health_check_succeeds(ollama_health):
+    if not ollama_health:
+        pytest.skip("Ollama not reachable — skipping integration test")
+    _check_ollama_health()  # must not raise
+
+@pytest.mark.integration
+def test_generate_returns_valid_latex(ollama_health):
+    if not ollama_health:
+        pytest.skip("Ollama not reachable — skipping integration test")
+    result = generate_tailored_resume(
+        "\\documentclass{article}\\begin{document}\\end{document}",
+        "Software engineer with Python skills"
+    )
+    assert result.strip().startswith("\\documentclass")
+    assert "\\end{document}" in result
+```
+
+The `ollama_health` fixture is `scope="session"` so the HTTP probe runs once per test run, not per test. The boolean return is clean — no magic, no autouse complexity.
+
+---
+
+## pytest Configuration
+
+Add to `/workspace/pyproject.toml` under `[tool.pytest.ini_options]`:
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests", "src"]
+pythonpath = ["src"]
+addopts = ["--strict-markers", "-ra"]
+markers = [
+    "unit: fast isolated tests with all I/O mocked",
+    "integration: tests hitting real Ollama HTTP API (requires Ollama running)",
+    "e2e: full subprocess CLI invocation with real Ollama (requires Ollama running)",
+]
+```
+
+Notes on each option:
+- `testpaths = ["tests", "src"]` — discovers both the new `tests/` tree and the existing `src/*_test.py` files without moving them.
+- `pythonpath = ["src"]` — adds `src/` to `sys.path` so `from llm_client import ...` in `tests/` resolves without `sys.path.insert` hacks. The existing `sys.path.insert` in `src/*_test.py` stays harmless but redundant.
+- `--strict-markers` — any unregistered marker causes a collection error, catching typos immediately.
+- `-ra` — shows a short summary of all non-passing tests (skipped, xfailed, errors) after each run. Essential when integration/e2e tests skip conditionally; without it, conditional skips are silent.
+- Three markers match the three test pyramid layers exactly.
+
+---
+
+## Test Directory Layout
+
+```
+/workspace/
+├── pyproject.toml                      # add [tool.pytest.ini_options] here
+├── src/
+│   ├── cli.py
+│   ├── cli_test.py                     # existing — keep in place; discovered via testpaths
+│   ├── config.py
+│   ├── llm_client.py
+│   ├── llm_client_test.py              # existing — keep in place; discovered via testpaths
+│   ├── log_manager.py
+│   ├── resume_reader.py
+│   └── resume_writer.py
+└── tests/
+    ├── conftest.py                     # shared ollama_health session fixture
+    ├── unit/
+    │   ├── __init__.py
+    │   ├── test_build_messages.py      # _build_messages() XML shape and role structure
+    │   ├── test_check_health.py        # _check_ollama_health() in isolation (mocked requests)
+    │   ├── test_resume_reader.py       # read_resume() with tmp_path, FileNotFoundError
+    │   └── test_resume_writer.py       # write_resume() with tmp_path, timestamp filename regex
+    ├── integration/
+    │   ├── __init__.py
+    │   └── test_ollama_integration.py  # real health check + real generate call
+    └── e2e/
+        ├── __init__.py
+        └── test_cli_e2e.py             # subprocess.run CLI invocation, exit codes, file output
+```
+
+Rationale for layout decisions:
+- **Existing `src/*_test.py` files stay.** Moving them is out-of-scope churn. `testpaths = ["tests", "src"]` picks them up automatically.
+- **Separate `tests/unit/`, `tests/integration/`, `tests/e2e/`** — enables `pytest tests/unit` for fast CI, `pytest tests/integration` for Ollama-dependent runs, and `pytest -m "not integration and not e2e"` to exclude slow/live tests from a dev loop.
+- **`tests/conftest.py` at tests root** — the `ollama_health` fixture is shared by both integration and e2e layers, so it belongs at `tests/` root, not nested inside either subdirectory.
+- **`__init__.py` in each test directory** — prevents import collisions when two test files in different directories share a name. With `importlib` import mode this matters less, but explicit `__init__.py` files are the safer baseline and explicit about directory boundaries.
+
+---
+
+## Running Tests by Layer
+
+```bash
+# Fast unit tests only (no Ollama required)
+uv run pytest tests/unit src/ -m "not integration and not e2e"
+
+# All unit tests including existing src/ tests
+uv run pytest src/ tests/unit
+
+# Integration tests (requires Ollama running)
+uv run pytest tests/integration -m integration -v
+
+# E2E tests (requires Ollama running)
+uv run pytest tests/e2e -m e2e -v
+
+# Full pyramid (skips integration/e2e if Ollama is down)
+uv run pytest
+
+# Legacy: existing src tests only
+uv run pytest src/
+```
+
+---
+
+## Confidence Assessment
+
+| Area | Confidence | Basis |
+|------|------------|-------|
+| pytest 9.x unittest compatibility | HIGH | Official pytest docs (Context7 verified), installed version confirmed |
+| `tmp_path` / `monkeypatch` stdlib fixtures | HIGH | Core pytest fixtures, stable since pytest 4.x |
+| `pytest.skip()` inside fixture/test vs decorator | HIGH | Official docs explicit on collection-time vs execution-time evaluation |
+| `[tool.pytest.ini_options]` in pyproject.toml | HIGH | Supported since pytest 6.0; current docs confirm |
+| `--strict-markers` + `markers =` in pyproject.toml | HIGH | Verified in pytest docs (Context7 fetched), stable feature |
+| `testpaths` + `pythonpath` config | HIGH | Official goodpractices.html, confirmed pattern |
+| `pytest-subprocess` 1.6.0 | MEDIUM | PyPI verified (May 2026 release); not added by default |
+| `subprocess.run` for e2e invocation | HIGH | stdlib, no surprises; correct choice when real process needed |
+
+---
+
+## Sources
+
+- pytest good practices (testpaths, pythonpath, src layout): https://docs.pytest.org/en/stable/explanation/goodpractices.html
+- pytest skip/skipif patterns: https://docs.pytest.org/en/stable/how-to/skipping.html
+- pytest markers (strict_markers, ini_options): fetched via Context7 `/pytest-dev/pytest`
+- pytest unittest compatibility: fetched via Context7 `/pytest-dev/pytest`
+- pytest-subprocess PyPI: https://pypi.org/project/pytest-subprocess/ (v1.6.0, May 2026)
+- Subprocess server fixture pattern: https://til.simonwillison.net/pytest/subprocess-server
+- pytest configuration reference: https://docs.pytest.org/en/stable/reference/customize.html
+
+---
+
+---
+
+# Stack Research — v1.1 (archived reference)
 
 **Project:** Resume Tailor CLI
 **Researched:** 2026-06-02
@@ -199,7 +460,7 @@ All decisions from v1.0 STACK.md hold. The additions above layer onto the existi
 
 ---
 
-## Alternatives Considered
+## Alternatives Considered (v1.1)
 
 | Recommended | Alternative | Why Not |
 |-------------|-------------|---------|
@@ -226,7 +487,7 @@ All decisions from v1.0 STACK.md hold. The additions above layer onto the existi
 
 ---
 
-## Dependency Surface (unchanged)
+## Dependency Surface (unchanged through v1.1 and v1.2)
 
 ```
 # pyproject.toml [project.dependencies]
@@ -238,28 +499,13 @@ ruff
 mypy
 ```
 
-Total runtime dependencies: **1**. v1.1 adds zero new runtime deps.
+Total runtime dependencies: **1**. v1.1 and v1.2 both add zero new runtime deps.
 
 ---
 
-## Confidence Assessment
+## Sources (v1.1)
 
-| Area | Level | Basis |
-|------|-------|-------|
-| `difflib.unified_diff` for diff view | HIGH | stdlib since Python 2.1; API stable; tested live against LaTeX content |
-| `re` for keyword extraction and section detection | HIGH | stdlib; patterns verified against actual LaTeX resume structure |
-| Two sequential `requests.post()` for two-pass pipeline | HIGH | Existing pattern in llm_client.py; no change to request shape beyond adding `format: "json"` to pass 1 |
-| `format: "json"` reliability on 14b models | MEDIUM | Ollama API docs confirm format field exists and stream:false behavior; model compliance varies — fallback json extraction required |
-| `json_schema` format field reliability on qwen3:14b | LOW | Not tested; smaller models may refuse or malform schema-constrained output; deferred |
-| Hallucination detection via `re` entity extraction | MEDIUM | Heuristic approach — catches most common patterns (dates, `\textbf{}` values); won't catch inline text fabrication |
-| `requests` 2.34.x as current version | HIGH | Verified in project venv via `uv run` |
-
----
-
-## Sources
-
-- Ollama REST API (format field, stream:false, done_reason): https://github.com/ollama/ollama/blob/main/docs/api.md — verified via WebFetch 2026-06-02
-- Python `difflib` module: https://docs.python.org/3/library/difflib.html — stdlib, HIGH confidence
-- Python `re` module: https://docs.python.org/3/library/re.html — stdlib, HIGH confidence
-- requests 2.34.2 version: verified live in project venv via `uv run python3 -c "import requests; print(requests.__version__)"`
-- All code patterns above: verified via live `python3` execution in the project environment
+- Ollama REST API (format field, stream:false, done_reason): https://github.com/ollama/ollama/blob/main/docs/api.md
+- Python `difflib` module: https://docs.python.org/3/library/difflib.html
+- Python `re` module: https://docs.python.org/3/library/re.html
+- requests 2.34.2 version: verified live in project venv via `uv run`

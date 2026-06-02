@@ -1,284 +1,394 @@
-# Architecture Patterns
+# Test Architecture — Resume Tailor CLI v1.2
 
-**Domain:** Python CLI tool — LaTeX resume tailoring via local Ollama LLM
-**Researched:** 2026-06-02 (v1.1 output quality update)
-**Confidence:** HIGH — derived from actual codebase inspection and verified stdlib capabilities
-
----
-
-## v1.1 Integration: New vs Modified Modules
-
-### What Exists (v1.0 baseline)
-
-| Module | LOC | Responsibility |
-|--------|-----|----------------|
-| `cli.py` | 59 | Orchestrator: arg parsing, stdin loop, try/except, progress/success prints |
-| `llm_client.py` | 169 | Health check, prompt assembly, single POST to /api/chat, strip fences, validate LaTeX |
-| `resume_reader.py` | 8 | Read .tex file, raise FileNotFoundError if missing |
-| `resume_writer.py` | 10 | Write timestamped .tex to output_dir, return Path |
-| `config.py` | 9 | Constants: OLLAMA_BASE_URL, OLLAMA_MODEL, BASE_RESUME_PATH, OUTPUT_DIR, TIMEOUT |
-| `log_manager.py` | 15 | Simple logger: info/warning/error to stderr |
-
-Note: The milestone context mentioned `prompt_builder.py` but it does not exist. Prompt assembly lives inside `llm_client.py` as `_build_messages()`. No change needed to that boundary.
-
-### New Modules Required (v1.1)
-
-| Module | Responsibility | Why New (not extend existing) |
-|--------|---------------|-------------------------------|
-| `jd_analyzer.py` | Extract keywords from job description; score match against resume text | Pure text analysis, no HTTP — new concern, clean isolation |
-| `output_guard.py` | Dropped-section check, hallucination check (new LaTeX environments/companies), format violation check | Post-LLM validation — distinct from `_validate_latex` which only checks doc structure |
-| `diff_viewer.py` | Generate and print unified diff of original vs tailored to stdout | Display concern — no reason to put it in cli.py (keeps orchestrator readable) |
-
-### Modified Modules (v1.1)
-
-| Module | What Changes | Why Here |
-|--------|-------------|----------|
-| `llm_client.py` | Add `_build_analysis_messages()` for pass 1; add `analyze_job_description()` public function that returns `str` (analysis text); `generate_tailored_resume()` gains optional `analysis: str` parameter that injects analysis into user message | All LLM HTTP calls live here — adding pass 1 as a second public function maintains the raise-not-exit contract and is directly mockable in tests |
-| `cli.py` | Add calls to `analyze_job_description()`, `check_output()`, `show_diff()` in the orchestration block; add two new progress messages; surface warnings from guards to stderr | Orchestrator owns the sequencing — all new steps plug in here |
+**Researched:** 2026-06-02
+**Confidence:** HIGH — all patterns verified by running code against the actual workspace
 
 ---
 
-## Two-Pass Pipeline Data Flow
+## Directory Structure (New vs Existing)
+
+### Recommendation: Add `tests/` alongside `src/`, keep existing `src/*_test.py` files in place
 
 ```
-[Disk: english.tex]
-        |
-        v
-resume_reader.read_resume(path) -> resume_text: str
-        |
-cli.py collects job description via stdin -> job_description: str
-        |
-        v
-[PASS 1 — Analysis]
-llm_client.analyze_job_description(job_description, model) -> analysis: str
-        |  POST /api/chat with analysis-focused system prompt
-        |  Returns: "Key requirements: Python 3.11+, MLOps, Kubernetes, ..."
-        |
-        v  analysis: str
-        |
-[PASS 2 — Tailoring]
-llm_client.generate_tailored_resume(resume_text, job_description, analysis, model) -> tailored_text: str
-        |  POST /api/chat with tailoring system prompt
-        |  User message now includes: <analysis>{analysis}</analysis> block
-        |  Returns: full compilable LaTeX document
-        |
-        v  tailored_text: str
-        |
-[OUTPUT GUARDS — all stdlib, no LLM calls]
-output_guard.check(resume_text, tailored_text) -> list[str] (warnings, may be empty)
-        |  dropped_section_check: re.findall(r'\\\\section\{([^}]+)\}') on both
-        |  hallucination_check: structural elements in tailored not in original
-        |  format_violation_check: markdown fence detection, prose-before-documentclass
-        |
-        v  warnings: list[str]
-        |
-[DIFF VIEW — stdlib difflib]
-diff_viewer.show(resume_text, tailored_text) -> None (prints to stdout)
-        |  difflib.unified_diff(original_lines, tailored_lines, fromfile='original', tofile='tailored', lineterm='')
-        |  Prints each line with +/- prefix; skipped if output is not a TTY
-        |
-        v
-resume_writer.write_resume(tailored_text, output_dir) -> output_path: Path
-        |
-cli.py prints warnings (stderr), success message + path (stdout)
+resume-tailor/
+├── src/
+│   ├── cli.py
+│   ├── config.py
+│   ├── llm_client.py
+│   ├── log_manager.py
+│   ├── resume_reader.py
+│   ├── resume_writer.py
+│   ├── cli_test.py          <- existing, keep as-is
+│   └── llm_client_test.py   <- existing, keep as-is
+├── tests/
+│   ├── conftest.py          <- NEW: root conftest, shared fixtures + marker registration
+│   ├── unit/
+│   │   ├── test_llm_client.py   <- NEW: unit gaps (_build_messages, _check_ollama_health)
+│   │   ├── test_reader.py       <- NEW: read_resume isolation tests
+│   │   └── test_writer.py       <- NEW: write_resume isolation tests
+│   ├── integration/
+│   │   └── test_ollama.py       <- NEW: real Ollama health check + generate call
+│   └── e2e/
+│       └── test_cli.py          <- NEW: subprocess CLI invocation tests
+└── pyproject.toml           <- MODIFY: add [tool.pytest.ini_options]
 ```
 
-Key property: all data between modules is plain `str` or `list[str]`. No shared mutable state introduced.
+**Why keep existing tests in `src/`:**
+
+The 18 existing tests pass and are already collected by pytest without any config. Migrating them disrupts working code for no functional gain. The `sys.path.insert(0, ...)` lines in the existing files are redundant (the editable install via `_editable_impl_resume_tailor.pth` already places `/workspace/src` on `sys.path`) but are harmless. Leave them in place; removing them is a cleanup task, not a blocker.
+
+**Why add `tests/` for new tests:**
+
+Integration and e2e tests are architecturally different from co-located unit tests. They require shared fixtures, skip logic, and marker registration that belong in a `conftest.py`. A separate `tests/` directory makes it unambiguous that these tests are not part of the package being built — the `[tool.hatch.build.targets.wheel]` `include` list already excludes `*_test.py` files by listing modules explicitly, so the package boundary is already protected.
+
+**Tradeoffs explicitly:**
+
+| Factor | Keep in `src/` | Move to `tests/` |
+|--------|---------------|-----------------|
+| Existing 18 tests | No migration cost | Must update imports, remove `sys.path.insert` |
+| New integration/e2e | Conftest scope gets awkward | Clean conftest hierarchy, verified working |
+| Import clarity | `sys.path.insert` is redundant noise | Imports work cleanly via editable install |
+| Portfolio readability | Co-location is a valid pattern (Go-style) | Conventional Python layout, immediately recognizable |
+| Pytest collection | Already working, no config needed | Requires `testpaths` in pyproject.toml |
+
+Decision: hybrid. Existing tests stay in `src/`. New tests go in `tests/`. `pytest` with `testpaths = ["src", "tests"]` collects both.
 
 ---
 
-## Where Each Feature Plugs into cli.py
+## Import Strategy
 
-The `main()` function in `cli.py` has a single `try` block. The new steps slot in sequence:
+### How imports work in `tests/`
+
+The project is installed in editable mode. The file `/workspace/.venv/lib/python3.14/site-packages/_editable_impl_resume_tailor.pth` contains `/workspace/src`, which Python processes at interpreter startup for any invocation using the `.venv` interpreter. This means test files in `tests/` can import project modules with no `sys.path` manipulation:
 
 ```python
-# existing
-resume_text = read_resume(resume_path)
-
-# NEW: pass 1
-print("Analyzing job description...", flush=True)
-analysis = analyze_job_description(job_description, model=args.model)
-
-# existing (signature change: add analysis param)
-print("Tailoring resume — this may take a minute...", flush=True)
-content = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
-
-# NEW: output guards (before write)
-warnings = check_output(resume_text, content)
-
-# NEW: diff view (before write, after guards)
-show_diff(resume_text, content)
-
-# existing
-output_path = write_resume(content, output_dir)
-
-# NEW: surface warnings after path printed
-print(f"Tailored resume written to: {output_path.resolve()}")
-for w in warnings:
-    print(f"Warning: {w}", file=sys.stderr)
+# In tests/unit/test_reader.py -- no sys.path manipulation needed
+from resume_reader import read_resume
+from config import BASE_RESUME_PATH
 ```
 
-The `except` block is unchanged — `analyze_job_description` raises the same `RuntimeError`/`ValueError` contract as `generate_tailored_resume`.
+Verified: a test file in an unrelated `/tmp/` directory imported `from cli import main` successfully using the venv Python, with no `sys.path.insert`.
+
+### pyproject.toml additions required
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+markers = [
+    "unit: Fast, isolated tests with all external calls mocked",
+    "integration: Tests that call real Ollama -- skipped if Ollama is not reachable",
+    "e2e: Full subprocess CLI tests requiring real Ollama -- skipped if Ollama is not reachable",
+]
+```
+
+`testpaths` makes `pytest` (run with no args) collect from both locations. The `pythonpath = ["src"]` option is NOT needed because the editable install already provides this via `.pth` file. Adding it would be harmless but misleading.
+
+**No `__init__.py` files should be added** to `tests/unit/`, `tests/integration/`, or `tests/e2e/`. Pytest collects test files without package structure. Adding `__init__.py` forces pytest into "package mode" and complicates relative imports for no benefit in this project.
 
 ---
 
-## Component Boundaries (v1.1)
+## conftest.py Design
 
-### jd_analyzer.py
+Single `conftest.py` at `tests/conftest.py`. Pytest discovers shared fixtures from this file before running any test in the `tests/` subtree.
 
 ```python
-def extract_keywords(job_description: str) -> list[str]
-def score_match(keywords: list[str], resume_text: str) -> dict[str, bool]
-def format_match_summary(scored: dict[str, bool]) -> str
+# tests/conftest.py
+
+import pytest
+import requests
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers", "unit: Fast, isolated tests with all external calls mocked"
+    )
+    config.addinivalue_line(
+        "markers",
+        "integration: Tests that call real Ollama -- skipped if Ollama is not reachable",
+    )
+    config.addinivalue_line(
+        "markers",
+        "e2e: Full subprocess CLI tests requiring real Ollama -- skipped if Ollama is not reachable",
+    )
+
+
+def _is_ollama_reachable() -> bool:
+    try:
+        r = requests.get("http://localhost:11434/api/tags", timeout=3)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="session")
+def ollama_available() -> bool:
+    return _is_ollama_reachable()
+
+
+@pytest.fixture
+def require_ollama(ollama_available: bool) -> None:
+    if not ollama_available:
+        pytest.skip("Ollama not reachable at http://localhost:11434")
 ```
 
-- No imports outside stdlib (`re`, `collections`).
-- `extract_keywords` uses `re.findall(r'\b[A-Za-z][A-Za-z0-9\+\#\.]*\b', jd)` filtered by a hard-coded stopword set. Tokens under 3 chars dropped. Case-normalized.
-- `score_match` checks each keyword against `resume_text.lower()` — presence/absence only.
-- `format_match_summary` returns a printable string (not printed itself — cli.py owns I/O).
-- This module has no dependency on `llm_client.py` or HTTP.
+**Why `pytest_configure` for markers, not `pyproject.toml` only:**
 
-### output_guard.py
+Both approaches suppress `PytestUnknownMarkWarning` (verified working). `pytest_configure` in `conftest.py` is preferable because it keeps marker descriptions co-located with the fixture logic that implements skip behavior. Markers registered via `pyproject.toml` are also fine if preferred for centralization.
+
+**Why `scope="session"` for `ollama_available`:**
+
+The Ollama health check is a network call. Session scope means it runs exactly once per `pytest` invocation regardless of how many tests request it. Ollama availability does not change mid-session.
+
+**Why `require_ollama` is not `autouse=True`:**
+
+Autouse would skip all tests in `tests/` when Ollama is down, including unit tests. Unit tests must run without Ollama. Only integration and e2e tests use `require_ollama` explicitly.
+
+**Fixture access from subdirectories:**
+
+Verified: `tests/conftest.py` fixtures (`ollama_available`, `require_ollama`) are accessible to test files in `tests/unit/`, `tests/integration/`, and `tests/e2e/` without any additional conftest files in the subdirectories. Pytest fixture scoping propagates down the directory tree automatically.
+
+**Module-level autouse for integration/e2e files:**
+
+To avoid repeating the fixture argument in every test function, use this pattern in files that require Ollama for all tests:
 
 ```python
-def check_output(original: str, tailored: str) -> list[str]
+# tests/integration/test_ollama.py
+
+import pytest
+
+pytestmark = [pytest.mark.integration]
+
+
+@pytest.fixture(autouse=True)
+def _require_ollama(require_ollama):  # noqa: PT004
+    pass
 ```
 
-Single public function returns a (possibly empty) list of warning strings. Callers decide whether to print or raise. Three internal checks:
+This makes `require_ollama` autouse within the module only. Every test in the file gets the skip logic transparently.
 
-1. **Dropped sections:** `re.findall(r'\\\\section\{([^}]+)\}', text)` on both sides. Anything in original not in tailored → warning string.
-2. **Hallucination check:** Extract structural markers that should be invariant — `\\subsection{}`, `\employer{}`, date patterns `\d{4}` adjacent to company-like text. New markers in tailored not in original → warning.
-3. **Format violation:** If tailored contains ` ``` ` (markdown fence remnant) or has text before `\documentclass` → warning. This is distinct from `_validate_latex` which raises; guards warn without aborting.
+---
 
-Note: `_validate_latex` in `llm_client.py` stays as the hard abort guard (raises `ValueError`). `output_guard.check_output` is the soft-warning layer for things that compiled but look suspicious.
+## Ollama Availability Fixture
 
-### diff_viewer.py
+Two patterns available. Both verified working. Use the fixture pattern for integration/e2e files, inline skip for one-off tests.
+
+### Pattern A: Module-level autouse (recommended for integration/e2e files)
 
 ```python
-def show_diff(original: str, tailored: str) -> None
+pytestmark = [pytest.mark.integration]
+
+@pytest.fixture(autouse=True)
+def _require_ollama(require_ollama):
+    pass
+
+def test_health_check_returns_without_raising():
+    from llm_client import _check_ollama_health
+    _check_ollama_health()  # skipped cleanly if Ollama is down
 ```
 
-- Calls `difflib.unified_diff(original.splitlines(keepends=True), tailored.splitlines(keepends=True), fromfile="original.tex", tofile="tailored.tex", lineterm="")`.
-- Skips output if `not sys.stdout.isatty()` (piped output, CI environments).
-- Optionally gate behind a `--diff` CLI flag (add to `cli.py` argparser) to avoid forcing diff on every run.
-- Prints to stdout (not stderr) — it is informational output, not an error.
-
-### llm_client.py changes
-
-Two public functions instead of one:
+### Pattern B: Inline skip (acceptable for individual tests)
 
 ```python
-def analyze_job_description(job_description: str, model: str | None = None) -> str
-def generate_tailored_resume(resume_text: str, job_description: str, analysis: str | None = None, model: str | None = None) -> str
+def test_something(ollama_available):
+    if not ollama_available:
+        pytest.skip("Ollama not reachable")
+    # test body
 ```
 
-`analyze_job_description` calls `_check_ollama_health()` then sends a focused analysis prompt:
-- System: "You are a technical recruiter. Extract and list the top 10 technical requirements from this job description. Be concise and specific."
-- User: `<job_description>{jd}</job_description>`
-- Returns raw text (not LaTeX) — no fence stripping, no `_validate_latex`.
+Pattern A is cleaner for files where all tests need Ollama. Pattern B is adequate for a single isolated test.
 
-`generate_tailored_resume` gains optional `analysis: str | None`. If provided, the user message gains an `<analysis>` block before the resume. The existing `_build_messages` becomes `_build_tailoring_messages(resume_text, job_description, analysis)`.
+### Skip behavior verified
 
-The health check fires in `analyze_job_description` (first LLM call). `generate_tailored_resume` skips the duplicate health check — already known healthy from pass 1. Add a `skip_health_check: bool = False` internal param or just remove the health check from `generate_tailored_resume` since `analyze_job_description` always precedes it in the pipeline.
+When Ollama is not running (the default in this environment), tests that depend on `require_ollama` show as `SKIPPED` in pytest output. Unit tests with no Ollama dependency pass normally. This was confirmed by running a real test session.
 
 ---
 
-## Build Order (v1.1 phases)
+## E2E Subprocess Invocation Pattern
 
-Build in dependency order — leaf modules first, orchestrator changes last.
+### Recommended: `sys.executable + ['-m', 'cli']`
 
-### Phase 1 — jd_analyzer.py (no deps)
+```python
+import subprocess
+import sys
 
-Pure stdlib text module. No HTTP, no file I/O. Fully unit-testable with string fixtures. Build and test in isolation before touching any LLM code.
-
-Deliverable: `extract_keywords`, `score_match`, `format_match_summary` all passing unit tests. `cli.py` not yet modified.
-
-### Phase 2 — output_guard.py (no deps)
-
-Pure stdlib regex module. Operates on two strings. Unit-testable with synthetic LaTeX fragments — no real LLM needed.
-
-Deliverable: `check_output` returning correct warnings for dropped sections, hallucinated subsections, and fence remnants. `cli.py` not yet modified.
-
-### Phase 3 — diff_viewer.py (depends on difflib only)
-
-One function, easily tested by capturing stdout. Add `--diff` flag to `cli.py` argparser at this step (argparser change is trivial and doesn't break existing tests).
-
-Deliverable: `show_diff` working. `--diff` flag parsed. Tests confirm diff output format.
-
-### Phase 4 — llm_client.py two-pass extension
-
-Add `analyze_job_description`. Extend `generate_tailored_resume` signature with `analysis` param. Update `_build_messages` -> `_build_tailoring_messages`. Existing 11 unit tests still pass (signature is backward-compatible: `analysis=None` preserves old behavior).
-
-New tests: mock `analyze_job_description` to verify analysis text appears in tailoring user message; verify analysis-only call does not invoke `_validate_latex`.
-
-Deliverable: both LLM functions working, tests green.
-
-### Phase 5 — cli.py orchestration wiring
-
-Wire all new modules into `main()`. Add progress messages. Add warning surfacing. Existing 5 cli tests still pass (they mock `generate_tailored_resume` — the new `analyze_job_description` call needs a mock too, add to test setup).
-
-Deliverable: end-to-end pipeline working with two-pass LLM, guards, diff, and match summary.
-
----
-
-## Error Handling: New Cases
-
-| New Error | Where Raised | Who Catches | Behavior |
-|-----------|-------------|-------------|----------|
-| Pass 1 LLM failure | `analyze_job_description` raises `RuntimeError` | `cli.py` existing `except` block | Same as current: print to stderr, exit 1 |
-| Guard warnings | `check_output` returns non-empty list | `cli.py` after write | Print each as `Warning:` to stderr, do NOT exit — output was written |
-| Diff failure | `difflib` internal error | Not expected; difflib is pure Python, never raises on valid strings | N/A |
-| Analysis empty/garbage | `analyze_job_description` returns unusable text | Not an exception; tailoring pass uses it as-is — model degrades gracefully | Consider: if analysis is under 20 chars, log a warning and proceed without it |
-
----
-
-## Testing Strategy
-
-### Unit Test Coverage Targets
-
-| Module | Test File | What to Test |
-|--------|-----------|--------------|
-| `jd_analyzer.py` | `jd_analyzer_test.py` | keyword extraction from realistic JD text; score_match presence/absence; format_summary string format |
-| `output_guard.py` | `output_guard_test.py` | dropped section detection; hallucinated subsection detection; fence remnant detection; clean pass returns empty list |
-| `diff_viewer.py` | `diff_viewer_test.py` | verify stdout output contains +/- lines; verify no output when stdout not a tty |
-| `llm_client.py` | `llm_client_test.py` (extend) | verify analysis request uses different system prompt; verify analysis injected into tailoring user message; backward compat (analysis=None) |
-| `cli.py` | `cli_test.py` (extend) | verify `analyze_job_description` mocked and called; verify warnings printed to stderr; verify `--diff` flag parsed |
-
-All mocking follows established pattern: `@patch('module.requests.post')` and `@patch('module.requests.get')`. New `jd_analyzer` and `output_guard` need no mocking — pure functions on strings.
-
----
-
-## What NOT to Change
-
-- `resume_reader.py` — no changes needed. It returns a string. v1.1 has no new file I/O requirements.
-- `resume_writer.py` — no changes needed. It writes the tailored text. Guards warn before write but do not prevent it.
-- `config.py` — no new constants needed for v1.1. Model and URL are already there. If a `SHOW_DIFF_DEFAULT` flag is desired, add `SHOW_DIFF: bool = False` here.
-- `log_manager.py` — warnings from `output_guard` print via `print(..., file=sys.stderr)` directly in `cli.py`, consistent with the existing pattern. Do not route through `logger` — it adds indirection for no gain.
-
----
-
-## Component Map (v1.1)
-
-```
-cli.py (orchestrator)
-  ├── config.py                  (reads constants: paths, model, url)
-  ├── resume_reader.py           (read_resume -> str)
-  ├── llm_client.py              (analyze_job_description -> str, generate_tailored_resume -> str)
-  ├── jd_analyzer.py             (extract_keywords, score_match, format_match_summary)
-  ├── output_guard.py            (check_output -> list[str])
-  ├── diff_viewer.py             (show_diff -> None)
-  └── resume_writer.py           (write_resume -> Path)
+def test_empty_jd_exits_1():
+    result = subprocess.run(
+        [sys.executable, '-m', 'cli'],
+        input='END\n',
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert 'Job description cannot be empty' in result.stderr
 ```
 
-`llm_client.py` still imports `config.py` for `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `TIMEOUT`.
-`jd_analyzer.py`, `output_guard.py`, and `diff_viewer.py` import nothing outside stdlib.
-No circular imports. No module except `cli.py` imports another project module.
+`sys.executable` is the venv Python (`/workspace/.venv/bin/python3`). Since the editable install places `src/` on the path via `.pth`, `-m cli` resolves to `src/cli.py`. Verified working.
+
+**Why not the entry point script:**
+
+Using `Path(sys.executable).parent / 'resume-tailor'` couples the test to the venv layout. It works in the current setup (verified: `/workspace/.venv/bin/resume-tailor` exists and works) but breaks in `uv tool install` environments where the script lives in `~/.local/bin/`. `sys.executable + ['-m', 'cli']` has no such dependency.
+
+**Why not `python src/cli.py`:**
+
+Works locally (verified) but requires knowing the repo root path at test time, introduces a hardcoded path, and does not reflect how the tool runs in production.
+
+### Stdin injection
+
+Job description input is piped via the `input=` parameter. The sentinel `END` must be on its own line:
+
+```python
+result = subprocess.run(
+    [sys.executable, '-m', 'cli', '--output-dir', str(tmp_path)],
+    input='Senior ML Engineer at Acme Corp\nEND\n',
+    capture_output=True,
+    text=True,
+)
+```
+
+Use `input=` (not `stdin=subprocess.PIPE` + `.communicate()`) -- it is synchronous, captures all output, and avoids deadlock risk.
+
+### Output file validation
+
+Use pytest's `tmp_path` fixture for `--output-dir` to avoid polluting `resumes/output/` during tests:
+
+```python
+def test_output_file_written(require_ollama, tmp_path):
+    result = subprocess.run(
+        [sys.executable, '-m', 'cli',
+         '--output-dir', str(tmp_path),
+         '--resume', str(BASE_RESUME_PATH)],
+        input='Software Engineer at Acme\nEND\n',
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
+    tex_files = list(tmp_path.glob('tailored_resume_*.tex'))
+    assert len(tex_files) == 1
+    assert tex_files[0].stat().st_size > 0
+```
+
+### Filename pattern validation
+
+```python
+import re
+assert re.match(r'tailored_resume_\d{8}_\d{6}\.tex', tex_files[0].name)
+```
+
+### Error path coverage without Ollama
+
+Two error paths can be tested without Ollama being available:
+1. Empty JD: `input='END\n'` triggers the empty-JD guard before any LLM call.
+2. Missing resume file: `--resume /nonexistent/path.tex` triggers `FileNotFoundError` before any LLM call.
+
+The "Ollama unreachable" e2e path (exit 1, "Ollama is not reachable" in stderr) is covered by the existing `test_health_check_connection_error_raises_runtime_error` unit test in `src/llm_client_test.py`. There is no need to duplicate it as an e2e subprocess test.
+
+---
+
+## Suggested Build Order
+
+Each phase is runnable and independently verifiable before the next begins.
+
+### Phase 1: Test Infrastructure
+
+Create the scaffolding that all subsequent tests depend on.
+
+1. Add `[tool.pytest.ini_options]` to `pyproject.toml` with `testpaths = ["src", "tests"]` and the three `markers` entries.
+2. Create `tests/conftest.py` with `pytest_configure`, `ollama_available`, and `require_ollama`.
+3. Create the `tests/unit/`, `tests/integration/`, `tests/e2e/` directories (empty, no `__init__.py`).
+4. Verify: `pytest` collects exactly the existing 18 tests, zero `PytestUnknownMarkWarning`, `pytest -m unit` selects 0 tests, `pytest -m "not integration and not e2e"` selects 18.
+
+This phase does not modify any existing test or source file.
+
+### Phase 2: Unit Test Gaps
+
+Add missing unit coverage for functions not yet tested by `src/*_test.py`.
+
+**`tests/unit/test_llm_client.py`** -- cover:
+- `_build_messages()`: returns list of length 2, first role is `"system"`, second role is `"user"`, user content contains `<job_description>` and `<resume>` XML tags, system content contains `\documentclass`.
+- `_check_ollama_health()` in isolation: `ConnectionError` raises `RuntimeError`, `Timeout` raises `RuntimeError`, 200 OK response does not raise.
+
+**`tests/unit/test_reader.py`** -- cover:
+- `read_resume()`: existing file returns its content, missing file raises `FileNotFoundError` with path in message.
+
+**`tests/unit/test_writer.py`** -- cover:
+- `write_resume()`: creates `output_dir` if it does not exist, filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern, file contains the exact content passed in.
+
+All these tests use `unittest.mock.patch` or `tmp_path`. No Ollama needed. Add `pytestmark = [pytest.mark.unit]` at module level.
+
+**Test style note:** Existing tests use `unittest.TestCase`. New tests in `tests/` should use pytest-native style (plain functions, `assert` statements, fixtures as function arguments). The two styles coexist in the same pytest session without conflict.
+
+### Phase 3: Integration Tests
+
+Tests that call real Ollama directly (not through subprocess).
+
+**`tests/integration/test_ollama.py`** -- cover:
+- `_check_ollama_health()`: real call returns without raising.
+- `generate_tailored_resume()`: returns string starting with `\documentclass`, contains `\end{document}`, contains no markdown code fences.
+- Use the module-level autouse `_require_ollama` fixture pattern. The entire file skips cleanly when Ollama is down.
+- Pass a minimal synthetic `.tex` snippet as `resume_text` rather than the real `resumes/english.tex`. This keeps token usage low and avoids coupling integration tests to the actual resume content. Example:
+
+```python
+MINIMAL_RESUME = r"""\documentclass{article}
+\begin{document}
+\section{Summary}
+Software engineer with 5 years experience.
+\end{document}"""
+```
+
+### Phase 4: E2E Tests
+
+Tests that exercise the full CLI through `subprocess.run`.
+
+**`tests/e2e/test_cli.py`** -- cover:
+- Error paths that do NOT need Ollama (no skip required):
+  - Empty JD: exit code 1, "Job description cannot be empty" in stderr.
+  - Missing resume file: exit code 1, path mentioned in stderr.
+- Golden path (needs Ollama, gated by `require_ollama`):
+  - Output file created in `tmp_path`, filename matches timestamp pattern, file is non-empty.
+  - Stdout contains "Tailored resume written to:".
+  - Exit code 0.
+
+**Build order rationale:**
+- Phase 1 (infrastructure) before Phase 2 (unit) so markers and skip logic work from the start.
+- Phase 2 (unit) before Phase 3 (integration) because unit tests expose import or interface issues cheaply before spending LLM inference time on them.
+- Phase 3 (integration) before Phase 4 (e2e) because a broken integration layer causes e2e failures with misleading symptoms.
+- Error-path e2e tests (Ollama not required) can be written in Phase 4 regardless of Ollama availability.
+
+---
+
+## Files to Create or Modify
+
+| File | Status | Action |
+|------|--------|--------|
+| `pyproject.toml` | Modify | Add `[tool.pytest.ini_options]` block |
+| `tests/conftest.py` | Create | Marker registration, `ollama_available`, `require_ollama` fixtures |
+| `tests/unit/test_llm_client.py` | Create | `_build_messages`, `_check_ollama_health` unit tests |
+| `tests/unit/test_reader.py` | Create | `read_resume` unit tests |
+| `tests/unit/test_writer.py` | Create | `write_resume` unit tests |
+| `tests/integration/test_ollama.py` | Create | Real Ollama health + generate tests |
+| `tests/e2e/test_cli.py` | Create | Subprocess CLI tests |
+| `src/cli_test.py` | No change | Existing tests stay; `sys.path.insert` is redundant but harmless |
+| `src/llm_client_test.py` | No change | Existing tests stay; `sys.path.insert` is redundant but harmless |
+
+---
+
+## Constraints Carried Forward
+
+- No new production dependencies. `pytest`, `ruff`, `mypy` are already in `[dependency-groups] dev`.
+- The `requests` import in `conftest.py` is fine -- it is already a production dependency and is available in the dev environment.
+- Do not add `pytest-mock` or any other pytest plugin. `unittest.mock` covers all mocking needs in this codebase.
+- Do not add `pytest-subprocess` or `pytest-asyncio` -- `subprocess.run` with `input=` handles all e2e cases directly.
+- The `[tool.hatch.build.targets.wheel]` `include` list in `pyproject.toml` already excludes test files by listing only source modules explicitly. The `tests/` directory does not affect the built wheel.
 
 ---
 
 ## Sources
 
-- Codebase inspection: `/workspace/src/` (all 7 modules read directly — HIGH confidence)
-- Python stdlib `difflib.unified_diff`: verified signature and output format via runtime test
-- Python stdlib `re` for LaTeX section extraction: verified regex pattern `r'\\\\section\{([^}]+)\}'` against real LaTeX string content
-- Ollama `/api/chat` multi-message support: confirmed in existing `llm_client.py` implementation and Ollama API docs (https://github.com/ollama/ollama/blob/main/docs/api.md)
+- Codebase inspection: `/workspace/src/` and `/workspace/pyproject.toml` (all files read directly -- HIGH confidence)
+- Editable install path confirmed: `/workspace/.venv/lib/python3.14/site-packages/_editable_impl_resume_tailor.pth` contains `/workspace/src`
+- Pytest 9.0.3 marker registration: verified `PytestUnknownMarkWarning` appears without registration, disappears with `pytest_configure` (runtime test)
+- Pytest `pythonpath` ini option: verified adds path to `sys.path` (runtime test with isolated temp directory)
+- `subprocess.run` with `input=`: verified stdin piping for empty JD and Ollama-unreachable error paths (runtime test)
+- `sys.executable + ['-m', 'cli']`: verified exit code 0 for `--help` and correct exit code 1 for error paths (runtime test)
+- Conftest fixture hierarchy: verified `tests/conftest.py` fixtures accessible from `tests/unit/` and `tests/integration/` subdirectories (runtime test)
+- Session-scoped Ollama skip: verified tests skip cleanly when Ollama is not running (runtime test in current environment where Ollama is not available)

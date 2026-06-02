@@ -89,7 +89,11 @@ Plans:
   1. Running `pytest --co` (collect-only) discovers all existing 18 unit tests in `src/` plus the new empty test directories with no warnings
   2. Running `pytest -m integration` when Ollama is down exits 0 with all integration tests shown as SKIPPED, not FAILED
   3. Running `pytest -m foo` (unknown marker) exits non-zero immediately due to `--strict-markers`
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Configure pytest in pyproject.toml (TEST-01)
+- [ ] 08-02-PLAN.md — Create tests/ scaffold, conftest.py fixtures, and remove sys.path hacks (TEST-02, TEST-03)
 
 ### Phase 9: Unit Test Gaps
 **Goal**: Every untested function in the existing codebase has at least one unit test — `_build_messages()`, `_check_ollama_health()`, `read_resume()`, and `write_resume()` — all mocked, all fast
@@ -133,7 +137,7 @@ Plans:
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
-| 8. Test Infrastructure | v1.1 | 0/? | Not started | - |
+| 8. Test Infrastructure | v1.1 | 0/2 | Not started | - |
 | 9. Unit Test Gaps | v1.1 | 0/? | Not started | - |
 | 10. Integration Tests | v1.1 | 0/? | Not started | - |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

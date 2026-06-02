@@ -26,7 +26,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals
 - [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
-- [ ] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout
+- [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
 - [ ] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests
 - [ ] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent
 - [ ] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama
@@ -119,7 +119,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02-PLAN.md — Create tests/ scaffold, conftest.py fixtures, and remove sys.path hacks (TEST-02, TEST-03)
+- [x] 08-02-PLAN.md — Create tests/ scaffold, conftest.py fixtures, and remove sys.path hacks (TEST-02, TEST-03)
 
 ### Phase 9: Unit Test Gaps
 
@@ -172,7 +172,7 @@ Plans:
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
-| 8. Test Infrastructure | v1.1 | 1/2 | In Progress|  |
+| 8. Test Infrastructure | v1.1 | 2/2 | Complete   | 2026-06-02 |
 | 9. Unit Test Gaps | v1.1 | 0/? | Not started | - |
 | 10. Integration Tests | v1.1 | 0/? | Not started | - |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

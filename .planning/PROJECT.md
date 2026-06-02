@@ -8,15 +8,15 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
-## Current Milestone: v1.1 Output Quality
+## Current Milestone: v1.2 Test Coverage
 
-**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures.
+**Goal:** Give the Resume Tailor CLI a full test pyramid — unit tests (Ollama mocked), integration tests (real Ollama, no subprocess), and e2e tests (real Ollama + subprocess CLI invocation).
 
 **Target features:**
-- Diff view between original and tailored resume (difflib, stdlib)
-- JD keyword match summary after tailoring
-- Two-pass pipeline: JD analysis first, then section-specific tailoring
-- Output reliability guards: hallucination detection, dropped-section check, format violation warnings
+- Unit: message structure and prompt shape, reader/writer modules, health check isolation
+- Integration: real Ollama health check and generate call, output structure validation
+- E2E: subprocess CLI invocation with real Ollama — golden path, error paths, output file validation
+- Test infrastructure: pytest markers, conftest.py, organized test layout
 
 ## Requirements
 
@@ -33,12 +33,14 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-- [ ] User can see a diff of what changed between original and tailored resume
-- [ ] User receives a JD keyword match summary after tailoring
-- [ ] Tool performs two-pass tailoring: JD analysis pass then section-specific tailoring pass
-- [ ] Tool warns on hallucinated content (new items not present in original resume)
-- [ ] Tool warns on dropped sections (sections present in original but missing from output)
-- [ ] Tool detects and handles format violations (markdown prose, ignored LaTeX-only instruction)
+- [ ] Unit tests cover `_build_messages()` message structure and prompt XML shape
+- [ ] Unit tests cover `read_resume()` and `write_resume()` modules in isolation
+- [ ] Unit tests cover `_check_ollama_health()` in isolation (not via generate)
+- [ ] Integration tests cover real Ollama health check and generate call
+- [ ] Integration tests verify returned LaTeX has correct structure (compilable)
+- [ ] E2E tests run full CLI subprocess with real Ollama — exit code, output file, filename pattern
+- [ ] E2E tests cover error paths: Ollama unreachable, empty JD
+- [ ] Test infrastructure: pytest markers, conftest.py, organized test layout
 
 ### Out of Scope
 
@@ -55,11 +57,12 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - Directory: `en-cv-ai-engineer` — this is the owner's own AI engineer resume
 - Base `.tex` resume exists at `resumes/english.tex`; config.py points to it via Path(__file__) anchoring
 - Ollama must be running locally before execution; tool health-checks at startup and fails fast
-- Default model: `mistral-small3.2:24b` — swappable by changing `OLLAMA_MODEL` in config.py
+- Default model: `qwen3:14b` (upgraded from mistral-small3.2:24b in v1.2) — swappable via `OLLAMA_MODEL` in config.py
+- System prompt upgraded to structured XML prompt with Alexandra persona (surgeon-precise tailoring instructions)
 - Output: timestamped `.tex` files under `resumes/output/`; user compiles with pdflatex
 - Tech stack: Python 3.11+, requests>=2.32.0, hatchling build backend, uv packaging, pytest dev dep
-- Codebase: 8 Python files, ~429 LOC, 73 commits; installable via `uv tool install .`
-- 16 unit tests (llm_client_test.py: 11, cli_test.py: 5) cover all safety guard behavioral contracts
+- Codebase: 8 Python files, ~429 LOC, 73+ commits; installable via `uv tool install .`
+- 18 unit tests (llm_client_test.py: 11, cli_test.py: 7) cover safety guards and CLI behavior — no integration or e2e tests yet
 - Project doubles as a portfolio artifact: minimal deps, auditable code, clean separation of concerns
 
 ## Constraints
@@ -98,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after v1.1 milestone start — output quality milestone initiated*
+*Last updated: 2026-06-02 after v1.2 milestone start — test coverage milestone initiated*

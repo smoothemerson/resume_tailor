@@ -49,7 +49,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 Plans:
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — TailorResult refactor in llm_client.py + create guards.py with run_guards()
+- [x] 04-01-PLAN.md — TailorResult refactor in llm_client.py + create guards.py with run_guards() — COMPLETE 2026-06-02
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -112,10 +112,13 @@ Plans:
   3. Running `pytest -m foo` (unknown marker) exits non-zero immediately due to `--strict-markers`
 
 **Plans**: 2 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 08-01-PLAN.md — Configure pytest in pyproject.toml (TEST-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 08-02-PLAN.md — Create tests/ scaffold, conftest.py fixtures, and remove sys.path hacks (TEST-02, TEST-03)
 
 ### Phase 9: Unit Test Gaps
@@ -165,7 +168,7 @@ Plans:
 | 1. Foundation | v1.0 | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
-| 4. Output Reliability Guards | v1.1 | 0/3 | Not started | - |
+| 4. Output Reliability Guards | v1.1 | 1/3 | In Progress | - |
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |

@@ -84,10 +84,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GUARD-01 | Phase 4 | Pending |
-| GUARD-02 | Phase 4 | Pending |
-| GUARD-03 | Phase 4 | Pending |
-| GUARD-04 | Phase 4 | Pending |
+| GUARD-01 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
+| GUARD-02 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
+| GUARD-03 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
+| GUARD-04 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
 | DIFF-01 | Phase 5 | Pending |
 | DIFF-02 | Phase 5 | Pending |
 | DIFF-03 | Phase 5 | Pending |

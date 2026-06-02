@@ -8,15 +8,19 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
-## Current Milestone: v1.1 Output Quality
+## Current Milestone: v1.1 Output Quality + Test Coverage
 
-**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures.
+**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures — then validate the full codebase with a complete unit/integration/e2e test pyramid.
 
 **Target features:**
 - Output reliability guards: dropped-section, format violation, and hallucination warnings
 - Diff view between original and tailored resume (always-on, TTY-gated)
 - Two-pass pipeline: JD analysis pass then section-specific tailoring
 - JD keyword match summary after tailoring
+- Test infrastructure: pytest configured, conftest.py with Ollama fixtures, organized tests/ layout
+- Unit test gaps: _build_messages(), _check_ollama_health(), reader, writer modules
+- Integration tests: real Ollama call with structural assertions
+- E2E tests: subprocess CLI invocation — error paths and golden path
 
 ## Requirements
 
@@ -40,6 +44,11 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
 - [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
 - [ ] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03)
+- [ ] pytest configured with testpaths, pythonpath, markers, --strict-markers (TEST-01)
+- [ ] tests/conftest.py provides Ollama availability fixtures (TEST-02 to TEST-03)
+- [ ] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07)
+- [ ] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09)
+- [ ] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11)
 
 ### Out of Scope
 

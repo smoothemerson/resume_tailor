@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-3 (shipped 2026-05-29)
-- 🚧 **v1.1 Output Quality** — Phases 4-7 (in progress)
+- 🚧 **v1.1 Output Quality + Test Coverage** — Phases 4-11 (in progress)
 
 ## Phases
 
@@ -18,14 +18,18 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 </details>
 
-### 🚧 v1.1 Output Quality (In Progress)
+### 🚧 v1.1 Output Quality + Test Coverage (In Progress)
 
-**Milestone Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures.
+**Milestone Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures — then validate the full codebase with a complete unit/integration/e2e test pyramid.
 
 - [ ] **Phase 4: Output Reliability Guards** - Warn users when the tailored output drops sections, introduces hallucinated fields, or violates LaTeX-only format constraints
 - [ ] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals
 - [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
+- [ ] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout
+- [ ] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests
+- [ ] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent
+- [ ] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama
 
 ## Phase Details
 
@@ -72,6 +76,47 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
   3. Keywords are matched as whole words and common stop words are excluded — searching for "and" or "the" does not produce false positives
 **Plans**: TBD
 
+### Phase 8: Test Infrastructure
+**Goal**: pytest is fully configured and the tests/ directory hierarchy is in place — markers registered, imports work without sys.path hacks, and the Ollama skip fixture is available to all test layers
+**Depends on**: Phase 7
+**Requirements**: TEST-01, TEST-02, TEST-03
+**Success Criteria** (what must be TRUE):
+  1. Running `pytest --co` (collect-only) discovers all existing 18 unit tests in `src/` plus the new empty test directories with no warnings
+  2. Running `pytest -m integration` when Ollama is down exits 0 with all integration tests shown as SKIPPED, not FAILED
+  3. Running `pytest -m foo` (unknown marker) exits non-zero immediately due to `--strict-markers`
+**Plans**: TBD
+
+### Phase 9: Unit Test Gaps
+**Goal**: Every untested function in the existing codebase has at least one unit test — `_build_messages()`, `_check_ollama_health()`, `read_resume()`, and `write_resume()` — all mocked, all fast
+**Depends on**: Phase 8
+**Requirements**: TEST-04, TEST-05, TEST-06, TEST-07
+**Success Criteria** (what must be TRUE):
+  1. `pytest -m unit tests/unit/` passes in under 2 seconds with zero Ollama dependency
+  2. `_build_messages()` tests verify the 2-message structure, role ordering, and XML tag presence without asserting prompt prose
+  3. `write_resume()` test uses `tmp_path` and asserts filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern
+  4. `_check_ollama_health()` Timeout path is covered (not just ConnectionError)
+**Plans**: TBD
+
+### Phase 10: Integration Tests
+**Goal**: A real Ollama call is made in CI and the integration layer verifies structural invariants — the response is valid LaTeX, not just that no exception was raised
+**Depends on**: Phase 9
+**Requirements**: TEST-08, TEST-09
+**Success Criteria** (what must be TRUE):
+  1. `pytest -m integration` with Ollama running passes — response starts with `\documentclass`, ends with `\end{document}`, contains no markdown fences
+  2. `pytest -m integration` with Ollama stopped shows SKIPPED for all integration tests with a clear skip reason; exit code is 0
+  3. Integration tests use a minimal inline fixture resume (not `english.tex`) to minimize inference time
+**Plans**: TBD
+
+### Phase 11: E2E Tests
+**Goal**: The CLI can be invoked as a subprocess and the full user-visible behavior is verified — exit codes, output file creation, success message — including error paths that run without Ollama
+**Depends on**: Phase 10
+**Requirements**: TEST-10, TEST-11
+**Success Criteria** (what must be TRUE):
+  1. Empty-JD e2e test runs without Ollama and exits 1 with an error message on stderr
+  2. Golden-path e2e test exits 0, creates a file in `tmp_path` (not `resumes/output/`), and stdout contains `"Tailored resume written to:"`
+  3. `pytest -m e2e` with Ollama stopped skips the golden-path test and passes the error-path test
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -83,3 +128,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
+| 8. Test Infrastructure | v1.1 | 0/? | Not started | - |
+| 9. Unit Test Gaps | v1.1 | 0/? | Not started | - |
+| 10. Integration Tests | v1.1 | 0/? | Not started | - |
+| 11. E2E Tests | v1.1 | 0/? | Not started | - |

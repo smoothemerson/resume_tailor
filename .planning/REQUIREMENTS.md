@@ -5,7 +5,7 @@
 
 ## v1.1 Requirements
 
-Requirements for Output Quality milestone. Each maps to roadmap phases.
+Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap phases.
 
 ### Output Guards
 
@@ -32,6 +32,29 @@ Requirements for Output Quality milestone. Each maps to roadmap phases.
 - [ ] **MATCH-01**: After tailoring, tool displays which keywords from pass 1's analysis appear in the tailored resume
 - [ ] **MATCH-02**: Keyword matching uses whole-word regex with stop word filtering to prevent substring false positives
 - [ ] **MATCH-03**: Match summary is displayed to stdout only when running interactively (TTY guard, same as diff)
+
+### Test Infrastructure
+
+- [ ] **TEST-01**: pytest configured in pyproject.toml — testpaths includes both `src` and `tests`, pythonpath set to `["src"]`, three markers registered (`unit`, `integration`, `e2e`), `--strict-markers` and `-ra` in addopts
+- [ ] **TEST-02**: `tests/conftest.py` provides a session-scoped `ollama_available` fixture (HTTP probe, runs once per session) and a `require_ollama` fixture that skips the test when Ollama is unreachable
+- [ ] **TEST-03**: `tests/` organized into `unit/`, `integration/`, and `e2e/` subdirectories; existing `src/*_test.py` files left in place
+
+### Unit Test Gaps
+
+- [ ] **TEST-04**: `_build_messages()` tested: returns 2-element list with roles `"system"` then `"user"`; user content contains `<job_description>` and `<resume>` XML tags embedding the provided inputs; system content contains `<PERSONA>` and `<CONSTRAINTS>` markers
+- [ ] **TEST-05**: `_check_ollama_health()` tested in isolation: raises `RuntimeError` on `ConnectionError`; raises `RuntimeError` on `Timeout`; does not raise when response status is 200
+- [ ] **TEST-06**: `read_resume()` tested: returns file text content when file exists; raises `FileNotFoundError` when file does not exist
+- [ ] **TEST-07**: `write_resume()` tested: creates output directory if it does not exist; returns a `Path`; written filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern; file content equals the input string
+
+### Integration Tests
+
+- [ ] **TEST-08**: Integration test: Ollama health endpoint returns 200 when Ollama is running; test is skipped (not failed) when Ollama is unreachable
+- [ ] **TEST-09**: Integration test: `generate_tailored_resume()` with a minimal synthetic resume and a short JD returns a string starting with `\documentclass` and ending with `\end{document}`, with no markdown fences; test is skipped when Ollama is unreachable
+
+### E2E Tests
+
+- [ ] **TEST-10**: E2E test: CLI subprocess exits 1 and prints an error to stderr when given empty JD input (END sentinel immediately); does not require Ollama running
+- [ ] **TEST-11**: E2E test: CLI subprocess exits 0 when given a real JD, creates an output file in a temp directory with filename matching the timestamp pattern, and stdout contains `"Tailored resume written to:"`; test is skipped when Ollama is unreachable
 
 ## Future Requirements
 
@@ -75,12 +98,23 @@ Requirements for Output Quality milestone. Each maps to roadmap phases.
 | MATCH-01 | Phase 7 | Pending |
 | MATCH-02 | Phase 7 | Pending |
 | MATCH-03 | Phase 7 | Pending |
+| TEST-01 | Phase 8 | Pending |
+| TEST-02 | Phase 8 | Pending |
+| TEST-03 | Phase 8 | Pending |
+| TEST-04 | Phase 9 | Pending |
+| TEST-05 | Phase 9 | Pending |
+| TEST-06 | Phase 9 | Pending |
+| TEST-07 | Phase 9 | Pending |
+| TEST-08 | Phase 10 | Pending |
+| TEST-09 | Phase 10 | Pending |
+| TEST-10 | Phase 11 | Pending |
+| TEST-11 | Phase 11 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 14 total
-- Mapped to phases: 14
+- v1.1 requirements: 25 total
+- Mapped to phases: 25
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-02*
-*Last updated: 2026-06-02 after initial v1.1 definition*
+*Last updated: 2026-06-02 after merging test coverage into v1.1*

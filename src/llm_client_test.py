@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import requests
 
-from llm_client import _strip_fences, _validate_latex, generate_tailored_resume
+from llm_client import TailorResult, _strip_fences, _validate_latex, generate_tailored_resume
 
 
 class TestStripFences(unittest.TestCase):
@@ -81,6 +81,64 @@ class TestGenerateTailoredResume(unittest.TestCase):
         mock_post.return_value = mock_response
         with self.assertRaises(ValueError):
             generate_tailored_resume("resume text", "job description")
+
+
+class TestTailorResult(unittest.TestCase):
+    @patch("llm_client.requests.post")
+    @patch("llm_client.requests.get")
+    def test_returns_tailor_result_namedtuple(self, mock_get, mock_post):
+        mock_get.return_value = MagicMock(status_code=200)
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "done_reason": "stop",
+            "message": {"content": "\\documentclass{article}\n\\end{document}"},
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+        result = generate_tailored_resume("resume text", "job description")
+        self.assertIsInstance(result, TailorResult)
+
+    @patch("llm_client.requests.post")
+    @patch("llm_client.requests.get")
+    def test_fences_stripped_false_when_no_fences(self, mock_get, mock_post):
+        mock_get.return_value = MagicMock(status_code=200)
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "done_reason": "stop",
+            "message": {"content": "\\documentclass{article}\n\\end{document}"},
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+        result = generate_tailored_resume("resume text", "job description")
+        self.assertFalse(result.fences_stripped)
+
+    @patch("llm_client.requests.post")
+    @patch("llm_client.requests.get")
+    def test_fences_stripped_true_when_raw_had_fences(self, mock_get, mock_post):
+        mock_get.return_value = MagicMock(status_code=200)
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "done_reason": "stop",
+            "message": {"content": "```latex\n\\documentclass{article}\n\\end{document}\n```"},
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+        result = generate_tailored_resume("resume text", "job description")
+        self.assertTrue(result.fences_stripped)
+
+    @patch("llm_client.requests.post")
+    @patch("llm_client.requests.get")
+    def test_content_field_is_stripped_latex(self, mock_get, mock_post):
+        mock_get.return_value = MagicMock(status_code=200)
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "done_reason": "stop",
+            "message": {"content": "```latex\n\\documentclass{article}\n\\end{document}\n```"},
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+        result = generate_tailored_resume("resume text", "job description")
+        self.assertEqual(result.content, "\\documentclass{article}\n\\end{document}")
 
 
 if __name__ == "__main__":

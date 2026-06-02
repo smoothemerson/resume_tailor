@@ -3,7 +3,8 @@ import sys
 from pathlib import Path
 
 from config import BASE_RESUME_PATH, OUTPUT_DIR
-from llm_client import generate_tailored_resume
+from guards import run_guards
+from llm_client import TailorResult, generate_tailored_resume
 from resume_reader import read_resume
 from resume_writer import write_resume
 
@@ -46,8 +47,9 @@ def main() -> None:
 
     try:
         resume_text = read_resume(resume_path)
-        content = generate_tailored_resume(resume_text, job_description, model=args.model)
-        output_path = write_resume(content, output_dir)
+        result = generate_tailored_resume(resume_text, job_description, model=args.model)
+        run_guards(resume_text, result.content, result.fences_stripped)
+        output_path = write_resume(result.content, output_dir)
     except (RuntimeError, ValueError, FileNotFoundError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

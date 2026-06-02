@@ -53,7 +53,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md — Wire run_guards into cli.py + create guards_test.py unit test suite
+- [x] 04-02-PLAN.md — Wire run_guards into cli.py + create guards_test.py unit test suite — COMPLETE 2026-06-02
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -168,7 +168,7 @@ Plans:
 | 1. Foundation | v1.0 | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
-| 4. Output Reliability Guards | v1.1 | 1/3 | In Progress | - |
+| 4. Output Reliability Guards | v1.1 | 2/3 | In Progress | - |
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |

@@ -1,8 +1,14 @@
 import re
+from typing import NamedTuple
 
 import requests
 
 from config import OLLAMA_BASE_URL, OLLAMA_MODEL, TIMEOUT
+
+
+class TailorResult(NamedTuple):
+    content: str
+    fences_stripped: bool
 
 
 def _check_ollama_health() -> None:
@@ -121,7 +127,7 @@ def _validate_latex(text: str) -> str:
 
 def generate_tailored_resume(
     resume_text: str, job_description: str, model: str | None = None
-) -> str:
+) -> TailorResult:
     effective_model = model or OLLAMA_MODEL
     _check_ollama_health()
 
@@ -161,8 +167,10 @@ def generate_tailored_resume(
         )
 
     try:
-        content = data["message"]["content"]
+        raw = data["message"]["content"]
     except KeyError as exc:
         raise RuntimeError(f"Unexpected Ollama response structure: {data}") from exc
-    content = _strip_fences(content)
-    return _validate_latex(content)
+    fences_stripped = raw.strip() != _strip_fences(raw)
+    content = _strip_fences(raw)
+    _validate_latex(content)
+    return TailorResult(content=content, fences_stripped=fences_stripped)

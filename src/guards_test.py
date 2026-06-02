@@ -30,6 +30,13 @@ class TestCheckMissingSections(unittest.TestCase):
             run_guards(original, tailored)
             mock_logger.warning.assert_not_called()
 
+    def test_multiple_missing_sections(self):
+        original = "\\header{Skills}\n\\header{Experience}\n\\header{Education}"
+        tailored = "\\header{Education}"
+        with patch("guards.logger") as mock_logger:
+            run_guards(original, tailored)
+            self.assertEqual(mock_logger.warning.call_count, 2)
+
 
 class TestCheckFormatViolations(unittest.TestCase):
     def test_fences_stripped_true_triggers_warning(self):

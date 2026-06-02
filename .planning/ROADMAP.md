@@ -42,7 +42,12 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
   2. Running the tool when the LLM returns markdown fences or prose before `\documentclass` prints a format violation warning to stderr
   3. Running the tool when the LLM introduces employer names or dates not in the original resume prints a hallucination warning to stderr
   4. All guard warnings are non-fatal — the tailored `.tex` file is written to disk regardless of how many warnings fire
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TailorResult refactor in llm_client.py + create guards.py with run_guards()
+- [ ] 04-02-PLAN.md — Wire run_guards into cli.py + create guards_test.py unit test suite
+- [ ] 04-03-PLAN.md — Update cli_test.py mocks for TailorResult + full suite green gate
 
 ### Phase 5: Diff View
 **Goal**: Users can immediately see what changed between their original resume and the tailored version without opening two files in an editor — and the output stays clean when the tool is used in scripts or pipelines
@@ -124,7 +129,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 | 1. Foundation | v1.0 | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
-| 4. Output Reliability Guards | v1.1 | 0/? | Not started | - |
+| 4. Output Reliability Guards | v1.1 | 0/3 | Not started | - |
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |

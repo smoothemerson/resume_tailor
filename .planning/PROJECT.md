@@ -8,15 +8,15 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
-## Current Milestone: v1.2 Test Coverage
+## Current Milestone: v1.1 Output Quality
 
-**Goal:** Give the Resume Tailor CLI a full test pyramid — unit tests (Ollama mocked), integration tests (real Ollama, no subprocess), and e2e tests (real Ollama + subprocess CLI invocation).
+**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures.
 
 **Target features:**
-- Unit: message structure and prompt shape, reader/writer modules, health check isolation
-- Integration: real Ollama health check and generate call, output structure validation
-- E2E: subprocess CLI invocation with real Ollama — golden path, error paths, output file validation
-- Test infrastructure: pytest markers, conftest.py, organized test layout
+- Output reliability guards: dropped-section, format violation, and hallucination warnings
+- Diff view between original and tailored resume (always-on, TTY-gated)
+- Two-pass pipeline: JD analysis pass then section-specific tailoring
+- JD keyword match summary after tailoring
 
 ## Requirements
 
@@ -33,14 +33,13 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-- [ ] Unit tests cover `_build_messages()` message structure and prompt XML shape
-- [ ] Unit tests cover `read_resume()` and `write_resume()` modules in isolation
-- [ ] Unit tests cover `_check_ollama_health()` in isolation (not via generate)
-- [ ] Integration tests cover real Ollama health check and generate call
-- [ ] Integration tests verify returned LaTeX has correct structure (compilable)
-- [ ] E2E tests run full CLI subprocess with real Ollama — exit code, output file, filename pattern
-- [ ] E2E tests cover error paths: Ollama unreachable, empty JD
-- [ ] Test infrastructure: pytest markers, conftest.py, organized test layout
+- [ ] Tool warns when a section present in the original resume is missing from tailored output (GUARD-01)
+- [ ] Tool warns when tailored output contains markdown prose or format violations (GUARD-02)
+- [ ] Tool warns when structured fields appear in output but were not in original resume (GUARD-03)
+- [ ] Guards degrade gracefully — warnings to stderr, never block output write (GUARD-04)
+- [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
+- [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
+- [ ] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03)
 
 ### Out of Scope
 
@@ -101,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after v1.2 milestone start — test coverage milestone initiated*
+*Last updated: 2026-06-02 after v1.1 milestone start — output quality milestone, requirements defined*

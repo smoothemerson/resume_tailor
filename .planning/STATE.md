@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Test Coverage
+milestone: v1.1
+milestone_name: Output Quality
 status: planning
-stopped_at: Defining requirements
+stopped_at: Requirements defined — creating roadmap
 last_updated: "2026-06-02"
 last_activity: 2026-06-02
 progress:
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Defining requirements for v1.2 Test Coverage
+**Current focus:** Creating roadmap for v1.1 Output Quality
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (creating roadmap)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-02 — Milestone v1.2 started
+Status: Requirements defined — creating roadmap
+Last activity: 2026-06-02 — Milestone v1.1 requirements confirmed
 
 ## Performance Metrics
 
@@ -68,5 +68,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-02
-Stopped at: Starting v1.2 milestone — defining requirements
-Resume: Continue with `/gsd-new-milestone` to complete requirements and roadmap
+Stopped at: v1.1 requirements defined — proceeding to roadmap creation
+Resume: Continue with `/gsd-new-milestone` — creating roadmap

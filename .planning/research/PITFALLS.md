@@ -1,327 +1,292 @@
-# Domain Pitfalls
+# Pitfalls Research
 
-**Domain:** Python CLI tool — local Ollama LLM — LaTeX resume output
-**Researched:** 2026-05-28
-**Confidence:** HIGH (domain-specific, drawn from Ollama API behavior, Python requests library, LaTeX encoding, and CLI input-handling patterns)
+**Domain:** Python CLI tool — output quality features for LaTeX resume tailoring via local Ollama LLM
+**Researched:** 2026-06-02
+**Confidence:** HIGH for LaTeX diff and two-pass LLM pitfalls (grounded in difflib behavior, Ollama API, and known LLM output patterns); MEDIUM for keyword scoring and hallucination detection (heuristic approaches vary, limited authoritative sources for stdlib-only constraints)
+
+---
+
+## Scope
+
+This document covers pitfalls specific to **v1.1 output quality features** being added to an existing single-pass pipeline:
+
+1. LaTeX diff view using `difflib`
+2. JD keyword match scoring
+3. Two-pass Ollama pipeline (analysis pass + tailoring pass)
+4. Programmatic hallucination and dropped-section detection
+
+Pitfalls from v1.0 (markdown fences, timeout hangs, context truncation, encoding, etc.) are documented in the original PITFALLS.md. This file extends that document — do not re-implement the same guards.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: LLM Returns Markdown-Fenced LaTeX Instead of Raw `.tex`
-
-**Severity:** CRITICAL — output is silently broken
+### Pitfall 1: LaTeX Diff Drowns in Whitespace and Formatting Noise
 
 **What goes wrong:**
-Models like mistral and llama3 default to "helpful" markdown formatting. Even with instructions like "return only LaTeX", they routinely wrap output in triple-backtick fences:
+`difflib.unified_diff()` operates on lines. LaTeX files have significant semantic content in whitespace: `\vspace*{-9pt}`, indented macro arguments, empty lines between environments, and wrapped long lines. The LLM almost certainly reformats indentation and whitespace throughout the document even when instructed not to. A naive line-level diff shows hundreds of "changed" lines when only three bullet points changed substantively. The output is unreadable noise that obscures real changes.
 
-```
-```latex
-\documentclass{article}
-...
-```
-```
-
-If the tool writes this directly to a `.tex` file, `pdflatex` fails with cryptic parse errors. The bug is invisible at write-time — it only surfaces when the user tries to compile.
+Example: the existing `english.tex` uses `\newcommand{\employer}[3]` with multi-line argument indentation. A model that reformats to single-line or re-wraps at 80 characters generates a diff that looks like every line changed.
 
 **Why it happens:**
-Instruction-tuned models are trained on markdown-heavy data. "Return only LaTeX" is interpreted as a style hint, not a hard format constraint. Without a parsing/stripping layer, the guardrail has no teeth.
+Developers reach for `difflib.unified_diff(original.splitlines(), tailored.splitlines())` because it is the obvious stdlib approach. It treats every line as equal weight. LaTeX structural whitespace and content text are indistinguishable at the line level.
+
+**How to avoid:**
+1. Normalize both sides before diffing: strip trailing whitespace from each line with `line.rstrip()`, collapse runs of blank lines to a single blank, before splitting into lines. Do not strip leading whitespace — indentation can be semantically meaningful in some LaTeX environments.
+2. Filter the diff output: only display changed lines that contain actual text tokens — lines matching `r'\w'` — and skip lines whose only change is whitespace rearrangement. A line that changed from `    text` to `  text` is structural noise.
+3. Consider a two-step filter: first strip-and-compare to detect whether changes are purely whitespace; if so, skip that hunk entirely. If the hunk contains non-whitespace deltas, include it.
+4. Show a summary count first: "N lines changed" before the full diff. If N is large, warn the user that reformatting occurred.
 
 **Warning signs:**
-- First-run test produces a `.tex` file that fails to compile
-- Output file starts with ` ```latex ` or contains ` ``` ` anywhere
-- Model returns a preamble explanation before `\documentclass`
+- Running `difflib.unified_diff` on the raw original and raw output shows 50+ changed lines on a 149-line resume.
+- Every `\vspace` or custom command argument appears as a changed line.
+- The diff is longer than the resume itself.
 
-**Prevention:**
-1. In the system prompt, use explicit negative constraints: "Do NOT wrap output in markdown code fences. Do NOT include any text before `\documentclass` or after the final `\end{document}`."
-2. Add a post-processing strip function regardless of the prompt: scan for ` ```...``` ` wrapper and remove it before writing to disk.
-3. Add a minimal output validator: check that the response starts with `\documentclass` (after stripping whitespace) and contains `\end{document}`.
-
-**Phase:** Phase 1 (core LLM call). Strip function must be present before any output is written.
+**Phase to address:** Phase implementing the diff view. Normalize before diffing; do not defer normalization to a later phase.
 
 ---
 
-### Pitfall 2: Ollama `requests` Call Hangs Silently on Model Load
-
-**Severity:** CRITICAL — looks like a hang to the user, no feedback
+### Pitfall 2: JD Keyword Scoring Is Gamed by Repetition and Substrings
 
 **What goes wrong:**
-When the target model is not already loaded in Ollama's memory, the first call triggers a model load that can take 15-90 seconds for 7B+ parameter models. The `requests.post()` call blocks with no output, no progress indicator, and no timeout by default. If `timeout=` is not set, the call hangs indefinitely. If it IS set too short (e.g. 30s), the request raises `requests.exceptions.Timeout` before generation even starts.
+A naive keyword scorer splits the JD by whitespace, deduplicates into a set, then counts how many tokens appear in the tailored resume. This fails in multiple ways:
+
+- **Substring false positives**: "Python" matches inside "CPython", "IronPython", and "pythonic". "ML" matches inside "XML". Simple `in` membership on string produces wrong counts.
+- **Case mismatch**: "kubernetes" in the JD, "Kubernetes" in the resume — missed unless lowercased on both sides.
+- **Stop word noise**: The JD contains "the", "and", "our", "team", "you", "will", "be" — all high-frequency tokens that appear everywhere and inflate the score artificially.
+- **Abbreviation explosion**: "CI/CD" tokenizes as "CI/CD", "CI", "CD" depending on the tokenizer. "Machine Learning" and "ML" are treated as unrelated tokens. The resume that uses "ML" when the JD uses "Machine Learning" scores zero on that keyword even though they are semantically identical.
+- **Over-counting multiplicity**: Counting raw occurrences rather than presence means "Python" appearing 10 times in the JD counts as 10 matches, inflating the denominator.
+
+The result is a score that looks precise (e.g., "72% keyword match") but is meaningless because stop words dominate the numerator and substring matches create false positives.
 
 **Why it happens:**
-Ollama loads models lazily on first use. The HTTP connection stays open during load. `requests` default timeout is `None` — no timeout. Developers test on warm models and never hit the cold-load case.
+Keyword scoring feels simple. The first implementation naturally reaches for `set(jd.split())` and `sum(1 for kw in kw_set if kw in resume)`. The tests pass on obvious inputs but the score is wrong in practice.
+
+**How to avoid:**
+1. Use a hardcoded stop word list. The NLTK stop word list is not available (project is stdlib + requests). Maintain a minimal list of 30-50 English stop words relevant to job descriptions: `{"the", "and", "or", "a", "an", "in", "of", "to", "for", "with", "is", "are", "will", "be", "as", "at", "by", "on", "we", "our", "you", "your", "this", "that", "have", "from", "not", "but", "it"}`. Filter these out before building the keyword set.
+2. Use whole-word matching: `re.search(r'\b' + re.escape(keyword) + r'\b', resume_text, re.IGNORECASE)` rather than `keyword in resume_text`. This eliminates substring false positives.
+3. Normalize before tokenizing: lowercase both JD and resume, replace `/` with space, strip punctuation at token boundaries. This catches "CI/CD" → ["ci", "cd"] matching "ci" and "cd" in resume.
+4. Deduplicate at keyword level, not occurrence level: build `{keyword: bool}` presence, not `{keyword: count}`. Score = matched / total unique meaningful keywords.
+5. Keep multi-word phrases: extract 2-grams from the JD keyword list ("machine learning", "deep learning", "software engineer") so that phrase-level terms are tested as units, not exploded into individual tokens that match anywhere.
+6. Report the keyword list shown to the user — make the scoring transparent. Print "Keywords extracted: [Python, Kubernetes, MLOps, ...]" so the user can see what was scored and judge the output quality themselves.
 
 **Warning signs:**
-- Script appears frozen after "Calling model..." with no output
-- The behavior is only reproducible on first run after machine restart
-- Log shows request was sent but no response for 60+ seconds
+- Score above 90% on an untailored resume against any JD (stop words inflating score).
+- "ML" and "Machine Learning" both in the JD, resume uses one of them, score shows 50% match on that domain.
+- Score changes drastically when the JD is copy-pasted with vs. without trailing punctuation.
 
-**Prevention:**
-1. Set a generous `timeout` on the `requests.post()` call. For generation, use a tuple: `timeout=(10, 300)` — 10 seconds to connect, 300 seconds to receive. This prevents silent hangs while allowing slow generation.
-2. Print a progress message immediately before the API call: "Calling Ollama (this may take a minute on first run)..."
-3. Separately, use the `/api/tags` endpoint with a short timeout at startup to confirm Ollama is reachable before sending the full prompt. Fail fast with a clear error rather than hanging.
-
-**Phase:** Phase 1 (Ollama API integration). Timeout tuple and startup check must be in the initial implementation.
+**Phase to address:** Phase implementing the keyword scorer. Write a test with a known minimal JD ("Python developer with experience in Kubernetes and CI/CD") and a known resume, and verify the score reflects only meaningful tokens.
 
 ---
 
-### Pitfall 3: Response Truncation Due to `num_predict` Default
-
-**Severity:** CRITICAL — output is a partial `.tex` file
+### Pitfall 3: The Analysis Pass Returns Unstructured Text That the Tailoring Pass Ignores
 
 **What goes wrong:**
-Ollama's `/api/generate` has a default `num_predict` of -1 (unlimited) in some versions, but the effective context window interacts with `num_ctx`. If the base resume is long (300+ lines) and the generated output is similarly long, the response can be silently cut off mid-document. The file is written but ends at line 200, and `pdflatex` fails with "unexpected end of file."
+The two-pass design has the first Ollama call analyse the JD and return key requirements, then feeds that analysis as context to the second (tailoring) call. The most common failure: the analysis pass returns free-form prose ("The job emphasizes Python, distributed systems, and leadership...") that is simply appended to the tailoring prompt. The tailoring model receives a long context it was not specifically prompted to use, and either ignores the analysis section or blends it inconsistently with the original instructions.
 
-The non-streaming response returns a `done_reason` field. If `done_reason` is `"length"` rather than `"stop"`, the generation was truncated by the context limit.
+The analysis output is unstructured, variable-length, and unpredictable. Sometimes it returns 3 bullet points. Sometimes it returns 500 words. Sometimes it returns JSON. Sometimes it writes a cover letter.
 
 **Why it happens:**
-A full LaTeX resume sent as input + a full tailored resume as output can easily exceed 4096 tokens. The default `num_ctx` for many Ollama models is 2048 or 4096. The prompt alone may consume most of the context window, leaving insufficient space for the full output.
+The natural instinct is to run the analysis pass with a vague prompt ("analyse this job description and tell me the key requirements") and then concatenate the result into the tailoring prompt. There is no contract between the two passes.
+
+**How to avoid:**
+1. Define a strict output contract for the analysis pass. Prompt the model to return a structured list — use XML-delimited format since this is already the pattern in the existing system prompt: `<keywords>Python, Kubernetes, MLOps</keywords><seniority>Senior</seniority><domain>distributed systems</domain>`. Validate that the output matches this structure before passing it downstream.
+2. If the analysis response does not contain the expected structure (missing XML tags), do not abort — fall back to the single-pass approach with a warning: "Analysis pass returned unexpected format, proceeding with single-pass tailoring."
+3. Keep the analysis prompt minimal and deterministic. "Return ONLY a comma-separated list of technical keywords from this job description. No prose, no explanation." is more reliable than "tell me the key requirements."
+4. Cap the analysis output. The tailoring prompt is already large (full resume + JD + system prompt ≈ 3500-5000 tokens). Adding 500 tokens of analysis prose risks hitting the 8192 `num_ctx` limit. Budget the analysis output to under 200 tokens.
+5. Structure the tailoring prompt to use the analysis output explicitly: "The following keywords were extracted from the job description. Prioritize surfacing these in the tailored resume: {extracted_keywords}." This makes the analysis an injection point, not background context.
 
 **Warning signs:**
-- Output `.tex` file ends mid-command or mid-environment
-- `pdflatex` reports "unexpected end of file" or "missing \end{document}"
-- `done_reason: "length"` in the API response
+- Analysis pass output varies wildly in length between runs (50 words vs. 500 words).
+- Tailored output quality is identical whether the analysis pass ran or not (analysis is being ignored).
+- Total prompt token count exceeds the `num_ctx` budget, triggering `done_reason: length` on the second call.
 
-**Prevention:**
-1. Always check `response_json["done_reason"]`. If it equals `"length"`, raise an explicit error: "Output truncated by context limit. Try a shorter job description or a model with larger context."
-2. Set `num_ctx` explicitly in the request options to 8192 or higher if the model supports it. Pass `"options": {"num_ctx": 8192}` in the request body.
-3. Add a post-write validator: check that the last non-whitespace characters of the written file are `\end{document}`. If not, delete the file and abort with a clear error message.
-
-**Phase:** Phase 1 (LLM call) + Phase 2 (output validation).
+**Phase to address:** Phase implementing the two-pass pipeline. The output contract of pass 1 must be defined before pass 2 is written — not retrofitted.
 
 ---
 
-### Pitfall 4: Special Characters in Job Description Breaking the LaTeX Prompt
-
-**Severity:** HIGH — causes prompt injection into LaTeX context or malformed output
+### Pitfall 4: Two Serial Ollama Calls Double Latency Without Consistent Timeout Handling
 
 **What goes wrong:**
-Job descriptions routinely contain characters that are LaTeX control characters: `%`, `&`, `$`, `_`, `^`, `#`, `{`, `}`, `~`, `\`. When the job description is interpolated directly into the prompt, the model may interpret these as LaTeX commands and "correct" them in ways that corrupt the output resume.
+The existing pipeline has one Ollama call with a `(10, 300)` timeout. Adding a second serial call doubles worst-case latency to 600 seconds. The health check at startup covers the first call but not the state of Ollama mid-pipeline. Between the two calls, Ollama may unload the model from memory (default `OLLAMA_KEEP_ALIVE` is 5 minutes, but with local hardware, the first generation may exhaust VRAM and the second call triggers a reload).
 
-A job description saying "Salary: $150K" or "skills: Python/C++ & ML" causes the model to either misinterpret the context or hallucinate LaTeX escaping where it should not.
+If the first call succeeds but the second call fails (timeout, OOM, model reload delay), the tool exits with a RuntimeError but has not written any output. The user spent 3 minutes and got nothing. No partial output, no way to retry just the tailoring pass.
 
 **Why it happens:**
-The prompt mixes two contexts: the job description (plain text) and the LaTeX document (structured markup). Without clear delimiters, the model conflates them.
+Two-call error handling is often copy-pasted from the single-call pattern without considering what "partial success" means. The first call is the analysis pass; its output has no user value on its own. If the second call fails, the entire run is wasted.
+
+**How to avoid:**
+1. Apply the same timeout tuple `(connect_timeout, read_timeout)` to both calls. Use the same constant from `config.py` — do not hardcode a different timeout for the analysis pass.
+2. Re-run the health check between calls only if the first call took over 60 seconds (possible model reload was triggered). Otherwise skip it — the overhead of an extra GET is negligible but unnecessary on fast hardware.
+3. Log (print to stderr) elapsed time after the first call: "Analysis complete (12.4s), starting tailoring pass..." This tells the user the pipeline is progressing, not hung.
+4. Wrap both calls in the same try/except block at the `cli.py` boundary. The error message should distinguish which pass failed: "Tailoring pass failed after analysis completed — try increasing TIMEOUT in config.py."
+5. Do not cache the analysis output to disk between calls. The pipeline is short-lived; caching adds complexity and the analysis result has no standalone use.
 
 **Warning signs:**
-- Output resume has escaped characters (`\$`, `\%`) in unexpected places
-- Bullets hallucinate content that paraphrases the salary or benefit lines from the JD
-- Model starts "fixing" LaTeX in the job description section
+- Second call times out more often than the first (model was evicted after first call's long generation).
+- No progress message between calls — user cannot distinguish "analysis running" from "hung."
+- Timeout error message does not say which pass failed.
 
-**Prevention:**
-1. Wrap the job description in the prompt with an explicit "NOT LaTeX" delimiter:
+**Phase to address:** Phase implementing the two-pass pipeline. Timeout and progress output must be designed into the two-call structure, not added after.
+
+---
+
+### Pitfall 5: Dropped-Section Detection Misidentifies Custom LaTeX Macros as Section Headers
+
+**What goes wrong:**
+The resume uses `\header{Experience}` rather than `\section{Experience}`. A naive dropped-section check that scans for `\section{...}` patterns will find zero sections in the original and conclude that all sections are "present" in the output (vacuously true). Meanwhile, a model that drops the `\header{Languages}` block goes undetected.
+
+Alternatively, if the checker is written to look for `\header{...}`, it works for this specific resume template but silently breaks for any other resume that uses `\section{}` or a different macro. The checker becomes template-specific without being documented as such.
+
+**Why it happens:**
+Developers write dropped-section detection against the known resume structure during development, test it on `english.tex`, and mark it as working. The assumption that the resume uses `\section{}` is baked in silently.
+
+**How to avoid:**
+1. Extract section headers from the original resume dynamically, not from a hardcoded list. Scan the original for both `\section{...}` and `\header{...}` and any other macro call that appears to introduce a section (heuristic: macro on its own line, argument is a short capitalized phrase like "Experience", "Skills", "Education").
+2. Build the expected section list from the original at runtime: `re.findall(r'\\(?:section|header|subsection)\{([^}]+)\}', original_text)`. This returns `["Experience", "Projects", "Skills", "Education", "Languages"]` from `english.tex`.
+3. Check the tailored output against the same set of section names using case-insensitive comparison. A section is "dropped" if its name does not appear anywhere in the tailored output at all (even as text, not just as a macro argument).
+4. Warn, do not abort. A warning like "Warning: section 'Languages' not found in tailored output — verify before compiling" is appropriate. Aborting on a false positive would be worse than missing a true positive.
+5. Document that the section detector is heuristic-based and cannot catch sections that the model renamed (e.g., "Experience" → "Work Experience").
+
+**Warning signs:**
+- Dropped-section check returns "all sections present" on a clearly broken output.
+- Check hard-codes `["Experience", "Skills", "Education"]` rather than extracting from original.
+- Check breaks silently when run against a resume that uses `\section{}` instead of `\header{}`.
+
+**Phase to address:** Phase implementing output reliability guards. Extract section list from the original before comparing — never hardcode.
+
+---
+
+### Pitfall 6: Hallucination Detection Flags Legitimate Rewrites as New Content
+
+**What goes wrong:**
+Hallucination detection via string-level comparison between original and output will produce false positives because the prompt explicitly instructs the model to rewrite bullet points. A bullet that was:
 
 ```
-<job_description>
-{job_description_text}
-</job_description>
-
-This is PLAIN TEXT. Do not interpret it as LaTeX. Use it only to understand the role requirements.
+Developed ML pipelines for fraud detection
 ```
 
-2. Do NOT escape special characters in the job description before sending — the model should receive it verbatim inside its plaintext container. Escaping can garble meaning.
-3. Add a note in the system prompt: "The job description above may contain characters like $, %, &. These are plain text, not LaTeX commands."
+and becomes:
 
-**Phase:** Phase 1 (prompt engineering). Must be part of the initial prompt design.
+```
+Built end-to-end machine learning pipelines for real-time fraud detection and risk scoring
+```
 
----
-
-### Pitfall 5: Non-Streaming Call Blocks With No User Feedback
-
-**Severity:** HIGH — poor UX; user cannot tell if the tool is working or hung
-
-**What goes wrong:**
-Using `stream: false` (non-streaming) with Ollama means the HTTP response is not received until generation is fully complete. For a full resume, this is 30-120 seconds. During this time, the CLI shows no output. Users will kill the process assuming it is frozen, especially on first run.
+contains the new tokens "end-to-end", "real-time", and "risk scoring". A naive detector that checks whether every word in the output exists in the original will flag this as hallucination. The feature will fire on almost every tailoring run, destroying user trust in the warning.
 
 **Why it happens:**
-Non-streaming is simpler to implement (one `response.json()` call), so it is chosen first. The latency only becomes apparent with real inputs.
+Hallucination detection for LLM output is an unsolved research problem at the semantic level. The tempting implementation is string set difference: words in output not in original = hallucinated. This conflates rewriting (acceptable) with invention (not acceptable). The project constraint is to detect *fabricated facts* (new companies, dates, titles, credentials, skills not in original), not new phrasing.
+
+**How to avoid:**
+1. Define exactly what the hallucination checker is looking for. For this project, the specific risks are: new company names, new job titles, new employment dates, new certification names, new skill tokens that appear in the skills section but not in the original. Not: new adjectives, new connecting words, rephrased bullet text.
+2. Limit detection to structured fields. Extract: company names (lines matching `\employer{...}` macro), employment dates (4-digit year patterns), certification tokens (lines in the skills section). Compare these specific fields between original and output. Do not compare running prose.
+3. For skills section hallucination: extract the skills listed under `\header{Skills}` in the original, then check whether any tokens in the output skills section are absent from the original skills section AND absent from the full job description. A skill absent from both original and JD is a hallucination candidate.
+4. Accept false negative risk over false positive risk. A false negative (missed hallucination, user reviews) is recoverable. A false positive (legitimate rewrite flagged as hallucination) destroys trust in the feature and causes users to ignore all warnings.
+5. Label the warning accurately: "Possible new content detected: [token] — verify this was in your original resume." Do not write "hallucination detected" which implies certainty.
 
 **Warning signs:**
-- User reports the tool "freezes"
-- CI or test runs time out because tests don't account for LLM latency
-- Team assumes the tool is broken because no output appears for 60 seconds
+- Hallucination checker fires on every single run with legitimate output.
+- Checker flags rewritten bullet words ("accelerated", "streamlined", "cross-functional") as new content.
+- False positive rate above 50% in informal testing means the feature is useless.
 
-**Prevention:**
-1. Use streaming (`stream: true`) and print a progress indicator (dots, spinner, or token counter) to stderr during generation. This is not significantly more complex with `requests` — iterate over `response.iter_lines()`, decode each NDJSON chunk, and print a dot per chunk.
-2. Alternatively: use non-streaming but print a "Generating resume, please wait..." message with elapsed seconds before the call, and suppress the terminal cursor to signal active work.
-3. For a portfolio tool, streaming with visible output is the right choice — it also lets the user see the output being generated and abort early if the model is clearly going wrong.
-
-**Phase:** Phase 1 (Ollama integration). Decide streaming vs non-streaming at this phase and stick to it.
+**Phase to address:** Phase implementing output reliability guards. Write a test that runs the checker against a known-good rewrite and confirms zero false positives before shipping.
 
 ---
 
-## Moderate Pitfalls
+## Technical Debt Patterns
 
-### Pitfall 6: `requests` Default Behavior with NDJSON Streaming
-
-**What goes wrong:**
-Ollama's streaming endpoint returns newline-delimited JSON (NDJSON). Each line is a JSON object: `{"response": "token", "done": false}`. Using `response.text` or `response.json()` on a streaming response returns garbled or empty output. `response.iter_lines()` is required, and each line must be `json.loads()`-decoded individually. Additionally, the final line contains generation stats, not a token — it has `"done": true` and must be handled separately.
-
-**Prevention:**
-Use `response.iter_lines(decode_unicode=True)`, skip empty lines, `json.loads()` each, accumulate the `"response"` field when `done == false`, and stop when `done == true`. Never call `response.json()` on a streaming response.
-
-**Phase:** Phase 1.
-
----
-
-### Pitfall 7: LaTeX Source File Read as Wrong Encoding
-
-**What goes wrong:**
-The base `.tex` file may contain UTF-8 characters (em dashes, curly quotes, accented characters in names). Reading it with `open(path, 'r')` on Windows defaults to the system locale encoding (often cp1252), corrupting the file content before it reaches the prompt. The model then sees garbled text and may "correct" the encoding in ways that break the LaTeX.
-
-**Prevention:**
-Always read and write `.tex` files with explicit `encoding='utf-8'`: `open(path, 'r', encoding='utf-8')`. Apply this to both reading the base resume and writing the output file.
-
-**Phase:** Phase 1 (file I/O). Must be in the initial implementation.
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Hardcode expected sections ["Experience", "Skills", "Education"] | Ships fast, works for current resume | Silently breaks for any other resume structure; brittle | Never — extract from original at runtime, costs 2 lines |
+| Use `word in resume_text` for keyword scoring | One line, obvious | Substring false positives ("ML" in "XML"); wrong scores | Never — use `\bword\b` regex, costs 1 line |
+| Run analysis pass but don't validate its output format | Ships the two-pass pipeline faster | Analysis pass garbage propagates into tailoring prompt undetected; quality degrades silently | Never — add a 3-line check for expected XML tags |
+| Show raw `difflib.unified_diff()` output | No extra code | Whitespace noise makes diff unreadable; user ignores the feature | Never — normalize before diffing, costs 5 lines |
+| Use `words_in_output - words_in_original` as hallucination signal | Simple set operation | False positive on every rewritten bullet; feature is noise | Never — scope detection to structured fields only |
+| Duplicate health check call at start of two-pass | Defensive, feels safe | Adds connect latency before both calls; wastes 200ms | Acceptable only if second call follows the first by >5 minutes (unlikely in practice) |
 
 ---
 
-### Pitfall 8: Multiline Job Description Input Termination is Ambiguous
+## Integration Gotchas
 
-**What goes wrong:**
-Using `input()` in a loop with an "END" terminator works on a happy path but fails in two real-world scenarios: (1) the user pastes a job description that contains a line reading "END" (rare but possible), and (2) the user sends EOF (Ctrl+D on Unix, Ctrl+Z on Windows) which raises `EOFError` and crashes instead of treating it as submission.
-
-**Prevention:**
-1. Use a sentinel that is clearly unambiguous — e.g., a blank line followed by "END", or use `sys.stdin` to detect EOF gracefully. Wrap the input loop in a `try/except EOFError` and treat EOF as submission, not an error.
-2. Document the terminator clearly in the CLI prompt string: `"Enter job description (type END on a new line to submit, or Ctrl+D to finish):"`.
-
-**Phase:** Phase 1 (CLI input handling).
-
----
-
-### Pitfall 9: Output Directory Not Created Automatically
-
-**What goes wrong:**
-The output path `resumes/output/tailored_resume_YYYYMMDD_HHMMSS.tex` requires the `resumes/output/` directory to exist. If it does not, `open(path, 'w')` raises `FileNotFoundError`. This is a one-line fix but it surfaces as a confusing error message on first run for anyone who clones the repo.
-
-**Prevention:**
-Use `pathlib.Path(output_path).parent.mkdir(parents=True, exist_ok=True)` before opening the output file. This should be in the file-writing function, not in setup docs.
-
-**Phase:** Phase 1 (file output).
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| `difflib.unified_diff` | Passing raw `.splitlines()` including trailing whitespace | Normalize with `[line.rstrip() for line in text.splitlines()]` before passing to `unified_diff` |
+| `difflib.unified_diff` | Forgetting `lineterm=""` parameter | Set `lineterm=""` or output lines carry embedded newlines and print double-spaced |
+| Two Ollama calls in sequence | Using a single flat `try/except` that can't distinguish which call failed | Wrap each call separately; error messages should name the failing pass |
+| Analysis pass output | Passing raw analysis string into tailoring prompt without structure | Use XML delimiters; extract `<keywords>` tag content before injecting |
+| Ollama second call after long first call | Model may be evicted from VRAM between calls | Print elapsed time between calls; use same `(10, 300)` timeout tuple — do not tighten timeout for "analysis" call just because it's shorter |
+| Keyword set construction | `set(jd.split())` tokenizes on spaces only; does not handle `Python,` vs `Python` | Strip punctuation from token boundaries: `re.findall(r'\b\w[\w+#.-]*\b', jd.lower())` |
+| Section regex | `r'\\section\{([^}]+)\}'` only matches `\section` | Use `r'\\(?:section|subsection|header)\{([^}]+)\}'` to cover custom macros; extend as needed |
 
 ---
 
-### Pitfall 10: `config.py` Using Relative Paths Breaks When CLI is Run From a Different Directory
+## Performance Traps
 
-**What goes wrong:**
-If `config.py` defines `BASE_RESUME_PATH = "resume.tex"` or `BASE_RESUME_PATH = "resumes/base.tex"` as a bare relative string, the path is resolved relative to the shell's current working directory at invocation time — not relative to the project root. Running `python src/main.py` from `/home/user/` instead of the project root silently reads the wrong file (or raises FileNotFoundError with a confusing path).
-
-**Prevention:**
-Anchor all paths to the project root using `__file__`:
-
-```python
-from pathlib import Path
-PROJECT_ROOT = Path(__file__).parent.parent
-BASE_RESUME_PATH = PROJECT_ROOT / "resumes" / "base.tex"
-```
-
-This resolves correctly regardless of where the user invokes the script.
-
-**Phase:** Phase 1 (config setup). Must be in initial `config.py`.
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Two serial Ollama calls with no progress output | User sees no feedback for 3-6 minutes; kills process | Print "Analysis complete (Xs)" between calls | Every run when model is cold-loaded |
+| Analysis pass prompt includes full resume + full JD | Analysis call consumes 3000+ tokens; leaves little headroom for tailoring pass context | Truncate or summarize JD before analysis pass if over 2000 tokens | When JD is pasted from a verbose multi-page posting |
+| Diff computed on original + output without normalization | Diff takes O(n²) time on long sequences with many matches | Difflib is fast enough for a 149-line resume; not a real perf risk at this scale | Not a trap at this scale — note for documentation only |
+| Keyword scorer iterates full resume string per keyword | Linear scan per keyword; for 50 keywords × 5000 char resume = 250,000 comparisons | Compile all keywords into a single `re.compile(r'\b(?:kw1|kw2|...)\b', re.I)` | Not a real trap at this scale — but `re.compile` is still better practice |
 
 ---
 
-### Pitfall 11: LLM Hallucinating Work Experience or Dates
+## "Looks Done But Isn't" Checklist
 
-**What goes wrong:**
-Even with a strict system prompt, instruction-tuned models sometimes add experience lines, adjust dates, change company names, or add skills that were not in the base resume. The output is syntactically valid LaTeX but factually wrong. This is the highest-risk output quality issue for a resume tool.
-
-**Why it happens:**
-Models are trained to be helpful and "fill gaps." If the job description asks for 5 years of Kubernetes experience and the base resume shows none, the model may add it. The system prompt says not to hallucinate, but prompt-level guardrails are probabilistic, not deterministic.
-
-**Prevention:**
-1. The system prompt must be explicit and specific: "You MUST NOT add any work experience, company names, job titles, dates, or skills that do not appear in the original resume. Rewrite bullets for emphasis, not invention. If the job requires a skill not in the resume, do not add it."
-2. At minimum, the tool should print a diff-style summary or direct the user to compare the output: "Review the output carefully before using: tailored resumes can contain hallucinated content."
-3. Long-term: a diff check between base and output (deferred per PROJECT.md Out of Scope) would catch this.
-
-**Phase:** Phase 1 (prompt engineering) + Phase 2 (output review UX).
+- [ ] **Diff view:** Shows only content-meaningful changes — verify that a whitespace-only reformat produces an empty or minimal diff, not a 100-line diff.
+- [ ] **Keyword scorer:** Test that common stop words ("the", "and", "will", "be") are absent from the keyword set being scored.
+- [ ] **Keyword scorer:** Test that `\bpython\b` does not match inside "cpython" or "pythonic" — confirm word-boundary matching is active.
+- [ ] **Two-pass pipeline:** Test that if the analysis pass returns garbage (no XML tags), the tailoring pass still runs and the tool does not abort.
+- [ ] **Two-pass pipeline:** Test that the total prompt token budget for the tailoring pass (system prompt + analysis output + JD + resume) does not exceed `num_ctx`. Add a rough token estimate check.
+- [ ] **Dropped-section detection:** Confirm it extracts section names from the *original* at runtime rather than matching against a hardcoded list.
+- [ ] **Dropped-section detection:** Confirm it detects the `\header{}` macro used in `english.tex`, not just `\section{}`.
+- [ ] **Hallucination detection:** Run it against a known-good tailored output and confirm zero false positives before it is shipped.
+- [ ] **Hallucination detection:** Confirm warning message uses hedged language ("possible new content") not definitive language ("hallucination detected").
+- [ ] **All new features:** Each new feature degrades gracefully — if it fails internally, print a warning and continue; do not abort the main tailoring pipeline.
 
 ---
 
-### Pitfall 12: Prompt Size Exceeding Context Window With Long Job Descriptions
+## Recovery Strategies
 
-**What goes wrong:**
-The prompt combines: system instruction (300-500 tokens) + base resume (500-1500 tokens for a full .tex file) + job description (200-2000 tokens for a verbose JD). At the upper end, this can push 4000 tokens of input. On a 4096-token context model, there is almost no room for output. The model either truncates mid-resume or produces a very abbreviated output without warning.
-
-**Prevention:**
-1. Measure prompt size before sending. Use a rough token estimate: `len(prompt.split()) * 1.3` as a heuristic. Warn if estimated total exceeds 3000 tokens.
-2. Set `num_ctx` to 8192 in the request options and document the minimum recommended model context size.
-3. Guide users in the README: prefer models with 8k+ context (llama3.1, mistral-nemo) over base 4k models.
-
-**Phase:** Phase 1 (API call construction).
-
----
-
-## Minor Pitfalls
-
-### Pitfall 13: Ollama Connection Error Message Is Cryptic
-
-**What goes wrong:**
-If Ollama is not running, `requests.post()` raises `requests.exceptions.ConnectionError` with a message like `HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded`. This is confusing to non-developers.
-
-**Prevention:**
-Catch `requests.exceptions.ConnectionError` explicitly and re-raise with a human-readable message: `"Ollama is not running. Start it with: ollama serve"`.
-
-**Phase:** Phase 1 (error handling).
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Diff is all whitespace noise | LOW | Add normalization step before diffing; re-test |
+| Keyword score is nonsense (>90% on any input) | LOW | Add stop word filter and word-boundary matching; re-test with known inputs |
+| Analysis pass output format is wrong | MEDIUM | Add XML tag validation + fallback to single-pass; requires restructuring two-pass flow |
+| Second Ollama call fails partway through | LOW | Error already raised; no partial write. Add descriptive error message naming the failing pass |
+| Hallucination checker fires every run | MEDIUM | Rewrite detection to target structured fields only; requires defining field extraction regexes per resume template |
+| Dropped-section check misses custom macros | LOW | Replace hardcoded section list with dynamic extraction; one regex change |
 
 ---
 
-### Pitfall 14: Writing Output File Before Validating LLM Response
+## Pitfall-to-Phase Mapping
 
-**What goes wrong:**
-If the file is written immediately after receiving the response — before checking for truncation, markdown fences, or missing `\end{document}` — then a corrupt file exists on disk. If the user immediately runs `pdflatex` on it, they get compile errors and may not realize the LLM output was the problem.
-
-**Prevention:**
-Validate in memory first. Write to disk only after all checks pass. If validation fails, print the error and exit without writing.
-
-**Phase:** Phase 1 (output pipeline).
-
----
-
-### Pitfall 15: Model Name Mismatch Causing Silent Failure
-
-**What goes wrong:**
-If `config.py` specifies `MODEL = "mistral"` but the installed Ollama model is named `"mistral:latest"` or `"mistral:7b-instruct"`, Ollama returns a 404-style error in the response body (not always a non-200 HTTP status). The tool may not check the HTTP status code and treats the error body as a valid response, writing garbage to disk.
-
-**Prevention:**
-Always check `response.raise_for_status()` before reading the response body. Also check that the response JSON contains a `"response"` key — if it contains `"error"`, surface that message explicitly.
-
-**Phase:** Phase 1 (API call + error handling).
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Whitespace noise in LaTeX diff | Diff view phase | Run diff on original vs. whitespace-reformatted copy — assert 0 changed lines shown |
+| JD keyword stop words inflating score | Keyword scorer phase | Score "the and or will be as" against any resume — assert score is 0% |
+| JD keyword substring false positives | Keyword scorer phase | Score "ML" against resume containing "XML" only — assert 0% match |
+| Analysis pass unstructured output propagates | Two-pass pipeline phase | Mock analysis pass to return "garbage text" — assert tailoring pass still runs |
+| Two-pass latency and timeout | Two-pass pipeline phase | Confirm progress print between calls; confirm same timeout constant used both times |
+| Dropped-section macro mismatch | Output guards phase | Run on `english.tex` — assert "Experience", "Skills", "Education", "Languages" all detected via `\header{}` |
+| Hallucination false positives on rewrites | Output guards phase | Run on known-good tailored output — assert zero false positive warnings |
 
 ---
 
-## Phase Mapping
+## Sources
 
-| Phase Topic | Likely Pitfall | Mitigation | Priority |
-|-------------|---------------|------------|----------|
-| First LLM call implementation | Pitfall 2 (timeout hang) | Timeout tuple `(10, 300)`, startup health check | Must-have in Phase 1 |
-| First LLM call implementation | Pitfall 5 (no feedback) | Progress output to stderr before/during call | Must-have in Phase 1 |
-| Prompt engineering | Pitfall 1 (markdown fences) | Strip function + output validator | Must-have in Phase 1 |
-| Prompt engineering | Pitfall 4 (special char injection) | XML-style delimiter around JD in prompt | Must-have in Phase 1 |
-| Prompt engineering | Pitfall 11 (hallucination) | Explicit negative constraints in system prompt | Must-have in Phase 1 |
-| API call construction | Pitfall 3 (truncation) | Check `done_reason`, set `num_ctx: 8192` | Must-have in Phase 1 |
-| API call construction | Pitfall 12 (context overflow) | Token estimation + warning | Should-have in Phase 1 |
-| Streaming implementation | Pitfall 6 (NDJSON handling) | `iter_lines()` + per-line `json.loads()` | Must-have if streaming |
-| File I/O | Pitfall 7 (encoding) | `encoding='utf-8'` on all file ops | Must-have in Phase 1 |
-| File I/O | Pitfall 9 (missing directory) | `mkdir(parents=True, exist_ok=True)` | Must-have in Phase 1 |
-| File I/O | Pitfall 14 (write before validate) | Validate in memory, write last | Must-have in Phase 1 |
-| Config setup | Pitfall 10 (relative paths) | Anchor paths to `__file__` in config.py | Must-have in Phase 1 |
-| CLI input | Pitfall 8 (multiline terminator) | EOFError handling, clear docs | Should-have in Phase 1 |
-| Error handling | Pitfall 13 (connection error) | Catch + human-readable message | Must-have in Phase 1 |
-| Error handling | Pitfall 15 (model name mismatch) | `raise_for_status()` + check for `"error"` key | Must-have in Phase 1 |
-| Output review (Phase 2) | Pitfall 11 (hallucination) | Diff display or explicit review prompt | Should-have in Phase 2 |
+- Python `difflib` documentation — https://docs.python.org/3/library/difflib.html — official; whitespace-as-junk filtering behavior documented there
+- `SequenceMatcher` junk filtering — https://pymotw.com/3/difflib/index.html — `IS_CHARACTER_JUNK` and `IS_LINE_JUNK` filters explained
+- ATS keyword matching failure modes — https://scale.jobs/blog/resume-keywords-how-ats-systems-read — substring and case sensitivity pitfalls in resume scanners
+- NLP keyword extraction stop-word issues — https://www.analyticsvidhya.com/blog/2021/06/resume-screening-with-natural-language-processing-in-python/ — naive frequency counting inflates scores on common tokens
+- Structured LLM output failure rates — https://tokenmix.ai/blog/structured-output-json-guide — 8-15% unstructured failure rate without schema enforcement on local models
+- Local LLM JSON output failure patterns — https://explore.n1n.ai/blog/local-llm-json-output-failure-patterns-fix-2026-04-24 — local models require explicit format contracts; prose injection common
+- Ollama keepalive and model eviction — https://docs.ollama.com/faq — model unloads after 5 minutes inactivity; relevant to inter-call latency
+- Two-pass LLM pipeline error propagation — https://arxiv.org/pdf/2604.01029 — second-pass gains are bottlenecked by first-pass quality; error cascades documented
+- LLM hallucination detection challenges — https://arxiv.org/pdf/2403.02889 — false positive / negative tradeoffs require calibrated probability scores, not binary flags
+- `english.tex` resume structure — `/workspace/resumes/english.tex` — uses `\header{}` custom macro, not `\section{}`; section list: Experience, Projects, Skills, Education, Languages
 
 ---
 
-## Confidence Notes
-
-All pitfalls above are specific to the exact stack (Python + `requests` + Ollama REST API + LaTeX output + CLI input loop). They are drawn from known behavior of:
-
-- Ollama's `/api/generate` endpoint (NDJSON streaming, `done_reason`, `num_ctx`, model cold-load latency)
-- `requests` library behavior (default `None` timeout, `iter_lines()` for streaming, `raise_for_status()`)
-- Instruction-tuned LLM output tendencies (markdown defaults, hallucination under instruction)
-- LaTeX toolchain constraints (UTF-8 encoding, `pdflatex` sensitivity to malformed files)
-- Python path resolution (`__file__`-anchoring vs CWD-relative strings)
-
-Confidence: HIGH for Pitfalls 1-5, 7, 9-11, 13-15 (well-established patterns).
-Confidence: MEDIUM for Pitfall 6 (NDJSON specifics depend on Ollama version), Pitfall 12 (token counts are estimates).
+*Pitfalls research for: Resume Tailor CLI v1.1 — output quality features*
+*Researched: 2026-06-02*

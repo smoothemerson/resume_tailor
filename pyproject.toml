@@ -30,3 +30,13 @@ dev = [
     "ruff",
     "mypy",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["src", "tests"]
+pythonpath = ["src"]
+markers = [
+    "unit: fast isolated tests, no external deps",
+    "integration: requires Ollama running locally",
+    "e2e: full CLI subprocess invocation",
+]
+addopts = "--strict-markers -ra"

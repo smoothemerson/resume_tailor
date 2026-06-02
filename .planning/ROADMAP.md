@@ -22,7 +22,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 **Milestone Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures — then validate the full codebase with a complete unit/integration/e2e test pyramid.
 
-- [ ] **Phase 4: Output Reliability Guards** - Warn users when the tailored output drops sections, introduces hallucinated fields, or violates LaTeX-only format constraints
+- [x] **Phase 4: Output Reliability Guards** - Warn users when the tailored output drops sections, introduces hallucinated fields, or violates LaTeX-only format constraints (completed 2026-06-02)
 - [ ] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals
 - [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
@@ -57,7 +57,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03-PLAN.md — Update cli_test.py mocks for TailorResult + full suite green gate
+- [x] 04-03-PLAN.md — Update cli_test.py mocks for TailorResult + full suite green gate — COMPLETE 2026-06-02
 
 ### Phase 5: Diff View
 
@@ -168,7 +168,7 @@ Plans:
 | 1. Foundation | v1.0 | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
-| 4. Output Reliability Guards | v1.1 | 2/3 | In Progress | - |
+| 4. Output Reliability Guards | v1.1 | 3/3 | Complete | 2026-06-02 |
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |

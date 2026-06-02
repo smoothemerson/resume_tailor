@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Output Quality + Test Coverage
 status: executing
-stopped_at: Phase 04 Plan 02 complete
-last_updated: "2026-06-02T18:52:16Z"
-last_activity: 2026-06-02 -- Phase 04 Plan 02 executed (wire run_guards into cli.py + guards_test.py)
+stopped_at: Phase 04 Plan 03 complete
+last_updated: "2026-06-02T18:55:46Z"
+last_activity: 2026-06-02 -- Phase 04 Plan 03 executed (update cli_test.py mocks for TailorResult + full suite 36 tests green)
 progress:
   total_phases: 8
   completed_phases: 0
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 04 — Output Reliability Guards
-Plan: 3 of 3
-Status: Plan 02 complete, ready for Plan 03
-Last activity: 2026-06-02 -- Phase 04 Plan 02 complete (wire run_guards into cli.py + 14-test guards_test.py)
+Plan: 3 of 3 — PHASE COMPLETE
+Status: All 3 plans complete. Phase 4 done.
+Last activity: 2026-06-02 -- Phase 04 Plan 03 complete (cli_test.py mocks updated, 36 tests green)
 
-Progress: 2/5 plans complete (40%)
+Progress: 3/5 plans complete (60%)
 
 ```
 Phase 4 [          ] Not started
@@ -63,6 +63,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table with outcomes.
 **v1.1 decisions:**
 
 - Guards are advisory-only: GUARD-04 is the architectural rule — no guard failure ever blocks output write. This keeps the pipeline safe for extension.
+- cli_test.py uses TailorResult(content=..., fences_stripped=False) for success-path mocks and @patch("cli.run_guards") for test isolation (Phase 04 Plan 03).
 - Diff is TTY-gated with no flag: always-on in interactive sessions, auto-suppressed in pipelines (DIFF-02). No `--no-diff` flag in v1.1 scope.
 - Pass-1 failure falls back silently: PIPE-03 preserves single-pass behavior on analysis failure — user experience is unchanged, quality may be lower.
 - Both LLM calls respect the existing truncation guard (PIPE-04) — no new error handling paths needed for the two-pass architecture.
@@ -90,6 +91,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-02T18:52:16Z
-Stopped at: Phase 04 Plan 02 complete
-Resume: Run `/gsd-execute-phase 4` to continue with Phase 04 Plan 03 (update cli_test.py mocks for TailorResult + full suite green gate)
+Last session: 2026-06-02T18:55:46Z
+Stopped at: Phase 04 Plan 03 complete — Phase 4 fully done
+Resume: Phase 4 complete. Run `/gsd-execute-phase 5` to start Phase 05 (Diff View) or `/gsd-execute-phase 8` for Test Infrastructure (already planned)

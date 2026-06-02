@@ -1,42 +1,43 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MVP
-status: shipped
-stopped_at: Milestone v1.0 complete
-last_updated: "2026-05-29"
-last_activity: 2026-05-29
+milestone: v1.1
+milestone_name: Output Quality
+status: planning
+stopped_at: Defining requirements
+last_updated: "2026-06-02"
+last_activity: 2026-06-02
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-29)
+See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Planning next milestone (v1.1)
+**Current focus:** Defining requirements for v1.1 Output Quality
 
 ## Current Position
 
-Phase: —
+Phase: Not started (defining requirements)
 Plan: —
-Status: ✅ v1.0 MVP shipped — planning next milestone
+Status: Defining requirements
+Last activity: 2026-06-02 — Milestone v1.1 started
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 4
-- Total execution time: ~2 days
+- Total plans completed: 4 (v1.0)
+- Total execution time: ~2 days (v1.0)
 
-**By Phase:**
+**By Phase (v1.0):**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
@@ -48,7 +49,7 @@ Status: ✅ v1.0 MVP shipped — planning next milestone
 
 ### Decisions
 
-All decisions logged in PROJECT.md Key Decisions table with outcomes.
+All v1.0 decisions logged in PROJECT.md Key Decisions table with outcomes.
 
 ### Pending Todos
 
@@ -66,6 +67,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-29
-Stopped at: Milestone v1.0 archived — tag v1.0 created
-Resume: Start fresh with `/gsd-new-milestone` to plan v1.1
+Last session: 2026-06-02
+Stopped at: Starting v1.1 milestone — defining requirements
+Resume: Continue with `/gsd-new-milestone` to complete requirements and roadmap

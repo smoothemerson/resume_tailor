@@ -8,6 +8,16 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
+## Current Milestone: v1.1 Output Quality
+
+**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures.
+
+**Target features:**
+- Diff view between original and tailored resume (difflib, stdlib)
+- JD keyword match summary after tailoring
+- Two-pass pipeline: JD analysis first, then section-specific tailoring
+- Output reliability guards: hallucination detection, dropped-section check, format violation warnings
+
 ## Requirements
 
 ### Validated
@@ -23,7 +33,12 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-_(No active requirements — all core requirements validated through Phase 3)_
+- [ ] User can see a diff of what changed between original and tailored resume
+- [ ] User receives a JD keyword match summary after tailoring
+- [ ] Tool performs two-pass tailoring: JD analysis pass then section-specific tailoring pass
+- [ ] Tool warns on hallucinated content (new items not present in original resume)
+- [ ] Tool warns on dropped sections (sections present in original but missing from output)
+- [ ] Tool detects and handles format violations (markdown prose, ignored LaTeX-only instruction)
 
 ### Out of Scope
 
@@ -83,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-29 after v1.0 milestone — all core requirements validated, tool shipped*
+*Last updated: 2026-06-02 after v1.1 milestone start — output quality milestone initiated*

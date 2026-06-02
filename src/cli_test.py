@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, str(Path(__file__).parent))
 
 from cli import main
+from llm_client import TailorResult
 
 
 class TestInputLoop(unittest.TestCase):
@@ -14,10 +15,11 @@ class TestInputLoop(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_end_sentinel_breaks_loop(self, mock_input, mock_read, mock_generate, mock_write):
+    @patch("cli.run_guards")
+    def test_end_sentinel_breaks_loop(self, mock_guards, mock_input, mock_read, mock_generate, mock_write):
         mock_input.side_effect = ["line one", "line two", "END"]
         mock_read.return_value = "resume text"
-        mock_generate.return_value = "\\documentclass{article}\n\\end{document}"
+        mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
         mock_write.return_value = Path("/tmp/tailored_resume_test.tex")
 
         with patch("builtins.print"):
@@ -32,10 +34,11 @@ class TestInputLoop(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_eof_treated_as_submission(self, mock_input, mock_read, mock_generate, mock_write):
+    @patch("cli.run_guards")
+    def test_eof_treated_as_submission(self, mock_guards, mock_input, mock_read, mock_generate, mock_write):
         mock_input.side_effect = ["line one", "line two", EOFError()]
         mock_read.return_value = "resume text"
-        mock_generate.return_value = "\\documentclass{article}\n\\end{document}"
+        mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
         mock_write.return_value = Path("/tmp/tailored_resume_test.tex")
 
         with patch("builtins.print"):
@@ -93,10 +96,11 @@ class TestSuccessPath(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_progress_message_printed(self, mock_input, mock_read, mock_generate, mock_write):
+    @patch("cli.run_guards")
+    def test_progress_message_printed(self, mock_guards, mock_input, mock_read, mock_generate, mock_write):
         mock_input.side_effect = ["Software Engineer job", "END"]
         mock_read.return_value = "resume text"
-        mock_generate.return_value = "\\documentclass{article}\n\\end{document}"
+        mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
         output_path = MagicMock()
         output_path.resolve.return_value = Path("/tmp/tailored_resume_20260529.tex")
         mock_write.return_value = output_path
@@ -115,10 +119,11 @@ class TestSuccessPath(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_success_prints_absolute_path(self, mock_input, mock_read, mock_generate, mock_write):
+    @patch("cli.run_guards")
+    def test_success_prints_absolute_path(self, mock_guards, mock_input, mock_read, mock_generate, mock_write):
         mock_input.side_effect = ["Software Engineer job", "END"]
         mock_read.return_value = "resume text"
-        mock_generate.return_value = "\\documentclass{article}\n\\end{document}"
+        mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
         output_path = MagicMock()
         output_path.resolve.return_value = Path("/tmp/tailored_resume_20260529.tex")
         mock_write.return_value = output_path

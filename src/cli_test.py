@@ -25,6 +25,11 @@ class TestInputLoop(unittest.TestCase):
         call_args = mock_generate.call_args
         self.assertIn("line one", call_args[0][1])
         self.assertIn("line two", call_args[0][1])
+        mock_guards.assert_called_once_with(
+            "resume text",
+            "\\documentclass{article}\n\\end{document}",
+            False,
+        )
 
     @patch("sys.argv", ["resume-tailor"])
     @patch("cli.write_resume")

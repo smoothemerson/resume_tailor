@@ -333,12 +333,11 @@ mkdir -p tests/unit tests/integration tests/e2e
 
 **Note:** Both assumptions are low-risk implementation details not covered by locked decisions. A1 is a sensible default; A2 is consistent with production code in `llm_client.py`.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Timeout value for ollama_available fixture**
+1. **Timeout value for ollama_available fixture** — RESOLVED: D-07 locks `timeout=3`
    - What we know: production code uses `TIMEOUT[0] = 10` seconds; decisions don't specify
-   - What's unclear: whether 3 seconds is too aggressive for a slow local Ollama startup
-   - Recommendation: use 3 seconds; can be adjusted if tests flake on slow machines
+   - Resolution: CONTEXT.md D-07 locks the health probe endpoint as `f"{OLLAMA_BASE_URL}/api/tags"` with `timeout=3`; this is the authoritative value
 
 ## Environment Availability
 

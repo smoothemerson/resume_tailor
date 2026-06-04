@@ -44,8 +44,8 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
 - [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
 - [ ] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03)
-- [ ] pytest configured with testpaths, pythonpath, markers, --strict-markers (TEST-01)
-- [ ] tests/conftest.py provides Ollama availability fixtures (TEST-02 to TEST-03)
+- [x] pytest configured with testpaths, pythonpath, markers, --strict-markers (TEST-01) — Validated in Phase 8: Test Infrastructure
+- [x] tests/conftest.py provides Ollama availability fixtures (TEST-02 to TEST-03) — Validated in Phase 8: Test Infrastructure
 - [ ] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07)
 - [ ] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09)
 - [ ] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11)
@@ -109,4 +109,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after v1.1 milestone start — output quality milestone, requirements defined*
+*Last updated: 2026-06-04 after Phase 8 — test infrastructure validated (TEST-01, TEST-02, TEST-03)*

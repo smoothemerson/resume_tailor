@@ -74,7 +74,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Create src/diff_view.py module + unit tests + pyproject.toml wheel include (DIFF-01, DIFF-02, DIFF-03)
+- [x] 05-01-PLAN.md — Create src/diff_view.py module + unit tests + pyproject.toml wheel include (DIFF-01, DIFF-02, DIFF-03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -182,7 +182,7 @@ Plans:
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
-| 5. Diff View | v1.1 | 0/2 | Not started | - |
+| 5. Diff View | v1.1 | 1/2 | In Progress|  |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |

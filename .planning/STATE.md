@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Output Quality + Test Coverage
 status: executing
 stopped_at: Phase 09 context gathered
-last_updated: "2026-06-04T18:22:53.315Z"
-last_activity: 2026-06-04 -- Phase 05 planning complete
+last_updated: "2026-06-04T18:24:12.934Z"
+last_activity: 2026-06-04 -- Phase 05 execution started
 progress:
   total_phases: 8
   completed_phases: 2
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Phase 09 — Unit Test Gaps
+**Current focus:** Phase 05 — diff-view
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 05 planning complete
+Phase: 05 (diff-view) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 05
+Last activity: 2026-06-04 -- Phase 05 execution started
 
 Progress: 3/5 plans complete (60%)
 

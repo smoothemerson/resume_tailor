@@ -18,6 +18,7 @@ sources = ["src"]
 include = [
     "src/cli.py",
     "src/config.py",
+    "src/diff_view.py",
     "src/llm_client.py",
     "src/log_manager.py",
     "src/resume_reader.py",

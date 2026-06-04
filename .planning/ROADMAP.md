@@ -23,7 +23,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 **Milestone Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures — then validate the full codebase with a complete unit/integration/e2e test pyramid.
 
 - [x] **Phase 4: Output Reliability Guards** - Warn users when the tailored output drops sections, introduces hallucinated fields, or violates LaTeX-only format constraints (completed 2026-06-02)
-- [ ] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals
+- [x] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals (completed 2026-06-04)
 - [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
 - [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
@@ -78,7 +78,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — Wire show_diff() into cli.py + update cli_test.py (DIFF-01, DIFF-02, DIFF-03)
+- [x] 05-02-PLAN.md — Wire show_diff() into cli.py + update cli_test.py (DIFF-01, DIFF-02, DIFF-03)
 
 ### Phase 6: Two-Pass Pipeline
 
@@ -182,7 +182,7 @@ Plans:
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
-| 5. Diff View | v1.1 | 1/2 | In Progress|  |
+| 5. Diff View | v1.1 | 2/2 | Complete   | 2026-06-04 |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |

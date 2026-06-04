@@ -62,7 +62,8 @@ class TestErrorHandling(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_runtime_error_from_llm_exits_1(self, mock_input, mock_read, mock_generate):
+    @patch("cli.run_guards")
+    def test_runtime_error_from_llm_exits_1(self, mock_guards, mock_input, mock_read, mock_generate):
         mock_input.side_effect = ["Senior ML Engineer role", "END"]
         mock_read.return_value = "resume text"
         mock_generate.side_effect = RuntimeError("Ollama not reachable")
@@ -77,7 +78,8 @@ class TestErrorHandling(unittest.TestCase):
     @patch("cli.generate_tailored_resume")
     @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_value_error_from_llm_exits_1(self, mock_input, mock_read, mock_generate):
+    @patch("cli.run_guards")
+    def test_value_error_from_llm_exits_1(self, mock_guards, mock_input, mock_read, mock_generate):
         mock_input.side_effect = ["Senior ML Engineer role", "END"]
         mock_read.return_value = "resume text"
         mock_generate.side_effect = ValueError("Invalid LaTeX output")

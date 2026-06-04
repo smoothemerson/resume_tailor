@@ -7,12 +7,13 @@ from llm_client import TailorResult
 
 
 @patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_diff")
 @patch("cli.write_resume")
 @patch("cli.generate_tailored_resume")
 @patch("cli.read_resume")
 @patch("builtins.input")
 @patch("cli.run_guards")
-def test_end_sentinel_breaks_loop(mock_guards, mock_input, mock_read, mock_generate, mock_write):
+def test_end_sentinel_breaks_loop(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff):
     mock_input.side_effect = ["line one", "line two", "END"]
     mock_read.return_value = "resume text"
     mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
@@ -32,12 +33,13 @@ def test_end_sentinel_breaks_loop(mock_guards, mock_input, mock_read, mock_gener
 
 
 @patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_diff")
 @patch("cli.write_resume")
 @patch("cli.generate_tailored_resume")
 @patch("cli.read_resume")
 @patch("builtins.input")
 @patch("cli.run_guards")
-def test_eof_treated_as_submission(mock_guards, mock_input, mock_read, mock_generate, mock_write):
+def test_eof_treated_as_submission(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff):
     mock_input.side_effect = ["line one", "line two", EOFError()]
     mock_read.return_value = "resume text"
     mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
@@ -98,12 +100,13 @@ def test_value_error_from_llm_exits_1(mock_guards, mock_input, mock_read, mock_g
 
 
 @patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_diff")
 @patch("cli.write_resume")
 @patch("cli.generate_tailored_resume")
 @patch("cli.read_resume")
 @patch("builtins.input")
 @patch("cli.run_guards")
-def test_progress_message_printed(mock_guards, mock_input, mock_read, mock_generate, mock_write):
+def test_progress_message_printed(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff):
     mock_input.side_effect = ["Software Engineer job", "END"]
     mock_read.return_value = "resume text"
     mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
@@ -121,12 +124,13 @@ def test_progress_message_printed(mock_guards, mock_input, mock_read, mock_gener
 
 
 @patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_diff")
 @patch("cli.write_resume")
 @patch("cli.generate_tailored_resume")
 @patch("cli.read_resume")
 @patch("builtins.input")
 @patch("cli.run_guards")
-def test_success_prints_absolute_path(mock_guards, mock_input, mock_read, mock_generate, mock_write):
+def test_success_prints_absolute_path(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff):
     mock_input.side_effect = ["Software Engineer job", "END"]
     mock_read.return_value = "resume text"
     mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
@@ -142,3 +146,22 @@ def test_success_prints_absolute_path(mock_guards, mock_input, mock_read, mock_g
         "Tailored resume written to:" in line and "/tmp/tailored_resume_20260529.tex" in line
         for line in printed_lines
     )
+
+
+@patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_diff")
+@patch("cli.write_resume")
+@patch("cli.generate_tailored_resume")
+@patch("cli.read_resume")
+@patch("builtins.input")
+@patch("cli.run_guards")
+def test_show_diff_called_with_resume_and_tailored(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff):
+    mock_input.side_effect = ["Software Engineer job", "END"]
+    mock_read.return_value = "resume text"
+    mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
+    mock_write.return_value = Path("/tmp/tailored_resume_test.tex")
+
+    with patch("builtins.print"):
+        main()
+
+    mock_show_diff.assert_called_once_with("resume text", "\\documentclass{article}\n\\end{document}")

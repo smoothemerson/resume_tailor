@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from config import BASE_RESUME_PATH, OUTPUT_DIR
+from diff_view import show_diff
 from guards import run_guards
 from llm_client import TailorResult, generate_tailored_resume
 from resume_reader import read_resume
@@ -54,6 +55,7 @@ def main() -> None:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
+    show_diff(resume_text, result.content)
     print(f"Tailored resume written to: {output_path.resolve()}")
 
 

@@ -133,7 +133,12 @@ Plans:
   3. `write_resume()` test uses `tmp_path` and asserts filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern
   4. `_check_ollama_health()` Timeout path is covered (not just ConnectionError)
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1** *(both plans parallel — no shared files)*
+
+- [ ] 09-01-PLAN.md — Create tests/unit/test_llm_client.py covering _build_messages and _check_ollama_health (TEST-04, TEST-05)
+- [ ] 09-02-PLAN.md — Create tests/unit/test_resume_reader.py and test_resume_writer.py (TEST-06, TEST-07)
 
 ### Phase 10: Integration Tests
 

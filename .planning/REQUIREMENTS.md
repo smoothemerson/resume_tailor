@@ -41,10 +41,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### Unit Test Gaps
 
-- [ ] **TEST-04**: `_build_messages()` tested: returns 2-element list with roles `"system"` then `"user"`; user content contains `<job_description>` and `<resume>` XML tags embedding the provided inputs; system content contains `<PERSONA>` and `<CONSTRAINTS>` markers
-- [ ] **TEST-05**: `_check_ollama_health()` tested in isolation: raises `RuntimeError` on `ConnectionError`; raises `RuntimeError` on `Timeout`; does not raise when response status is 200
-- [ ] **TEST-06**: `read_resume()` tested: returns file text content when file exists; raises `FileNotFoundError` when file does not exist
-- [ ] **TEST-07**: `write_resume()` tested: creates output directory if it does not exist; returns a `Path`; written filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern; file content equals the input string
+- [x] **TEST-04**: `_build_messages()` tested: returns 2-element list with roles `"system"` then `"user"`; user content contains `<job_description>` and `<resume>` XML tags embedding the provided inputs; system content contains `<PERSONA>` and `<CONSTRAINTS>` markers
+- [x] **TEST-05**: `_check_ollama_health()` tested in isolation: raises `RuntimeError` on `ConnectionError`; raises `RuntimeError` on `Timeout`; does not raise when response status is 200
+- [x] **TEST-06**: `read_resume()` tested: returns file text content when file exists; raises `FileNotFoundError` when file does not exist
+- [x] **TEST-07**: `write_resume()` tested: creates output directory if it does not exist; returns a `Path`; written filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex` pattern; file content equals the input string
 
 ### Integration Tests
 
@@ -101,10 +101,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | TEST-01 | Phase 8 | Complete |
 | TEST-02 | Phase 8 | Complete |
 | TEST-03 | Phase 8 | Complete |
-| TEST-04 | Phase 9 | Pending |
-| TEST-05 | Phase 9 | Pending |
-| TEST-06 | Phase 9 | Pending |
-| TEST-07 | Phase 9 | Pending |
+| TEST-04 | Phase 9 | Complete |
+| TEST-05 | Phase 9 | Complete |
+| TEST-06 | Phase 9 | Complete |
+| TEST-07 | Phase 9 | Complete |
 | TEST-08 | Phase 10 | Pending |
 | TEST-09 | Phase 10 | Pending |
 | TEST-10 | Phase 11 | Pending |

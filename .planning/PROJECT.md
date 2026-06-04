@@ -37,10 +37,10 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-- [ ] Tool warns when a section present in the original resume is missing from tailored output (GUARD-01)
-- [ ] Tool warns when tailored output contains markdown prose or format violations (GUARD-02)
-- [ ] Tool warns when structured fields appear in output but were not in original resume (GUARD-03)
-- [ ] Guards degrade gracefully — warnings to stderr, never block output write (GUARD-04)
+- [x] Tool warns when a section present in the original resume is missing from tailored output (GUARD-01) — Validated in Phase 4: Output Reliability Guards
+- [x] Tool warns when tailored output contains markdown prose or format violations (GUARD-02) — Validated in Phase 4: Output Reliability Guards
+- [x] Tool warns when structured fields appear in output but were not in original resume (GUARD-03) — Validated in Phase 4: Output Reliability Guards
+- [x] Guards degrade gracefully — warnings to stderr, never block output write (GUARD-04) — Validated in Phase 4: Output Reliability Guards
 - [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
 - [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
 - [ ] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03)

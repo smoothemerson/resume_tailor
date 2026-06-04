@@ -27,7 +27,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
 - [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
-- [ ] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests
+- [x] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests (completed 2026-06-04)
 - [ ] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent
 - [ ] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama
 
@@ -145,8 +145,8 @@ Plans:
 Plans:
 **Wave 1** *(both plans parallel — no shared files)*
 
-- [ ] 09-01-PLAN.md — Create tests/unit/test_llm_client.py covering _build_messages and _check_ollama_health (TEST-04, TEST-05)
-- [ ] 09-02-PLAN.md — Create tests/unit/test_resume_reader.py and test_resume_writer.py (TEST-06, TEST-07)
+- [x] 09-01-PLAN.md — Create tests/unit/test_llm_client.py covering _build_messages and _check_ollama_health (TEST-04, TEST-05)
+- [x] 09-02-PLAN.md — Create tests/unit/test_resume_reader.py and test_resume_writer.py (TEST-06, TEST-07)
 
 ### Phase 10: Integration Tests
 
@@ -186,6 +186,6 @@ Plans:
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 9. Unit Test Gaps | v1.1 | 0/2 | Not started | - |
+| 9. Unit Test Gaps | v1.1 | 2/2 | Complete   | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 0/? | Not started | - |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

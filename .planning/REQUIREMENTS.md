@@ -35,9 +35,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### Test Infrastructure
 
-- [ ] **TEST-01**: pytest configured in pyproject.toml — testpaths includes both `src` and `tests`, pythonpath set to `["src"]`, three markers registered (`unit`, `integration`, `e2e`), `--strict-markers` and `-ra` in addopts
-- [ ] **TEST-02**: `tests/conftest.py` provides a session-scoped `ollama_available` fixture (HTTP probe, runs once per session) and a `require_ollama` fixture that skips the test when Ollama is unreachable
-- [ ] **TEST-03**: `tests/` organized into `unit/`, `integration/`, and `e2e/` subdirectories; existing `src/*_test.py` files left in place
+- [x] **TEST-01**: pytest configured in pyproject.toml — testpaths includes both `src` and `tests`, pythonpath set to `["src"]`, three markers registered (`unit`, `integration`, `e2e`), `--strict-markers` and `-ra` in addopts
+- [x] **TEST-02**: `tests/conftest.py` provides a session-scoped `ollama_available` fixture (HTTP probe, runs once per session) and a `require_ollama` fixture that skips the test when Ollama is unreachable
+- [x] **TEST-03**: `tests/` organized into `unit/`, `integration/`, and `e2e/` subdirectories; existing `src/*_test.py` files left in place
 
 ### Unit Test Gaps
 
@@ -98,9 +98,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | MATCH-01 | Phase 7 | Pending |
 | MATCH-02 | Phase 7 | Pending |
 | MATCH-03 | Phase 7 | Pending |
-| TEST-01 | Phase 8 | Pending |
-| TEST-02 | Phase 8 | Pending |
-| TEST-03 | Phase 8 | Pending |
+| TEST-01 | Phase 8 | Complete |
+| TEST-02 | Phase 8 | Complete |
+| TEST-03 | Phase 8 | Complete |
 | TEST-04 | Phase 9 | Pending |
 | TEST-05 | Phase 9 | Pending |
 | TEST-06 | Phase 9 | Pending |

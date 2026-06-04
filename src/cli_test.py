@@ -44,9 +44,11 @@ class TestInputLoop(unittest.TestCase):
         mock_generate.assert_called_once()
 
     @patch("sys.argv", ["resume-tailor"])
+    @patch("cli.read_resume")
     @patch("builtins.input")
-    def test_empty_jd_exits_1(self, mock_input):
+    def test_empty_jd_exits_1(self, mock_input, mock_read):
         mock_input.side_effect = ["END"]
+        mock_read.return_value = "resume text"
 
         with self.assertRaises(SystemExit) as cm:
             with patch("builtins.print"):

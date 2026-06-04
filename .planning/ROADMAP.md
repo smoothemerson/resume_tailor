@@ -70,7 +70,15 @@ Plans:
   2. Running the tool with stdout piped or redirected produces no diff output — the file is still written normally
   3. The diff omits trailing-space and blank-line-only changes so only semantically meaningful edits are visible
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Create src/diff_view.py module + unit tests + pyproject.toml wheel include (DIFF-01, DIFF-02, DIFF-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md — Wire show_diff() into cli.py + update cli_test.py (DIFF-01, DIFF-02, DIFF-03)
 
 ### Phase 6: Two-Pass Pipeline
 
@@ -174,10 +182,10 @@ Plans:
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
-| 5. Diff View | v1.1 | 0/? | Not started | - |
+| 5. Diff View | v1.1 | 0/2 | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 9. Unit Test Gaps | v1.1 | 0/? | Not started | - |
+| 9. Unit Test Gaps | v1.1 | 0/2 | Not started | - |
 | 10. Integration Tests | v1.1 | 0/? | Not started | - |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

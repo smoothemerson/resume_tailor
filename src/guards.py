@@ -37,6 +37,9 @@ def _check_hallucinated_employers(original: str, tailored: str) -> None:
         for name, dates, title in original_employers:
             if (name, dates, title) not in tailored_employers:
                 logger.warning(f'Employer "{name}" from original resume not found in tailored output.')
+        for name, dates, title in tailored_employers:
+            if (name, dates, title) not in original_employers:
+                logger.warning(f'Employer "{name}" in tailored output was not in original resume — possible hallucination.')
     except Exception as exc:
         logger.warning(f"Employer check failed: {exc}")
 

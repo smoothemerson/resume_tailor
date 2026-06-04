@@ -114,13 +114,14 @@ def _strip_fences(text: str) -> str:
 
 
 def _validate_latex(text: str) -> str:
-    if not text.lstrip().startswith("\\documentclass"):
+    stripped = text.rstrip()
+    if not stripped.lstrip().startswith("\\documentclass"):
         raise ValueError(
             "LLM response does not start with \\documentclass — output is not valid LaTeX."
         )
-    if "\\end{document}" not in text:
+    if not stripped.endswith("\\end{document}"):
         raise ValueError(
-            "LLM response does not contain \\end{document} — output may be truncated."
+            "LLM response does not end with \\end{document} — output may be truncated or contain trailing prose."
         )
     return text
 

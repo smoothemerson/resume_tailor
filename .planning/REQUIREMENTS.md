@@ -9,10 +9,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### Output Guards
 
-- [ ] **GUARD-01**: Tool warns when a section present in the original resume is missing from the tailored output
-- [ ] **GUARD-02**: Tool warns when tailored output contains markdown prose or other format violations (LaTeX-only rule broken)
-- [ ] **GUARD-03**: Tool warns when structured fields (employer names, dates, skills tokens) appear in output but were not in original resume
-- [ ] **GUARD-04**: Guards degrade gracefully — any guard failure prints a warning to stderr but does not block the output write
+- [x] **GUARD-01**: Tool warns when a section present in the original resume is missing from the tailored output
+- [x] **GUARD-02**: Tool warns when tailored output contains markdown prose or other format violations (LaTeX-only rule broken)
+- [x] **GUARD-03**: Tool warns when structured fields (employer names, dates, skills tokens) appear in output but were not in original resume
+- [x] **GUARD-04**: Guards degrade gracefully — any guard failure prints a warning to stderr but does not block the output write
 
 ### Diff View
 
@@ -111,6 +111,7 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | TEST-11 | Phase 11 | Pending |
 
 **Coverage:**
+
 - v1.1 requirements: 25 total
 - Mapped to phases: 25
 - Unmapped: 0 ✓

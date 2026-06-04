@@ -168,7 +168,7 @@ Plans:
 | 1. Foundation | v1.0 | 2/2 | Complete | 2026-05-28 |
 | 2. LLM Integration | v1.0 | 1/1 | Complete | 2026-05-28 |
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
-| 4. Output Reliability Guards | v1.1 | 3/3 | Complete | 2026-06-02 |
+| 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 0/? | Not started | - |
 | 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |

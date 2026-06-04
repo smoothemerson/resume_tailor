@@ -130,7 +130,10 @@ class TestSuccessPath(unittest.TestCase):
             main()
 
         self.assertTrue(
-            any("Tailored resume written to:" in line for line in printed_lines)
+            any(
+                "Tailored resume written to:" in line and "/tmp/tailored_resume_20260529.tex" in line
+                for line in printed_lines
+            )
         )
 
 

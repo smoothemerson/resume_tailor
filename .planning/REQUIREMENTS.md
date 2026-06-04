@@ -16,9 +16,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### Diff View
 
-- [ ] **DIFF-01**: Tool shows a normalized unified diff of original vs tailored resume after tailoring, when stdout is a TTY
-- [ ] **DIFF-02**: Diff is suppressed automatically when stdout is piped or redirected (no flag required)
-- [ ] **DIFF-03**: Diff normalization eliminates whitespace-only noise (trailing space, blank line collapsing) so only meaningful changes appear
+- [x] **DIFF-01**: Tool shows a normalized unified diff of original vs tailored resume after tailoring, when stdout is a TTY
+- [x] **DIFF-02**: Diff is suppressed automatically when stdout is piped or redirected (no flag required)
+- [x] **DIFF-03**: Diff normalization eliminates whitespace-only noise (trailing space, blank line collapsing) so only meaningful changes appear
 
 ### Two-Pass Pipeline
 
@@ -88,9 +88,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | GUARD-02 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
 | GUARD-03 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
 | GUARD-04 | Phase 4 | In Progress (04-01 complete — wiring in 04-02) |
-| DIFF-01 | Phase 5 | Pending |
-| DIFF-02 | Phase 5 | Pending |
-| DIFF-03 | Phase 5 | Pending |
+| DIFF-01 | Phase 5 | Complete |
+| DIFF-02 | Phase 5 | Complete |
+| DIFF-03 | Phase 5 | Complete |
 | PIPE-01 | Phase 6 | Pending |
 | PIPE-02 | Phase 6 | Pending |
 | PIPE-03 | Phase 6 | Pending |

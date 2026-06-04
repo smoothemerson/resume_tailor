@@ -1,10 +1,11 @@
 ---
 phase: 4
 slug: output-reliability-guards
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-02
+audited: 2026-06-04
 ---
 
 # Phase 4 — Validation Strategy
@@ -38,9 +39,9 @@ created: 2026-06-02
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| guards-create | 01 | 1 | GUARD-01, GUARD-02, GUARD-03, GUARD-04 | — | Guards never raise exceptions (GUARD-04) | unit | `python -m pytest src/guards_test.py -v` | ❌ W0 | ⬜ pending |
-| tailor-result | 01 | 1 | GUARD-02 | — | TailorResult.fences_stripped threads fence detection correctly | unit | `python -m pytest src/guards_test.py -k fences -v` | ❌ W0 | ⬜ pending |
-| cli-integration | 01 | 2 | GUARD-04 | — | write_resume always called regardless of guard warnings | unit | `python -m pytest src/cli_test.py -v` | ✅ | ⬜ pending |
+| guards-create | 01 | 1 | GUARD-01, GUARD-02, GUARD-03, GUARD-04 | — | Guards never raise exceptions (GUARD-04) | unit | `python -m pytest src/guards_test.py -v` | ✅ | ✅ green |
+| tailor-result | 01 | 1 | GUARD-02 | — | TailorResult.fences_stripped threads fence detection correctly | unit | `python -m pytest src/guards_test.py -k fences -v` | ✅ | ✅ green |
+| cli-integration | 01 | 2 | GUARD-04 | — | write_resume always called regardless of guard warnings | unit | `python -m pytest src/cli_test.py -v` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,7 +49,7 @@ created: 2026-06-02
 
 ## Wave 0 Requirements
 
-- [ ] `src/guards_test.py` — stubs for GUARD-01, GUARD-02, GUARD-03, GUARD-04
+- [x] `src/guards_test.py` — stubs for GUARD-01, GUARD-02, GUARD-03, GUARD-04
 
 *Wave 0 is creating the test file alongside the implementation — no pre-existing test infrastructure needed.*
 
@@ -92,11 +93,23 @@ This phase uses direct pytest unit tests following the `src/cli_test.py` pattern
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** 2026-06-04 — all 36 tests pass, zero gaps
+
+---
+
+## Validation Audit 2026-06-04
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Tests verified green | 36 |
+| Coverage | GUARD-01 (4 tests), GUARD-02 (4 tests), GUARD-03 (3 tests), GUARD-04 (3 unit + 7 integration) |

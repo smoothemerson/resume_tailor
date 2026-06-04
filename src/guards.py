@@ -24,7 +24,7 @@ def _check_format_violations(tailored: str, fences_stripped: bool) -> None:
             logger.warning("Tailored output contains inline code fences.")
         if re.search(r'(?m)^#{1,6} ', tailored):
             logger.warning("Tailored output contains markdown heading markers.")
-        if re.search(r'\*\*\S[^*]*\S\*\*', tailored):
+        if re.search(r'\*\*[^*]+\*\*', tailored):
             logger.warning("Tailored output contains markdown bold markers.")
     except Exception as exc:
         logger.warning(f"Format violation check failed: {exc}")

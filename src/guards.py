@@ -10,7 +10,7 @@ def _check_missing_sections(original: str, tailored: str) -> None:
     try:
         original_sections = re.findall(r'\\header\{([^}]+)\}', original)
         for section in original_sections:
-            if section not in tailored:
+            if f'\\header{{{section}}}' not in tailored:
                 logger.warning(f'Section "{section}" missing from tailored output.')
     except Exception as exc:
         logger.warning(f"Section check failed: {exc}")

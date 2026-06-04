@@ -8,7 +8,7 @@ def ollama_available() -> bool:
     try:
         requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=3)
         return True
-    except requests.ConnectionError:
+    except (requests.ConnectionError, requests.Timeout):
         return False
 
 

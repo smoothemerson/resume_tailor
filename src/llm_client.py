@@ -13,11 +13,14 @@ class TailorResult(NamedTuple):
 
 def _check_ollama_health() -> None:
     try:
-        requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=TIMEOUT[0])
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=TIMEOUT[0])
+        response.raise_for_status()
     except requests.ConnectionError as exc:
         raise RuntimeError(f"Ollama is not reachable at {OLLAMA_BASE_URL}") from exc
     except requests.Timeout as exc:
         raise RuntimeError("Ollama health check timed out") from exc
+    except requests.HTTPError as exc:
+        raise RuntimeError(f"Ollama health check failed with HTTP error: {exc}") from exc
 
 
 def _build_messages(resume_text: str, job_description: str) -> list[dict]:

@@ -308,12 +308,12 @@ uv run pytest
 
 **If A1 or A2 cause test failures:** The test code is correct; the environment configuration needs adjustment. A1 is addressed by ensuring a model is pulled before running integration tests. A2 is addressed by model selection and prompt adherence.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Model must be pulled before TEST-09 can pass**
    - What we know: `config.py` specifies `OLLAMA_MODEL = "qwen3:14b"`. Ollama will return an error if the model is not pulled.
    - What's unclear: Whether CI or the local environment will have `qwen3:14b` pulled.
-   - Recommendation: TEST-09 failing with a RuntimeError about model availability is acceptable test infrastructure — the skip only fires on connection failure, not on missing model. Document this in the plan's success verification step.
+   - RESOLVED: TEST-09 failing with a RuntimeError about model availability is acceptable test infrastructure — the skip only fires on connection failure, not on missing model. The plan's verification step documents this. Users must have `qwen3:14b` pulled for integration tests to pass.
 
 ## Environment Availability
 

@@ -22,18 +22,21 @@ def test_build_messages_role_ordering():
 def test_build_messages_system_contains_persona_tag():
     result = _build_messages("resume text", "job description")
     assert "<PERSONA>" in result[0]["content"]
+    assert "</PERSONA>" in result[0]["content"]
 
 
 @pytest.mark.unit
 def test_build_messages_system_contains_constraints_tag():
     result = _build_messages("resume text", "job description")
     assert "<CONSTRAINTS>" in result[0]["content"]
+    assert "</CONSTRAINTS>" in result[0]["content"]
 
 
 @pytest.mark.unit
 def test_build_messages_user_contains_job_description_xml_tag():
     result = _build_messages("resume text", "job description")
     assert "<job_description>" in result[1]["content"]
+    assert "</job_description>" in result[1]["content"]
 
 
 @pytest.mark.unit
@@ -46,6 +49,7 @@ def test_build_messages_user_embeds_job_description_content():
 def test_build_messages_user_contains_resume_xml_tag():
     result = _build_messages("resume text", "job description")
     assert "<resume>" in result[1]["content"]
+    assert "</resume>" in result[1]["content"]
 
 
 @pytest.mark.unit

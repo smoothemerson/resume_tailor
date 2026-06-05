@@ -1,10 +1,11 @@
 ---
 phase: 05
 slug: diff-view
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-04
+audited: 2026-06-05
 ---
 
 # Phase 05 — Validation Strategy
@@ -17,18 +18,18 @@ created: 2026-06-04
 
 | Property | Value |
 |----------|-------|
-| **Framework** | pytest 7.x |
+| **Framework** | pytest 9.x |
 | **Config file** | pyproject.toml |
-| **Quick run command** | `uv run pytest tests/ -x -q` |
-| **Full suite command** | `uv run pytest tests/ -v` |
-| **Estimated runtime** | ~5 seconds |
+| **Quick run command** | `uv run pytest src/ tests/ -x -q` |
+| **Full suite command** | `uv run pytest src/ tests/ -v` |
+| **Estimated runtime** | ~1 second |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `uv run pytest tests/ -x -q`
-- **After every plan wave:** Run `uv run pytest tests/ -v`
+- **After every task commit:** Run `uv run pytest src/ tests/ -x -q`
+- **After every plan wave:** Run `uv run pytest src/ tests/ -v`
 - **Before `/gsd-verify-work`:** Full suite must be green
 - **Max feedback latency:** 10 seconds
 
@@ -38,9 +39,11 @@ created: 2026-06-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | DIFF-01 | — | N/A | unit | `uv run pytest src/diff_view_test.py -x -q` | ❌ W0 | ⬜ pending |
-| 05-01-02 | 01 | 1 | DIFF-02 | — | N/A | unit | `uv run pytest src/diff_view_test.py::TestShowDiffTTYGate::test_suppressed_when_not_tty -x -q` | ❌ W0 | ⬜ pending |
-| 05-01-03 | 01 | 1 | DIFF-03 | — | N/A | unit | `uv run pytest src/diff_view_test.py::TestShowDiffNormalization -x -q` | ❌ W0 | ⬜ pending |
+| 05-01-01 | 01 | 1 | DIFF-01 | — | N/A | unit | `uv run pytest src/diff_view_test.py -x -q` | ✅ | ✅ green |
+| 05-01-02 | 01 | 1 | DIFF-02 | — | N/A | unit | `uv run pytest src/diff_view_test.py::TestShowDiffTTYGate::test_suppressed_when_not_tty -x -q` | ✅ | ✅ green |
+| 05-01-03 | 01 | 1 | DIFF-03 | — | N/A | unit | `uv run pytest src/diff_view_test.py::TestShowDiffNormalization -x -q` | ✅ | ✅ green |
+| 05-02-01 | 02 | 2 | DIFF-01 | T-05-03 | show_diff outside try/except; never suppresses confirmation | integration | `uv run pytest src/cli_test.py::test_show_diff_called_with_resume_and_tailored -x -q` | ✅ | ✅ green |
+| 05-02-02 | 02 | 2 | DIFF-01,DIFF-02,DIFF-03 | — | N/A | integration | `uv run pytest src/cli_test.py -x -q` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,8 +51,8 @@ created: 2026-06-04
 
 ## Wave 0 Requirements
 
-- [ ] `src/diff_view_test.py` — unit tests for DIFF-01, DIFF-02, DIFF-03 (created by Plan 05-01 Task 2)
-- [ ] No conftest.py needed — tests use unittest.TestCase with patch
+- [x] `src/diff_view_test.py` — unit tests for DIFF-01, DIFF-02, DIFF-03 (created by Plan 05-01 Task 2)
+- [x] No conftest.py needed — tests use unittest.TestCase with patch
 
 *Existing test infrastructure (pytest via pyproject.toml) detected — only new test stubs needed.*
 
@@ -65,11 +68,25 @@ created: 2026-06-04
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** complete
+
+---
+
+## Validation Audit 2026-06-05
+
+| Metric | Count |
+|--------|-------|
+| Tasks audited | 5 |
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Missing Plan 05-02 tasks added | 2 |
+
+All 5 tasks COVERED. `src/diff_view_test.py` (11 tests) and `src/cli_test.py` (48 tests, 78 total suite) all green. No test files generated — existing coverage was complete.

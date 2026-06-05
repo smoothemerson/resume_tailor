@@ -92,8 +92,21 @@ Plans:
   3. When the analysis call produces malformed or unparseable output, the tool falls back silently to single-pass behavior and still produces a tailored resume
   4. Both LLM calls are protected by the existing truncation guard — a `done_reason: length` response on either call triggers the same error path as today
 
-**Plans**: TBD
-**UI hint**: no
+**Plans**: 5 plans
+Plans:
+**Wave 1** *(both plans parallel — no shared files)*
+
+- [ ] 06-01-PLAN.md — Create test_jd_analyzer.py + add _build_messages analysis tests to test_llm_client.py (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
+- [ ] 06-02-PLAN.md — Update all 8 cli_test.py tests with analyze_job_description patch + add 3 new two-pass tests (PIPE-01, PIPE-03)
+
+**Wave 2** *(blocked on Wave 1 — test scaffolds must exist before implementation)*
+
+- [ ] 06-03-PLAN.md — Create src/jd_analyzer.py with analyze_job_description (PIPE-01, PIPE-03, PIPE-04)
+- [ ] 06-04-PLAN.md — Extend src/llm_client.py _build_messages + generate_tailored_resume with analysis param (PIPE-02, PIPE-04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 06-05-PLAN.md — Wire two-pass flow into src/cli.py + human verify (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
 
 ### Phase 7: JD Keyword Match Summary
 
@@ -187,7 +200,7 @@ Plans:
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 6. Two-Pass Pipeline | v1.1 | 0/? | Not started | - |
+| 6. Two-Pass Pipeline | v1.1 | 0/5 | Not started | - |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |

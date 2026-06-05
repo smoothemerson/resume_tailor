@@ -83,6 +83,9 @@ def test_check_ollama_health_http_error_raises_runtime_error(mock_get):
 @pytest.mark.unit
 @patch("llm_client.requests.get")
 def test_check_ollama_health_200_does_not_raise(mock_get):
-    mock_get.return_value = MagicMock(status_code=200)
-    result = _check_ollama_health()
-    assert result is None
+    mock_response = MagicMock(spec=requests.Response)
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+    _check_ollama_health()
+    mock_get.assert_called_once()
+    mock_response.raise_for_status.assert_called_once()

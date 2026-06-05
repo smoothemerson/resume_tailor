@@ -51,12 +51,11 @@ def main() -> None:
         result = generate_tailored_resume(resume_text, job_description, model=args.model)
         run_guards(resume_text, result.content, result.fences_stripped)
         output_path = write_resume(result.content, output_dir)
-    except (RuntimeError, ValueError, FileNotFoundError, OSError) as e:
+        show_diff(resume_text, result.content)
+        print(f"Tailored resume written to: {output_path.resolve()}")
+    except (RuntimeError, ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
-    show_diff(resume_text, result.content)
-    print(f"Tailored resume written to: {output_path.resolve()}")
 
 
 if __name__ == "__main__":

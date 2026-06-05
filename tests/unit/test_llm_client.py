@@ -58,7 +58,7 @@ def test_build_messages_user_embeds_resume_content():
 @patch("llm_client.requests.get")
 def test_check_ollama_health_connection_error_raises_runtime_error(mock_get):
     mock_get.side_effect = requests.ConnectionError("connection refused")
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="not reachable"):
         _check_ollama_health()
 
 
@@ -66,7 +66,7 @@ def test_check_ollama_health_connection_error_raises_runtime_error(mock_get):
 @patch("llm_client.requests.get")
 def test_check_ollama_health_timeout_raises_runtime_error(mock_get):
     mock_get.side_effect = requests.Timeout("timed out")
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="timed out"):
         _check_ollama_health()
 
 
@@ -76,7 +76,7 @@ def test_check_ollama_health_http_error_raises_runtime_error(mock_get):
     mock_response = MagicMock()
     mock_response.raise_for_status.side_effect = requests.HTTPError("503")
     mock_get.return_value = mock_response
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="HTTP error"):
         _check_ollama_health()
 
 

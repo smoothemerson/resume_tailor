@@ -159,7 +159,11 @@ Plans:
   2. `pytest -m integration` with Ollama stopped shows SKIPPED for all integration tests with a clear skip reason; exit code is 0
   3. Integration tests use a minimal inline fixture resume (not `english.tex`) to minimize inference time
 
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — Create tests/integration/test_llm_client.py with TEST-08 and TEST-09 (TEST-08, TEST-09)
 
 ### Phase 11: E2E Tests
 
@@ -187,5 +191,5 @@ Plans:
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 10. Integration Tests | v1.1 | 0/? | Not started | - |
+| 10. Integration Tests | v1.1 | 0/1 | Not started | - |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

@@ -34,7 +34,8 @@ class TestShowDiffNormalization(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             with patch("builtins.print") as mock_print:
-                show_diff("a\n\n\n\nb", "a\n\n\n\nb")
+                # original has 4 blank lines; tailored has 1; both collapse to ≤2
+                show_diff("a\n\n\n\n\nb", "a\n\nb")
                 mock_print.assert_not_called()
 
     def test_identical_texts_no_output(self):

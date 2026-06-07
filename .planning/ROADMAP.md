@@ -101,8 +101,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — test scaffolds must exist before implementation)*
 
-- [ ] 06-03-PLAN.md — Create src/jd_analyzer.py with analyze_job_description (PIPE-01, PIPE-03, PIPE-04)
-- [ ] 06-04-PLAN.md — Extend src/llm_client.py _build_messages + generate_tailored_resume with analysis param (PIPE-02, PIPE-04)
+- [x] 06-03-PLAN.md — Create src/jd_analyzer.py with analyze_job_description (PIPE-01, PIPE-03, PIPE-04)
+- [x] 06-04-PLAN.md — Extend src/llm_client.py _build_messages + generate_tailored_resume with analysis param (PIPE-02, PIPE-04)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -200,7 +200,7 @@ Plans:
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 6. Two-Pass Pipeline | v1.1 | 2/5 | In Progress|  |
+| 6. Two-Pass Pipeline | v1.1 | 4/5 | In Progress|  |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |

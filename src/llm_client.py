@@ -103,11 +103,14 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         "</resume>"
     )
     if analysis is not None:
+        techs = analysis.get("technologies", [])
+        reqs = analysis.get("requirements", [])
+        areas = analysis.get("emphasis_areas", [])
         analysis_block = (
             "<jd_analysis>\n"
-            f"technologies: {analysis['technologies']}\n"
-            f"requirements: {analysis['requirements']}\n"
-            f"emphasis_areas: {analysis['emphasis_areas']}\n"
+            f"technologies: {techs}\n"
+            f"requirements: {reqs}\n"
+            f"emphasis_areas: {areas}\n"
             "</jd_analysis>\n\n"
         )
         user_message = analysis_block + user_message

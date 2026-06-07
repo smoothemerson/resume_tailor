@@ -38,6 +38,8 @@ def _parse_analysis_response(content: str) -> dict | None:
     required_keys = {"technologies", "requirements", "emphasis_areas"}
     if not required_keys.issubset(parsed.keys()):
         return None
+    if not all(isinstance(parsed[k], list) for k in required_keys):
+        return None
     return {k: parsed[k] for k in required_keys}
 
 

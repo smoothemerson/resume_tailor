@@ -84,3 +84,15 @@ audited: 2026-06-07
 | Escalated | 0 |
 
 **Gap resolved:** TEST-09 was missing the 4th D-04 assertion (`assert result.fences_stripped is False`). Added to `tests/integration/test_llm_client.py:26`. Both tests collect, skip cleanly when Ollama absent (exit 0, 2 SKIPPED).
+
+---
+
+## Validation Audit 2026-06-07 (re-audit)
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+**Result:** No gaps. TEST-08 and TEST-09 fully covered. Unit suite 89 passed, 2 integration deselected. `nyquist_compliant: true` confirmed.

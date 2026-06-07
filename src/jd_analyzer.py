@@ -58,10 +58,8 @@ def analyze_job_description(job_description: str, model: str | None = None) -> d
         response.raise_for_status()
         data = response.json()
         if data.get("done_reason") == "length":
-            raise RuntimeError("JD analysis response was truncated (done_reason=length).")
+            return None
         raw = data["message"]["content"]
         return _parse_analysis_response(raw)
-    except RuntimeError:
-        raise
     except Exception:
         return None

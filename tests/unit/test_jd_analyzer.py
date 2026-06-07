@@ -60,7 +60,7 @@ def test_analyze_job_description_returns_none_on_connection_error(mock_post):
 
 @pytest.mark.unit
 @patch("jd_analyzer.requests.post")
-def test_analyze_job_description_raises_runtime_error_on_truncation(mock_post):
+def test_analyze_job_description_returns_none_on_truncation(mock_post):
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
     mock_response.json.return_value = {
@@ -68,8 +68,8 @@ def test_analyze_job_description_raises_runtime_error_on_truncation(mock_post):
         "message": {"content": ""},
     }
     mock_post.return_value = mock_response
-    with pytest.raises(RuntimeError, match="truncated"):
-        analyze_job_description("some job description")
+    result = analyze_job_description("some job description")
+    assert result is None
 
 
 @pytest.mark.unit

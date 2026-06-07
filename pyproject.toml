@@ -41,4 +41,4 @@ markers = [
     "integration: requires Ollama running locally",
     "e2e: full CLI subprocess invocation",
 ]
-addopts = "--strict-markers -ra"
+addopts = "--strict-markers -ra --import-mode=importlib"

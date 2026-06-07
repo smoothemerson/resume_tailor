@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Output Quality + Test Coverage
 status: executing
 stopped_at: Phase 06 context gathered
-last_updated: "2026-06-07T17:17:27.308Z"
-last_activity: 2026-06-07 -- Phase 06 planning complete
+last_updated: "2026-06-07T17:19:17.060Z"
+last_activity: 2026-06-07 -- Phase 06 execution started
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 9
-  percent: 50
+  completed_plans: 10
+  percent: 63
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Phase 10 — integration-tests
+**Current focus:** Phase 06 — two-pass-pipeline
 
 ## Current Position
 
-Phase: 10 (integration-tests) — EXECUTING
-Plan: 1 of 1
-Status: Ready to execute
-Last activity: 2026-06-07 -- Phase 06 planning complete
+Phase: 06 (two-pass-pipeline) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 06
+Last activity: 2026-06-07 -- Phase 06 execution started
 
 Progress: 3/5 plans complete (60%)
 

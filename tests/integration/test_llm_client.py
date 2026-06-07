@@ -23,3 +23,4 @@ def test_generate_tailored_resume_returns_valid_latex(require_ollama):
     assert result.content.lstrip().startswith("\\documentclass")
     assert result.content.rstrip().endswith("\\end{document}")
     assert "```" not in result.content
+    assert result.fences_stripped is False

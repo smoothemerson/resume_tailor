@@ -120,7 +120,7 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
 
 def _strip_fences(text: str) -> str:
     text = text.strip()
-    text = re.sub(r"^```\s*\w*\s*\n?", "", text)
+    text = re.sub(r"^```[^\n]*\n?", "", text)
     text = re.sub(r"\n?```$", "", text)
     return text.strip()
 

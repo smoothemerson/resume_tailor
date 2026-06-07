@@ -26,7 +26,7 @@ def _build_analysis_messages(job_description: str) -> list[dict]:
 
 def _parse_analysis_response(content: str) -> dict | None:
     text = content.strip()
-    text = re.sub(r"^```\s*\w*\s*\n?", "", text)
+    text = re.sub(r"^```[^\n]*\n?", "", text)
     text = re.sub(r"\n?```$", "", text)
     text = text.strip()
     try:

@@ -479,17 +479,13 @@ Note the decorator order: decorators are applied bottom-up, so `mock_analyze` be
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where does `read_resume()` go relative to the analysis call?**
-   - What we know: Currently `read_resume()` is inside the `try:` block just before `generate_tailored_resume()`. The new flow inserts the analysis call before the tailoring call.
-   - What's unclear: Does `read_resume()` move before the analysis call (reads file early, before any LLM calls) or stay inside the try block (only reads if we get to tailoring)?
-   - Recommendation: Keep `read_resume()` inside the try block — it raises `FileNotFoundError` which is caught by `except (RuntimeError, ValueError, OSError)`. No behavioral change; the file read is fast. The analysis call goes above the try block (so its `None` return is available for the `generate_tailored_resume` call inside the try block), OR analysis is added to the inside of the try block. Either works; consistency with the "all LLM-dependent work is inside try" pattern suggests putting analysis inside the try block as well.
+   - RESOLVED: `analyze_job_description()` is placed INSIDE the `try:` block (Plan 05, Task 1). Both LLM calls sit inside the existing try block so truncation `RuntimeError` is caught by the existing `except (RuntimeError, ValueError, OSError)` handler. `read_resume()` stays in its current position inside the try block.
 
 2. **Should `analyze_job_description()` be in `jd_analyzer.py` or `llm_client.py`?**
-   - What we know: CONTEXT.md explicitly leaves this to the planner. Both approaches are consistent with the codebase.
-   - What's unclear: Whether future phases (Phase 7 keyword matching) would import from `jd_analyzer.py` — which would reinforce the separate module argument.
-   - Recommendation: `jd_analyzer.py` — Phase 7 explicitly depends on Phase 6's analysis output (MATCH-01 uses "keywords from pass 1's analysis"). A separate module makes that import cleaner and tests more isolated.
+   - RESOLVED: `jd_analyzer.py` (Plans 03 and 05). Separate module follows the single-concern pattern (`guards.py`, `diff_view.py`) and gives Phase 7 a clean import path for keyword matching.
 
 ---
 

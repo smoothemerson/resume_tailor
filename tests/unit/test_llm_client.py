@@ -215,3 +215,16 @@ def test_generate_tailored_resume_missing_content_key_raises(mock_post, mock_hea
     mock_post.return_value = mock_response
     with pytest.raises(RuntimeError, match="Unexpected Ollama response"):
         generate_tailored_resume("resume", "job desc")
+
+
+@pytest.mark.unit
+def test_build_messages_with_analysis_includes_jd_analysis_tag():
+    result = _build_messages("r", "jd", {"technologies": [], "requirements": [], "emphasis_areas": []})
+    assert "<jd_analysis>" in result[1]["content"]
+    assert "</jd_analysis>" in result[1]["content"]
+
+
+@pytest.mark.unit
+def test_build_messages_without_analysis_omits_jd_analysis_tag():
+    result = _build_messages("r", "jd")
+    assert "<jd_analysis>" not in result[1]["content"]

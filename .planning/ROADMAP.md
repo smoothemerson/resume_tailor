@@ -24,7 +24,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [x] **Phase 4: Output Reliability Guards** - Warn users when the tailored output drops sections, introduces hallucinated fields, or violates LaTeX-only format constraints (completed 2026-06-02)
 - [x] **Phase 5: Diff View** - Show a normalized unified diff between original and tailored resume on interactive terminals (completed 2026-06-04)
-- [ ] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt
+- [x] **Phase 6: Two-Pass Pipeline** - Restructure LLM calls to perform a JD analysis pass before tailoring, injecting extracted requirements into the tailoring prompt (completed 2026-06-07)
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
 - [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
 - [x] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests (completed 2026-06-04)
@@ -106,7 +106,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 06-05-PLAN.md — Wire two-pass flow into src/cli.py + human verify (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
+- [x] 06-05-PLAN.md — Wire two-pass flow into src/cli.py + human verify (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
 
 ### Phase 7: JD Keyword Match Summary
 
@@ -200,7 +200,7 @@ Plans:
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 6. Two-Pass Pipeline | v1.1 | 4/5 | In Progress|  |
+| 6. Two-Pass Pipeline | v1.1 | 5/5 | Complete   | 2026-06-07 |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |

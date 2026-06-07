@@ -96,8 +96,8 @@ Plans:
 Plans:
 **Wave 1** *(both plans parallel — no shared files)*
 
-- [ ] 06-01-PLAN.md — Create test_jd_analyzer.py + add _build_messages analysis tests to test_llm_client.py (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
-- [ ] 06-02-PLAN.md — Update all 8 cli_test.py tests with analyze_job_description patch + add 3 new two-pass tests (PIPE-01, PIPE-03)
+- [x] 06-01-PLAN.md — Create test_jd_analyzer.py + add _build_messages analysis tests to test_llm_client.py (PIPE-01, PIPE-02, PIPE-03, PIPE-04)
+- [x] 06-02-PLAN.md — Update all 8 cli_test.py tests with analyze_job_description patch + add 3 new two-pass tests (PIPE-01, PIPE-03)
 
 **Wave 2** *(blocked on Wave 1 — test scaffolds must exist before implementation)*
 
@@ -200,7 +200,7 @@ Plans:
 | 3. CLI Wiring | v1.0 | 1/1 | Complete | 2026-05-29 |
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 6. Two-Pass Pipeline | v1.1 | 0/5 | Not started | - |
+| 6. Two-Pass Pipeline | v1.1 | 2/5 | In Progress|  |
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |

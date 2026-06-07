@@ -45,13 +45,12 @@ def main() -> None:
         print("Error: Job description cannot be empty.", file=sys.stderr)
         sys.exit(1)
 
-    print("Analyzing job description...", flush=True)
-
     try:
+        resume_text = read_resume(resume_path)
+        print("Analyzing job description...", flush=True)
         analysis = analyze_job_description(job_description, model=args.model)
         if analysis is None:
             print("Warning: JD analysis failed; proceeding with single-pass tailoring.", file=sys.stderr)
-        resume_text = read_resume(resume_path)
         print("Tailoring resume — this may take a minute...", flush=True)
         result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
         run_guards(resume_text, result.content, result.fences_stripped)

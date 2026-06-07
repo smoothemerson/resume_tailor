@@ -22,10 +22,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### Two-Pass Pipeline
 
-- [ ] **PIPE-01**: Tool performs a JD analysis pass (pass 1) before the tailoring call — extracts key technologies, role requirements, and emphasis areas from the job description
-- [ ] **PIPE-02**: Analysis output is injected into the tailoring prompt (pass 2) to guide section-specific rewrites
-- [ ] **PIPE-03**: If pass 1 fails (malformed output, parse error), tool falls back to single-pass behavior — no abort, no error surfaced to user
-- [ ] **PIPE-04**: Both LLM calls respect existing done_reason truncation guard
+- [x] **PIPE-01**: Tool performs a JD analysis pass (pass 1) before the tailoring call — extracts key technologies, role requirements, and emphasis areas from the job description
+- [x] **PIPE-02**: Analysis output is injected into the tailoring prompt (pass 2) to guide section-specific rewrites
+- [x] **PIPE-03**: If pass 1 fails (malformed output, parse error), tool falls back to single-pass behavior — no abort, no error surfaced to user
+- [x] **PIPE-04**: Both LLM calls respect existing done_reason truncation guard
 
 ### JD Match Summary
 
@@ -91,10 +91,10 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | DIFF-01 | Phase 5 | Complete |
 | DIFF-02 | Phase 5 | Complete |
 | DIFF-03 | Phase 5 | Complete |
-| PIPE-01 | Phase 6 | Pending |
-| PIPE-02 | Phase 6 | Pending |
-| PIPE-03 | Phase 6 | Pending |
-| PIPE-04 | Phase 6 | Pending |
+| PIPE-01 | Phase 6 | Complete |
+| PIPE-02 | Phase 6 | Complete |
+| PIPE-03 | Phase 6 | Complete |
+| PIPE-04 | Phase 6 | Complete |
 | MATCH-01 | Phase 7 | Pending |
 | MATCH-02 | Phase 7 | Pending |
 | MATCH-03 | Phase 7 | Pending |

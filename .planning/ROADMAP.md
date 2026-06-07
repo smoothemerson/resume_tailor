@@ -28,7 +28,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [ ] **Phase 7: JD Keyword Match Summary** - After tailoring, display which JD keywords from the analysis pass appear in the tailored resume
 - [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
 - [x] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests (completed 2026-06-04)
-- [ ] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent
+- [x] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent (completed 2026-06-07)
 - [ ] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama
 
 ## Phase Details
@@ -176,7 +176,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 10-01-PLAN.md — Create tests/integration/test_llm_client.py with TEST-08 and TEST-09 (TEST-08, TEST-09)
+- [x] 10-01-PLAN.md — Create tests/integration/test_llm_client.py with TEST-08 and TEST-09 (TEST-08, TEST-09)
 
 ### Phase 11: E2E Tests
 
@@ -204,5 +204,5 @@ Plans:
 | 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
-| 10. Integration Tests | v1.1 | 0/1 | Not started | - |
+| 10. Integration Tests | v1.1 | 1/1 | Complete   | 2026-06-07 |
 | 11. E2E Tests | v1.1 | 0/? | Not started | - |

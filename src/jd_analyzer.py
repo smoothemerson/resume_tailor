@@ -33,6 +33,8 @@ def _parse_analysis_response(content: str) -> dict | None:
         parsed = json.loads(text)
     except Exception:
         return None
+    if not isinstance(parsed, dict):
+        return None
     required_keys = {"technologies", "requirements", "emphasis_areas"}
     if not required_keys.issubset(parsed.keys()):
         return None

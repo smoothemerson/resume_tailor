@@ -49,6 +49,8 @@ def main() -> None:
 
     try:
         analysis = analyze_job_description(job_description, model=args.model)
+        if analysis is None:
+            print("Warning: JD analysis failed; proceeding with single-pass tailoring.", file=sys.stderr)
         resume_text = read_resume(resume_path)
         print("Tailoring resume — this may take a minute...", flush=True)
         result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)

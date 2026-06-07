@@ -23,7 +23,7 @@ def _check_ollama_health() -> None:
         raise RuntimeError(f"Ollama health check failed with HTTP error: {exc}") from exc
 
 
-def _build_messages(resume_text: str, job_description: str) -> list[dict]:
+def _build_messages(resume_text: str, job_description: str, analysis: dict | None = None) -> list[dict]:
     system_prompt = """
         <PERSONA>
         You are Alexandra, a senior technical recruiter and resume strategist with 10+ years of
@@ -102,6 +102,15 @@ def _build_messages(resume_text: str, job_description: str) -> list[dict]:
         f"{resume_text}\n"
         "</resume>"
     )
+    if analysis is not None:
+        analysis_block = (
+            "<jd_analysis>\n"
+            f"technologies: {analysis['technologies']}\n"
+            f"requirements: {analysis['requirements']}\n"
+            f"emphasis_areas: {analysis['emphasis_areas']}\n"
+            "</jd_analysis>\n\n"
+        )
+        user_message = analysis_block + user_message
 
     return [
         {"role": "system", "content": system_prompt},
@@ -130,12 +139,12 @@ def _validate_latex(text: str) -> str:
 
 
 def generate_tailored_resume(
-    resume_text: str, job_description: str, model: str | None = None
+    resume_text: str, job_description: str, model: str | None = None, analysis: dict | None = None
 ) -> TailorResult:
     effective_model = model or OLLAMA_MODEL
     _check_ollama_health()
 
-    messages = _build_messages(resume_text, job_description)
+    messages = _build_messages(resume_text, job_description, analysis)
     payload = {
         "model": effective_model,
         "messages": messages,

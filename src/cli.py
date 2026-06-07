@@ -5,6 +5,7 @@ from pathlib import Path
 from config import BASE_RESUME_PATH, OUTPUT_DIR
 from diff_view import show_diff
 from guards import run_guards
+from jd_analyzer import analyze_job_description
 from llm_client import TailorResult, generate_tailored_resume
 from resume_reader import read_resume
 from resume_writer import write_resume
@@ -44,11 +45,13 @@ def main() -> None:
         print("Error: Job description cannot be empty.", file=sys.stderr)
         sys.exit(1)
 
-    print("Tailoring resume — this may take a minute...", flush=True)
+    print("Analyzing job description...", flush=True)
 
     try:
+        analysis = analyze_job_description(job_description, model=args.model)
         resume_text = read_resume(resume_path)
-        result = generate_tailored_resume(resume_text, job_description, model=args.model)
+        print("Tailoring resume — this may take a minute...", flush=True)
+        result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
         run_guards(resume_text, result.content, result.fences_stripped)
         output_path = write_resume(result.content, output_dir)
         show_diff(resume_text, result.content)

@@ -189,7 +189,11 @@ Plans:
   2. Golden-path e2e test exits 0, creates a file in `tmp_path` (not `resumes/output/`), and stdout contains `"Tailored resume written to:"`
   3. `pytest -m e2e` with Ollama stopped skips the golden-path test and passes the error-path test
 
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 11-01-PLAN.md — Create tests/e2e/test_cli.py with TEST-10 and TEST-11 (TEST-10, TEST-11)
 
 ## Progress
 
@@ -205,4 +209,4 @@ Plans:
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete   | 2026-06-07 |
-| 11. E2E Tests | v1.1 | 0/? | Not started | - |
+| 11. E2E Tests | v1.1 | 0/1 | Not started | - |

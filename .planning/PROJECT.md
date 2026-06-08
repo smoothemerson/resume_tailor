@@ -43,7 +43,7 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Guards degrade gracefully — warnings to stderr, never block output write (GUARD-04) — Validated in Phase 4: Output Reliability Guards
 - [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
 - [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
-- [ ] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03)
+- [x] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03) — Validated in Phase 7: JD Keyword Match Summary
 - [x] pytest configured with testpaths, pythonpath, markers, --strict-markers (TEST-01) — Validated in Phase 8: Test Infrastructure
 - [x] tests/conftest.py provides Ollama availability fixtures (TEST-02 to TEST-03) — Validated in Phase 8: Test Infrastructure
 - [ ] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07)

@@ -33,8 +33,8 @@ def _collect_keywords(analysis: dict) -> list[str]:
 def _match_keywords(keywords: list[str], tailored_text: str) -> list[str]:
     matched: list[str] = []
     for kw in keywords:
-        pattern = re.compile(r"\b" + re.escape(kw.lower()) + r"\b", re.IGNORECASE)
-        if pattern.search(tailored_text.lower()):
+        pattern = re.compile(r"(?<!\w)" + re.escape(kw) + r"(?!\w)", re.IGNORECASE)
+        if pattern.search(tailored_text):
             matched.append(kw)
     return matched
 

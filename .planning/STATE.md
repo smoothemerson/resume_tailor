@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Output Quality + Test Coverage
 status: archived
-stopped_at: v1.1 milestone archived — ready for v1.2 planning
+stopped_at: v1.1 milestone shipped — PR #1 open
 last_updated: "2026-06-08T00:00:00.000Z"
 last_activity: 2026-06-08
 progress:
@@ -29,7 +29,7 @@ Phase: 11 (complete — v1.1 archived)
 Status: Milestone archived, ready for next milestone
 Last activity: 2026-06-08
 
-Progress: [████████████████████] 18/18 plans (100%) — v1.1 SHIPPED
+Progress: [████████████████████] 18/18 plans (100%) — v1.1 SHIPPED (PR #1)
 
 ## Accumulated Context
 

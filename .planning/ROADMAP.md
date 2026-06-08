@@ -119,7 +119,15 @@ Plans:
   2. The match summary is suppressed when stdout is piped or redirected
   3. Keywords are matched as whole words and common stop words are excluded — searching for "and" or "the" does not produce false positives
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Create src/keyword_matcher.py (show_keyword_match, STOP_WORDS) + src/keyword_matcher_test.py (MATCH-01, MATCH-02, MATCH-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 07-02-PLAN.md — Wire show_keyword_match into src/cli.py + add integration test to src/cli_test.py (MATCH-01, MATCH-02, MATCH-03)
 
 ### Phase 8: Test Infrastructure
 
@@ -205,7 +213,7 @@ Plans:
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 6. Two-Pass Pipeline | v1.1 | 5/5 | Complete    | 2026-06-07 |
-| 7. JD Keyword Match Summary | v1.1 | 0/? | Not started | - |
+| 7. JD Keyword Match Summary | v1.1 | 0/2 | Not started | - |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete   | 2026-06-07 |

@@ -46,4 +46,4 @@ def test_golden_path_exits_0_creates_output_file(require_ollama, tmp_path):
     assert "Tailored resume written to:" in result.stdout
     output_files = list(tmp_path.glob("tailored_resume_*.tex"))
     assert len(output_files) == 1
-    assert re.match(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)
+    assert re.fullmatch(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)

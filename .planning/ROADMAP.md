@@ -123,7 +123,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Create src/keyword_matcher.py (show_keyword_match, STOP_WORDS) + src/keyword_matcher_test.py (MATCH-01, MATCH-02, MATCH-03)
+- [x] 07-01-PLAN.md — Create src/keyword_matcher.py (show_keyword_match, STOP_WORDS) + src/keyword_matcher_test.py (MATCH-01, MATCH-02, MATCH-03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -213,7 +213,7 @@ Plans:
 | 4. Output Reliability Guards | v1.1 | 3/3 | Complete    | 2026-06-04 |
 | 5. Diff View | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 6. Two-Pass Pipeline | v1.1 | 5/5 | Complete    | 2026-06-07 |
-| 7. JD Keyword Match Summary | v1.1 | 0/2 | Not started | - |
+| 7. JD Keyword Match Summary | v1.1 | 1/2 | In Progress|  |
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete   | 2026-06-07 |

@@ -53,8 +53,8 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### E2E Tests
 
-- [ ] **TEST-10**: E2E test: CLI subprocess exits 1 and prints an error to stderr when given empty JD input (END sentinel immediately); does not require Ollama running
-- [ ] **TEST-11**: E2E test: CLI subprocess exits 0 when given a real JD, creates an output file in a temp directory with filename matching the timestamp pattern, and stdout contains `"Tailored resume written to:"`; test is skipped when Ollama is unreachable
+- [x] **TEST-10**: E2E test: CLI subprocess exits 1 and prints an error to stderr when given empty JD input (END sentinel immediately); does not require Ollama running
+- [x] **TEST-11**: E2E test: CLI subprocess exits 0 when given a real JD, creates an output file in a temp directory with filename matching the timestamp pattern, and stdout contains `"Tailored resume written to:"`; test is skipped when Ollama is unreachable
 
 ## Future Requirements
 
@@ -107,8 +107,8 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | TEST-07 | Phase 9 | Complete |
 | TEST-08 | Phase 10 | Pending |
 | TEST-09 | Phase 10 | Pending |
-| TEST-10 | Phase 11 | Pending |
-| TEST-11 | Phase 11 | Pending |
+| TEST-10 | Phase 11 | Complete |
+| TEST-11 | Phase 11 | Complete |
 
 **Coverage:**
 

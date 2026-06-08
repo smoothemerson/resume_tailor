@@ -1,5 +1,5 @@
 ---
-status: partial
+status: complete
 phase: 11-e2e-tests
 source: [11-VERIFICATION.md]
 started: 2026-06-08T18:30:00Z
@@ -15,7 +15,7 @@ updated: 2026-06-08T18:30:00Z
 ### 1. TEST-11 golden path with live Ollama
 
 expected: With Ollama running and a model loaded, `uv run pytest tests/e2e/test_cli.py::test_golden_path_exits_0_creates_output_file -v` exits 0 with PASSED; stdout contains "Tailored resume written to:"; one `tailored_resume_YYYYMMDD_HHMMSS.tex` file exists in tmp_path
-result: [pending]
+result: PASSED — 1 passed in 126.85s (0:02:06)
 
 **Steps to verify:**
 1. Start Ollama: `ollama serve` (in a separate terminal)
@@ -26,9 +26,9 @@ result: [pending]
 ## Summary
 
 total: 1
-passed: 0
+passed: 1
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 

@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MVP
-status: shipped
-stopped_at: Milestone v1.0 complete
-last_updated: "2026-05-29"
-last_activity: 2026-05-29
+milestone: v1.1
+milestone_name: Output Quality + Test Coverage
+status: archived
+stopped_at: v1.1 milestone shipped — PR #1 open
+last_updated: "2026-06-08T00:00:00.000Z"
+last_activity: 2026-06-08
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 18
+  completed_plans: 18
   percent: 100
 ---
 
@@ -18,37 +18,24 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-29)
+See: .planning/PROJECT.md (updated 2026-06-08 after v1.1 milestone)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Planning next milestone (v1.1)
+**Current focus:** Planning next milestone (v1.2)
 
 ## Current Position
 
-Phase: —
-Plan: —
-Status: ✅ v1.0 MVP shipped — planning next milestone
+Phase: 11 (complete — v1.1 archived)
+Status: Milestone archived, ready for next milestone
+Last activity: 2026-06-08
 
-## Performance Metrics
-
-**Velocity:**
-
-- Total plans completed: 4
-- Total execution time: ~2 days
-
-**By Phase:**
-
-| Phase | Plans | Status |
-|-------|-------|--------|
-| 01 | 2 | Complete |
-| 02 | 1 | Complete |
-| 03 | 1 | Complete |
+Progress: [████████████████████] 18/18 plans (100%) — v1.1 SHIPPED (PR #1)
 
 ## Accumulated Context
 
 ### Decisions
 
-All decisions logged in PROJECT.md Key Decisions table with outcomes.
+All v1.0 and v1.1 decisions logged in PROJECT.md Key Decisions table with outcomes.
 
 ### Pending Todos
 
@@ -62,10 +49,15 @@ None.
 
 | Category | Item | Status |
 |----------|------|--------|
-| *(none)* | | |
+| Guards | Per-section change magnitude warning | Future requirement |
+| Guards | Structured output schema enforcement via Ollama `json_schema` | Future requirement |
+| Workflow | `--no-diff` opt-in flag | Future requirement |
+| Workflow | Persistent match history across runs | Future requirement |
+| Workflow | Interactive accept/reject of individual changes | Future requirement |
 
 ## Session Continuity
 
-Last session: 2026-05-29
-Stopped at: Milestone v1.0 archived — tag v1.0 created
-Resume: Start fresh with `/gsd-new-milestone` to plan v1.1
+Last session: 2026-06-08
+Stopped at: v1.1 milestone complete and archived
+Resume file: None
+Next: `/gsd-new-milestone` to plan v1.2

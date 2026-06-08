@@ -49,6 +49,54 @@
 
 ---
 
+## Milestone: v1.1 — Output Quality + Test Coverage
+
+**Shipped:** 2026-06-08
+**Phases:** 8 (Phases 4–11) | **Plans:** 18 | **Timeline:** 7 days (2026-06-02 → 2026-06-08)
+
+### What Was Built
+
+- Output reliability guards: non-fatal `guards.py` with three check functions; `TailorResult` NamedTuple threads `fences_stripped` metadata through the pipeline
+- Normalized diff view with ANSI color using `difflib`; TTY-gated with zero config (no `--diff` flag)
+- Two-pass pipeline: `jd_analyzer.py` extracts structured requirements; injected into `_build_messages()` as second context block; silent fallback on any parse failure
+- JD keyword match summary with whole-word regex and stop-word filtering; same TTY guard as diff
+- pytest infrastructure: `--strict-markers`, `importlib` import mode, session-scoped Ollama skip fixtures, organized `unit/` / `integration/` / `e2e/` layout (removes all `sys.path` hacks)
+- Test pyramid: 107 tests — 99 unit (src + tests/unit), 2 integration (real Ollama, skipable), 2 E2E subprocess
+
+### What Worked
+
+- TDD sequence for Phase 6: test scaffolds written before implementation; test files compile-checked on first run; zero wasted cycles on mock mismatches
+- TTY guard reuse: deciding once (`sys.stdout.isatty()`) and applying it identically to diff and keyword summary kept UX consistent with no duplication
+- Non-fatal guard architecture (GUARD-04 as rule): wrapping every `_check_*` in `try/except Exception` made the guards trivially extendable — each new guard is isolated, can't break others
+- `TailorResult` NamedTuple: adding metadata to the return type without global state or extra arguments; tests could assert on `fences_stripped` independently
+
+### What Was Inefficient
+
+- Traceability table in REQUIREMENTS.md left TEST-08/09 as "Pending" even after Phase 10 shipped; caused false alarm at milestone close — should have been updated in the phase-complete step
+- Phase 6 introduced `--import-mode=importlib` as a deviation; should have been in the original plan since the module naming collision between `test_llm_client.py` in unit/ vs integration/ was predictable from the layout
+
+### Patterns Established
+
+- `TTY-gate-by-default`: interactive output (diff, keyword summary) uses `sys.stdout.isatty()` with no opt-in flag; pipelines stay clean automatically
+- `non-fatal-guard`: guard functions never raise; wrap in `try/except Exception`; each guard is independently skippable
+- `NamedTuple-for-metadata`: use a NamedTuple return type to thread additional context alongside primary value without changing callers or adding global state
+- `importlib-mode`: use `--import-mode=importlib` in pytest when test directories share file basenames without `__init__.py`
+
+### Key Lessons
+
+1. Update traceability table rows to "Complete" in the same commit that completes the phase — stale rows become noise at milestone close
+2. Predict module naming collisions early: if multiple test subdirectories will have same-named test files, set `--import-mode=importlib` in Phase 8 (test infrastructure), not Phase 10 (integration tests)
+3. The TTY gate pattern is reusable — define it once as a predicate function, apply to every feature that should be interactive-only; keeps all such features consistent
+4. Non-fatal architecture for advisory subsystems (guards, linters): wrap body in `try/except Exception` from the start; makes the subsystem composable and safe to extend
+
+### Cost Observations
+
+- Model mix: claude-sonnet-4-6 throughout
+- Sessions: ~8-10 sessions across 7 days
+- Notable: 215 commits for 8 phases (avg ~27/phase) reflects consistent atomic-commit discipline; phase summaries are traceable through git log
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -56,14 +104,18 @@
 | Milestone | Phases | Plans | Key Change |
 |-----------|--------|-------|------------|
 | v1.0      | 3      | 4     | First milestone — baseline established |
+| v1.1      | 8      | 18    | TDD sequence + worktrees for parallel wave execution |
 
 ### Cumulative Quality
 
 | Milestone | Tests | Zero-Dep Additions |
 |-----------|-------|--------------------|
 | v1.0      | 16    | 0 (requests was the sole runtime dep from day one) |
+| v1.1      | 107   | 0 (all features built on stdlib + requests) |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Commit all files before starting a new phase — worktrees are git-state, not filesystem-state
 2. Decide raise-vs-exit contracts upfront — retrofitting them after modules are written requires touching every test
+3. Update traceability rows to "Complete" in the same commit that finishes the phase — stale rows cause false alarms at milestone close
+4. Predict module naming collisions early in test infrastructure phases — `--import-mode=importlib` is the right fix, not `__init__.py`

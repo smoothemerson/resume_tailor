@@ -3,7 +3,11 @@ import sys
 from pathlib import Path
 
 from config import BASE_RESUME_PATH, OUTPUT_DIR
-from llm_client import generate_tailored_resume
+from diff_view import show_diff
+from guards import run_guards
+from jd_analyzer import analyze_job_description
+from keyword_matcher import show_keyword_match
+from llm_client import TailorResult, generate_tailored_resume
 from resume_reader import read_resume
 from resume_writer import write_resume
 
@@ -42,17 +46,23 @@ def main() -> None:
         print("Error: Job description cannot be empty.", file=sys.stderr)
         sys.exit(1)
 
-    print("Tailoring resume — this may take a minute...", flush=True)
-
     try:
         resume_text = read_resume(resume_path)
-        content = generate_tailored_resume(resume_text, job_description, model=args.model)
-        output_path = write_resume(content, output_dir)
-    except (RuntimeError, ValueError, FileNotFoundError, OSError) as e:
+        print("Analyzing job description...", flush=True)
+        analysis = analyze_job_description(job_description, model=args.model)
+        if analysis is None:
+            print("Warning: JD analysis failed; proceeding with single-pass tailoring.", file=sys.stderr)
+        print("Tailoring resume — this may take a minute...", flush=True)
+        result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
+        run_guards(resume_text, result.content, result.fences_stripped)
+        output_path = write_resume(result.content, output_dir)
+        show_diff(resume_text, result.content)
+        if analysis is not None:
+            show_keyword_match(analysis, result.content)
+        print(f"Tailored resume written to: {output_path.resolve()}")
+    except (RuntimeError, ValueError, OSError) as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
-    print(f"Tailored resume written to: {output_path.resolve()}")
 
 
 if __name__ == "__main__":

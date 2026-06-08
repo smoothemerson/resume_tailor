@@ -22,9 +22,10 @@ def _collect_keywords(analysis: dict) -> list[str]:
     pool: list[str] = []
     for field in ("technologies", "requirements", "emphasis_areas"):
         for kw in analysis.get(field, []):
+            kw = kw.strip()
             if kw.lower() in STOP_WORDS:
                 continue
-            if len(kw.strip()) <= 1:
+            if len(kw) <= 1:
                 continue
             pool.append(kw)
     return pool

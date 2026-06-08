@@ -29,7 +29,7 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 8: Test Infrastructure** - Configure pytest, create conftest.py with Ollama fixtures, and establish tests/ directory layout (completed 2026-06-02)
 - [x] **Phase 9: Unit Test Gaps** - Cover _build_messages(), _check_ollama_health(), reader, and writer modules with isolated unit tests (completed 2026-06-04)
 - [x] **Phase 10: Integration Tests** - Verify real Ollama health check and generate call with structural assertions; skipable when Ollama is absent (completed 2026-06-07)
-- [ ] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama
+- [x] **Phase 11: E2E Tests** - Verify full CLI subprocess invocation — error paths without Ollama, golden path with Ollama (completed 2026-06-08)
 
 ## Phase Details
 
@@ -201,7 +201,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 11-01-PLAN.md — Create tests/e2e/test_cli.py with TEST-10 and TEST-11 (TEST-10, TEST-11)
+- [x] 11-01-PLAN.md — Create tests/e2e/test_cli.py with TEST-10 and TEST-11 (TEST-10, TEST-11)
 
 ## Progress
 
@@ -217,4 +217,4 @@ Plans:
 | 8. Test Infrastructure | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete    | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete   | 2026-06-07 |
-| 11. E2E Tests | v1.1 | 0/1 | Not started | - |
+| 11. E2E Tests | v1.1 | 1/1 | Complete   | 2026-06-08 |

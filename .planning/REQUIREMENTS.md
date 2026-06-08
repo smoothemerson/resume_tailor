@@ -29,9 +29,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 
 ### JD Match Summary
 
-- [ ] **MATCH-01**: After tailoring, tool displays which keywords from pass 1's analysis appear in the tailored resume
-- [ ] **MATCH-02**: Keyword matching uses whole-word regex with stop word filtering to prevent substring false positives
-- [ ] **MATCH-03**: Match summary is displayed to stdout only when running interactively (TTY guard, same as diff)
+- [x] **MATCH-01**: After tailoring, tool displays which keywords from pass 1's analysis appear in the tailored resume
+- [x] **MATCH-02**: Keyword matching uses whole-word regex with stop word filtering to prevent substring false positives
+- [x] **MATCH-03**: Match summary is displayed to stdout only when running interactively (TTY guard, same as diff)
 
 ### Test Infrastructure
 
@@ -95,9 +95,9 @@ Requirements for Output Quality + Test Coverage milestone. Each maps to roadmap 
 | PIPE-02 | Phase 6 | Complete |
 | PIPE-03 | Phase 6 | Complete |
 | PIPE-04 | Phase 6 | Complete |
-| MATCH-01 | Phase 7 | Pending |
-| MATCH-02 | Phase 7 | Pending |
-| MATCH-03 | Phase 7 | Pending |
+| MATCH-01 | Phase 7 | Complete |
+| MATCH-02 | Phase 7 | Complete |
+| MATCH-03 | Phase 7 | Complete |
 | TEST-01 | Phase 8 | Complete |
 | TEST-02 | Phase 8 | Complete |
 | TEST-03 | Phase 8 | Complete |

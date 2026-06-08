@@ -47,3 +47,7 @@ def test_golden_path_exits_0_creates_output_file(require_ollama, tmp_path):
     output_files = list(tmp_path.glob("tailored_resume_*.tex"))
     assert len(output_files) == 1
     assert re.fullmatch(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)
+    content = output_files[0].read_text(encoding="utf-8")
+    assert content.strip(), "Output file must not be empty"
+    assert "\\documentclass" in content or "\\begin{document}" in content, \
+        "Output file does not appear to contain LaTeX markup"

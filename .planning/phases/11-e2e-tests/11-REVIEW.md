@@ -7,9 +7,9 @@ files_reviewed_list:
   - tests/e2e/test_cli.py
 findings:
   critical: 0
-  warning: 4
-  info: 1
-  total: 5
+  warning: 2
+  info: 2
+  total: 4
 status: issues_found
 ---
 
@@ -22,17 +22,49 @@ status: issues_found
 
 ## Summary
 
-`tests/e2e/test_cli.py` contains two E2E tests exercising the CLI via `subprocess.run`. The empty-JD sad-path test is well-structured and passes. The golden-path happy test exercises the full Ollama-backed flow but has reliability and completeness gaps: no subprocess timeout (infinite hang risk), no validation of output file contents, and a weaker filename regex than intended. The `require_ollama` fixture in `tests/conftest.py` is correctly wired for the happy-path test but has a type annotation inconsistency.
+Reviewed `tests/e2e/test_cli.py`, which contains two end-to-end tests that invoke the CLI via `subprocess.run`. Cross-referenced `tests/conftest.py`, `src/cli.py`, `src/config.py`, `src/guards.py`, `src/resume_writer.py`, and `pyproject.toml` for context.
 
----
+No critical issues found. The test structure is fundamentally sound: both tests carry the registered `@pytest.mark.e2e` marker, the `require_ollama` skip guard is correctly applied only to the test that reaches Ollama, fixture scoping is correct, and the subprocess input/output plumbing is accurate. Two warnings and two info items follow.
 
 ## Warnings
 
-### WR-01: No `timeout` on `subprocess.run` — test suite can hang indefinitely
+### WR-01: `re.match` Without End Anchor on Filename Assertion
+
+**File:** `tests/e2e/test_cli.py:49`
+
+**Issue:** `re.match(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)` uses `re.match`, which anchors only at the start of the string, not the end. A filename such as `tailored_resume_20260608_123456.tex.bak` or `tailored_resume_20260608_123456.tex.gz` would satisfy this assertion, silently masking an incorrect output filename. While the `glob("tailored_resume_*.tex")` pre-filter reduces practical exposure today, the assertion's stated intent is to verify the exact filename format and `re.match` does not enforce that.
+
+**Fix:**
+```python
+assert re.fullmatch(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)
+```
+`re.fullmatch` anchors at both ends, making the assertion match its stated intent.
+
+---
+
+### WR-02: Golden-Path Test Makes No Assertion on Output File Contents
+
+**File:** `tests/e2e/test_cli.py:32-49`
+
+**Issue:** `test_golden_path_exits_0_creates_output_file` verifies only that an output file exists with the right name. It never reads the file. The CLI could write an empty string, write `None`, or write a prose response with markdown fences, and this test would still pass. The core contract — "output contains valid LaTeX" — is unverified. A regression in `write_resume`, in the fence-stripping guard, or in the LLM response extraction would not be caught here.
+
+**Fix:**
+```python
+content = output_files[0].read_text(encoding="utf-8")
+assert content.strip(), "Output file must not be empty"
+assert "\\documentclass" in content or "\\begin{document}" in content, \
+    "Output file does not appear to contain LaTeX markup"
+```
+
+---
+
+## Info
+
+### IN-01: No `timeout` on `subprocess.run` — Suite Can Hang Indefinitely
 
 **File:** `tests/e2e/test_cli.py:21` and `tests/e2e/test_cli.py:37`
 
-**Issue:** Both `subprocess.run(...)` calls omit the `timeout` parameter. If the CLI subprocess hangs (e.g., Ollama stops responding mid-request, or the `input()` loop never terminates), the test process blocks forever with no way for pytest to interrupt it. This is especially dangerous for the empty-JD test (line 21), which is not guarded by `require_ollama` — it runs in every CI environment regardless of Ollama availability.
+**Issue:** Both `subprocess.run(...)` calls omit the `timeout` parameter. If the CLI subprocess hangs (Ollama stops responding mid-request, or the `input()` loop never terminates), the test process blocks forever with no way for pytest to interrupt it. The empty-JD test (line 21) is particularly notable: it is not guarded by `require_ollama` and runs in every environment, yet a future refactor that moves JD validation after a slow operation would cause it to block indefinitely.
 
 **Fix:**
 ```python
@@ -44,80 +76,31 @@ result = subprocess.run(
     timeout=30,
 )
 ```
-Add `timeout=30` (or a reasonable ceiling) to both calls. Wrap in `pytest.raises(subprocess.TimeoutExpired)` if testing timeout behavior specifically; otherwise let the `TimeoutExpired` propagate as a test error, which is the correct failure mode.
+Apply `timeout=30` to the empty-JD test and a larger value (e.g., `timeout=120`) to the golden-path test. `subprocess.TimeoutExpired` propagates as a test error, which is the correct failure mode.
 
 ---
 
-### WR-02: Golden-path test never validates output file contents
+### IN-02: No E2E Test for Missing Resume File Error Path
 
-**File:** `tests/e2e/test_cli.py:47-49`
+**File:** `tests/e2e/test_cli.py` (whole file)
 
-**Issue:** After the golden-path run, the test checks that exactly one `tailored_resume_*.tex` file exists and that its name matches a timestamp pattern. It never reads the file to verify the content is valid LaTeX (or even non-empty). The CLI could write an empty file, write literal `None`, or write a prose error message and this test would still pass. The core contract — "output contains LaTeX" — is unverified.
+**Issue:** The error path where `--resume` points to a nonexistent file is not covered in the e2e suite. `cli.py` catches `OSError` at line 60 and exits 1 with a message, but no test pins that contract from the outside. A refactor that removes the `OSError` handler or changes the exit code would go undetected.
 
-**Fix:**
+**Fix:** Add a test:
 ```python
-output_file = output_files[0]
-content = output_file.read_text(encoding="utf-8")
-assert content.strip(), "Output file is empty"
-assert "\\documentclass" in content or "\\begin{document}" in content, \
-    "Output does not appear to be valid LaTeX"
+@pytest.mark.e2e
+def test_missing_resume_exits_1_with_stderr_message(tmp_path):
+    result = subprocess.run(
+        [sys.executable, CLI_PATH,
+         "--resume", str(tmp_path / "nonexistent.tex")],
+        input="Some job description\nEND\n",
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 1
+    assert result.stderr
 ```
-A minimal structural check (`\\documentclass` or `\\begin{document}` present) is sufficient to catch the most common failure modes (empty output, prose leakage, markdown fences).
-
----
-
-### WR-03: `re.match` instead of `re.fullmatch` for filename pattern assertion
-
-**File:** `tests/e2e/test_cli.py:49`
-
-**Issue:** `re.match(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)` only anchors at the start of the string. Any filename that starts with the expected pattern but has additional characters appended (e.g., `tailored_resume_20240101_120000.tex.bak`) would pass the assertion. While the `glob("tailored_resume_*.tex")` pre-filter reduces practical exposure, the assertion's stated intent is to verify the exact filename format and `re.match` does not enforce that.
-
-**Fix:**
-```python
-assert re.fullmatch(r"tailored_resume_\d{8}_\d{6}\.tex", output_files[0].name)
-```
-`re.fullmatch` anchors at both ends, making the assertion match its intent precisely.
-
----
-
-### WR-04: `require_ollama` fixture type annotation is misleading
-
-**File:** `tests/conftest.py:17`
-
-**Issue:** The fixture is declared as `def require_ollama(ollama_available: bool) -> None`. The parameter `ollama_available` is a pytest fixture, not a raw `bool` argument. Annotating it as `bool` implies it can be passed any boolean at call sites — it cannot; pytest resolves it by name from the fixture registry. If a developer attempts to call `require_ollama(False)` directly (e.g., in a unit test for the fixture itself), the annotation misleads them into thinking it is valid Python. More critically, a type-checker running `mypy` will flag callers that pass the fixture value as a boolean argument.
-
-**Fix:**
-```python
-@pytest.fixture(scope="session")
-def require_ollama(ollama_available: bool) -> None:  # type annotation is pytest-idiomatic; acceptable
-    if not ollama_available:
-        pytest.skip("Ollama not available")
-```
-The annotation is technically harmless in runtime pytest use, but removing the `bool` hint from the parameter (leaving it unannotated) avoids confusion:
-```python
-@pytest.fixture(scope="session")
-def require_ollama(ollama_available) -> None:
-    if not ollama_available:
-        pytest.skip("Ollama not available")
-```
-
----
-
-## Info
-
-### IN-01: `CLI_PATH` computed via magic `parents[2]` index with no guard
-
-**File:** `tests/e2e/test_cli.py:8`
-
-**Issue:** `CLI_PATH = Path(__file__).parents[2] / "src" / "cli.py"` hard-codes the assumption that `test_cli.py` lives exactly two levels below the project root (`tests/e2e/test_cli.py` → `tests/e2e/` → `tests/` → root). If the file is ever moved, `parents[2]` silently resolves to a different directory with no assertion failure at import time — the failure only surfaces as a confusing `FileNotFoundError` inside the subprocess. There is also no existence check to fail fast at collection time.
-
-**Fix:**
-```python
-_PROJECT_ROOT = Path(__file__).parents[2]
-CLI_PATH = _PROJECT_ROOT / "src" / "cli.py"
-assert CLI_PATH.exists(), f"CLI not found at {CLI_PATH}"
-```
-Adding the `assert` at module level causes pytest collection to fail immediately with a clear message if the path is wrong, rather than letting bad subprocess calls fail with opaque errors at runtime.
 
 ---
 

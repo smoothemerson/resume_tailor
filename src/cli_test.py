@@ -241,13 +241,14 @@ def test_generate_called_with_analysis_none_when_analysis_fails(mock_guards, moc
 @pytest.mark.unit
 @patch("cli.analyze_job_description", return_value={"technologies": ["Python"], "requirements": ["5 years"], "emphasis_areas": ["ML"]})
 @patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_keyword_match")
 @patch("cli.show_diff")
 @patch("cli.write_resume")
 @patch("cli.generate_tailored_resume")
 @patch("cli.read_resume")
 @patch("builtins.input")
 @patch("cli.run_guards")
-def test_generate_called_with_analysis_dict_when_analysis_succeeds(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff, mock_analyze):
+def test_generate_called_with_analysis_dict_when_analysis_succeeds(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff, mock_show_keyword_match, mock_analyze):
     mock_input.side_effect = ["Software Engineer job", "END"]
     mock_read.return_value = "resume text"
     mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
@@ -257,3 +258,28 @@ def test_generate_called_with_analysis_dict_when_analysis_succeeds(mock_guards, 
         main()
 
     assert mock_generate.call_args.kwargs["analysis"] == {"technologies": ["Python"], "requirements": ["5 years"], "emphasis_areas": ["ML"]}
+
+
+@pytest.mark.unit
+@patch("cli.analyze_job_description", return_value={"technologies": ["Python"], "requirements": ["5 years"], "emphasis_areas": ["ML"]})
+@patch("sys.argv", ["resume-tailor"])
+@patch("cli.show_keyword_match")
+@patch("cli.show_diff")
+@patch("cli.write_resume")
+@patch("cli.generate_tailored_resume")
+@patch("cli.read_resume")
+@patch("builtins.input")
+@patch("cli.run_guards")
+def test_show_keyword_match_called_when_analysis_not_none(mock_guards, mock_input, mock_read, mock_generate, mock_write, mock_show_diff, mock_show_keyword_match, mock_analyze):
+    mock_input.side_effect = ["Software Engineer job", "END"]
+    mock_read.return_value = "resume text"
+    mock_generate.return_value = TailorResult(content="\\documentclass{article}\n\\end{document}", fences_stripped=False)
+    mock_write.return_value = Path("/tmp/tailored_resume_test.tex")
+
+    with patch("builtins.print"):
+        main()
+
+    mock_show_keyword_match.assert_called_once_with(
+        {"technologies": ["Python"], "requirements": ["5 years"], "emphasis_areas": ["ML"]},
+        "\\documentclass{article}\n\\end{document}",
+    )

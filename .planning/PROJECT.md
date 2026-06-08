@@ -37,18 +37,7 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-- [x] Tool warns when a section present in the original resume is missing from tailored output (GUARD-01) — Validated in Phase 4: Output Reliability Guards
-- [x] Tool warns when tailored output contains markdown prose or format violations (GUARD-02) — Validated in Phase 4: Output Reliability Guards
-- [x] Tool warns when structured fields appear in output but were not in original resume (GUARD-03) — Validated in Phase 4: Output Reliability Guards
-- [x] Guards degrade gracefully — warnings to stderr, never block output write (GUARD-04) — Validated in Phase 4: Output Reliability Guards
-- [ ] Tool shows normalized unified diff of original vs tailored when stdout is a TTY (DIFF-01 to DIFF-03)
-- [ ] Tool performs JD analysis pass before tailoring to extract key requirements (PIPE-01 to PIPE-04)
-- [x] Tool displays JD keyword match summary after tailoring (MATCH-01 to MATCH-03) — Validated in Phase 7: JD Keyword Match Summary
-- [x] pytest configured with testpaths, pythonpath, markers, --strict-markers (TEST-01) — Validated in Phase 8: Test Infrastructure
-- [x] tests/conftest.py provides Ollama availability fixtures (TEST-02 to TEST-03) — Validated in Phase 8: Test Infrastructure
-- [ ] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07)
-- [ ] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09)
-- [ ] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11)
+*(all v1.1 requirements now validated — see Validated section)*
 
 ### Out of Scope
 

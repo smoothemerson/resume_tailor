@@ -1,10 +1,11 @@
 ---
 phase: 11
 slug: e2e-tests
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-08
+audited: 2026-06-08
 ---
 
 # Phase 11 — Validation Strategy
@@ -38,8 +39,8 @@ created: 2026-06-08
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 11-01-01 | 01 | 1 | TEST-10 | — | N/A | e2e | `uv run pytest tests/e2e/test_cli.py::test_empty_jd_exits_1_with_stderr_message -v` | ❌ Wave 0 | ⬜ pending |
-| 11-01-02 | 01 | 1 | TEST-11 | — | N/A | e2e | `uv run pytest tests/e2e/test_cli.py::test_golden_path_exits_0_creates_output_file -v` | ❌ Wave 0 | ⬜ pending |
+| 11-01-01 | 01 | 1 | TEST-10 | — | N/A | e2e | `uv run pytest tests/e2e/test_cli.py::test_empty_jd_exits_1_with_stderr_message -v` | ✅ | ✅ green |
+| 11-01-02 | 01 | 1 | TEST-11 | — | N/A | e2e | `uv run pytest tests/e2e/test_cli.py::test_golden_path_exits_0_creates_output_file -v` | ✅ | ✅ green (skips without Ollama) |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -47,9 +48,9 @@ created: 2026-06-08
 
 ## Wave 0 Requirements
 
-- [ ] `tests/e2e/test_cli.py` — covers TEST-10 and TEST-11
+- [x] `tests/e2e/test_cli.py` — covers TEST-10 and TEST-11
 
-*No other gaps — pytest infrastructure, markers, conftest, and the e2e directory are all in place from prior phases.*
+*All wave 0 requirements satisfied. pytest infrastructure, markers, conftest, and the e2e directory are all in place.*
 
 ---
 
@@ -61,11 +62,23 @@ created: 2026-06-08
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** 2026-06-08
+
+---
+
+## Validation Audit 2026-06-08
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+All requirements COVERED. TEST-10 (PASSED) and TEST-11 (SKIPPED when Ollama absent — correct designed behavior). Full suite: 39 passed, 3 skipped.

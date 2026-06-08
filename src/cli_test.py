@@ -6,6 +6,7 @@ from cli import main
 from llm_client import TailorResult
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -33,6 +34,7 @@ def test_end_sentinel_breaks_loop(mock_guards, mock_input, mock_read, mock_gener
     )
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -53,6 +55,7 @@ def test_eof_treated_as_submission(mock_guards, mock_input, mock_read, mock_gene
     mock_generate.assert_called_once()
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.read_resume")
@@ -68,6 +71,7 @@ def test_empty_jd_exits_1(mock_input, mock_read, mock_analyze):
     assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.generate_tailored_resume")
@@ -86,6 +90,7 @@ def test_runtime_error_from_llm_exits_1(mock_guards, mock_input, mock_read, mock
     assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.generate_tailored_resume")
@@ -104,6 +109,7 @@ def test_value_error_from_llm_exits_1(mock_guards, mock_input, mock_read, mock_g
     assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -129,6 +135,7 @@ def test_progress_message_printed(mock_guards, mock_input, mock_read, mock_gener
     )
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -155,6 +162,7 @@ def test_success_prints_absolute_path(mock_guards, mock_input, mock_read, mock_g
     )
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -175,6 +183,7 @@ def test_show_diff_called_with_resume_and_tailored(mock_guards, mock_input, mock
     mock_show_diff.assert_called_once_with("resume text", "\\documentclass{article}\n\\end{document}")
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -208,6 +217,7 @@ def test_analyzing_progress_message_printed(mock_guards, mock_input, mock_read, 
     )
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value=None)
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")
@@ -228,6 +238,7 @@ def test_generate_called_with_analysis_none_when_analysis_fails(mock_guards, moc
     assert mock_generate.call_args.kwargs["analysis"] is None
 
 
+@pytest.mark.unit
 @patch("cli.analyze_job_description", return_value={"technologies": ["Python"], "requirements": ["5 years"], "emphasis_areas": ["ML"]})
 @patch("sys.argv", ["resume-tailor"])
 @patch("cli.show_diff")

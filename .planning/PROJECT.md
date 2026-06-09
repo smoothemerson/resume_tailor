@@ -8,19 +8,19 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
-## Current Milestone: v1.1 Output Quality + Test Coverage — COMPLETE
+## Current Milestone: v1.2 Precision & CI
 
-**Goal:** Upgrade the tailoring pipeline to produce measurably better output — with visible feedback, stronger JD-targeting, and guards against common LLM failures — then validate the full codebase with a complete unit/integration/e2e test pyramid.
+**Goal:** Harden the LLM prompt with exact allowed/protected rules, expand output guards to catch technology substitution and protected-section mutations, fix a packaging gap, ship a CI pipeline, and fill remaining unit test gaps.
 
-**All 8 phases shipped (Phases 4–11):**
-- ✓ Output reliability guards: dropped-section, format violation, and hallucination warnings
-- ✓ Diff view between original and tailored resume (always-on, TTY-gated)
-- ✓ Two-pass pipeline: JD analysis pass then section-specific tailoring
-- ✓ JD keyword match summary after tailoring
-- ✓ Test infrastructure: pytest configured, conftest.py with Ollama fixtures, organized tests/ layout
-- ✓ Unit test gaps: _build_messages(), _check_ollama_health(), reader, writer modules
-- ✓ Integration tests: real Ollama call with structural assertions
-- ✓ E2E tests: subprocess CLI invocation — error paths and golden path
+**Target features:**
+- Update `_build_messages()` with explicit ALLOWED/PROTECTED section rules matching real resume LaTeX patterns
+- New guard: `_check_technology_substitution` — warns when Skills section swaps technologies
+- New guard: `_check_protected_sections` — warns if contact block, education, languages, employer headers, or project anchors are mutated
+- Unit tests for both new guards in `guards_test.py`
+- Fix pyproject.toml wheel include list (add `jd_analyzer.py`, `keyword_matcher.py`)
+- GitHub Actions CI: ruff + `pytest -m unit` on push/PR to main
+- Unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
+- Remove `.claude/` from git tracking and add to `.gitignore`
 
 ## Requirements
 
@@ -49,7 +49,14 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-*(all v1.1 requirements now validated — see Validated section)*
+- [ ] Update `_build_messages()` with precise ALLOWED/PROTECTED LaTeX rewriting rules
+- [ ] Add `_check_technology_substitution` guard to `guards.py`
+- [ ] Add `_check_protected_sections` guard to `guards.py`
+- [ ] Unit tests for new guards in `guards_test.py`
+- [ ] Fix pyproject.toml wheel include list
+- [ ] Add GitHub Actions CI workflow
+- [ ] Add unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
+- [ ] Remove `.claude/` from git tracking
 
 ### Out of Scope
 
@@ -111,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-08 — v1.1 milestone complete (all 8 phases shipped, 107 tests passing)*
+*Last updated: 2026-06-09 — v1.2 milestone started*

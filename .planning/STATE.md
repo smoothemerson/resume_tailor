@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Precision & CI
-status: planning
-stopped_at: ""
-last_updated: "2026-06-09T00:00:00.000Z"
-last_activity: 2026-06-09
+status: Defining requirements
+stopped_at: Phase 14 context gathered
+last_updated: "2026-06-09T19:19:40.743Z"
+last_activity: 2026-06-09 — Milestone v1.2 started
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -56,7 +56,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-09
-Stopped at: v1.2 milestone started, defining requirements
-Resume file: None
+Last session: 2026-06-09T19:19:40.739Z
+Stopped at: Phase 14 context gathered
+Resume file: .planning/phases/14-infrastructure/14-CONTEXT.md
 Next: `/gsd-plan-phase [N]` after roadmap is approved

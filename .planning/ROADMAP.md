@@ -80,6 +80,13 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 5. `.gitignore` contains `.claude/`
 6. All existing tests continue to pass
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Fix pyproject.toml wheel include list (PKG-01) and create GitHub Actions CI workflow (CI-01)
+- [ ] 14-02-PLAN.md — Create src/jd_analyzer_test.py, src/resume_reader_test.py, src/resume_writer_test.py (TEST-14, TEST-15, TEST-16)
+- [ ] 14-03-PLAN.md — Replace .gitignore with standard Python ignore file and untrack .claude/ from git index (REPO-01)
+
 ---
 
 ## Progress
@@ -99,4 +106,4 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
 | 12. Prompt Precision | v1.2 | 0/1 | Pending | — |
 | 13. Guard Expansion | v1.2 | 0/1 | Pending | — |
-| 14. Infrastructure | v1.2 | 0/1 | Pending | — |
+| 14. Infrastructure | v1.2 | 0/3 | Pending | — |

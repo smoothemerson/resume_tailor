@@ -44,11 +44,12 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 **Requirements:** PRMP-01, PRMP-02, PRMP-03
 
 **Plans:** 1 plan
-
 Plans:
+
 - [ ] 12-01-PLAN.md — Rewrite _build_messages() system_prompt with ALLOWED/MUST-NOT-CHANGE/TECHNOLOGY FIDELITY sections
 
 **Success criteria:**
+
 1. System prompt has a clearly labeled ALLOWED section listing exactly which LaTeX elements may be rewritten
 2. System prompt has a clearly labeled MUST NOT CHANGE section listing protected elements
 3. System prompt states the anti-fabrication rule: technologies present in original must appear; absent technologies must not appear
@@ -63,6 +64,7 @@ Plans:
 **Requirements:** GARD-05, GARD-06, GARD-07, TEST-12, TEST-13
 
 **Success criteria:**
+
 1. `run_guards()` calls both new guards and cannot raise
 2. `_check_technology_substitution` warns correctly for substitution, removal-only, addition-only; silent for identical or no skills section
 3. `_check_protected_sections` warns correctly for each protected element type; silent when all sections match
@@ -78,6 +80,7 @@ Plans:
 **Requirements:** PKG-01, CI-01, TEST-14, TEST-15, TEST-16, REPO-01
 
 **Success criteria:**
+
 1. `uv build` wheel includes `jd_analyzer.py` and `keyword_matcher.py`
 2. CI workflow is valid YAML, triggers on push/PR to main, no secrets
 3. All 11 new unit tests tagged `@pytest.mark.unit` and pass with `pytest -m unit`

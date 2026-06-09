@@ -66,25 +66,25 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRMP-01 | — | Pending |
-| PRMP-02 | — | Pending |
-| PRMP-03 | — | Pending |
-| GARD-05 | — | Pending |
-| GARD-06 | — | Pending |
-| GARD-07 | — | Pending |
-| TEST-12 | — | Pending |
-| TEST-13 | — | Pending |
-| PKG-01 | — | Pending |
-| CI-01 | — | Pending |
-| TEST-14 | — | Pending |
-| TEST-15 | — | Pending |
-| TEST-16 | — | Pending |
-| REPO-01 | — | Pending |
+| PRMP-01 | Phase 12 | Pending |
+| PRMP-02 | Phase 12 | Pending |
+| PRMP-03 | Phase 12 | Pending |
+| GARD-05 | Phase 13 | Pending |
+| GARD-06 | Phase 13 | Pending |
+| GARD-07 | Phase 13 | Pending |
+| TEST-12 | Phase 13 | Pending |
+| TEST-13 | Phase 13 | Pending |
+| PKG-01 | Phase 14 | Pending |
+| CI-01 | Phase 14 | Pending |
+| TEST-14 | Phase 14 | Pending |
+| TEST-15 | Phase 14 | Pending |
+| TEST-16 | Phase 14 | Pending |
+| REPO-01 | Phase 14 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 14 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 14 ⚠️
+- Mapped to phases: 14
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-09*

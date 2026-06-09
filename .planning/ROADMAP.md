@@ -43,6 +43,11 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 
 **Requirements:** PRMP-01, PRMP-02, PRMP-03
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 12-01-PLAN.md — Rewrite _build_messages() system_prompt with ALLOWED/MUST-NOT-CHANGE/TECHNOLOGY FIDELITY sections
+
 **Success criteria:**
 1. System prompt has a clearly labeled ALLOWED section listing exactly which LaTeX elements may be rewritten
 2. System prompt has a clearly labeled MUST NOT CHANGE section listing protected elements
@@ -97,6 +102,6 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete | 2026-06-07 |
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
-| 12. Prompt Precision | v1.2 | 0/1 | Pending | — |
+| 12. Prompt Precision | v1.2 | 0/1 | Planned | — |
 | 13. Guard Expansion | v1.2 | 0/1 | Pending | — |
 | 14. Infrastructure | v1.2 | 0/1 | Pending | — |

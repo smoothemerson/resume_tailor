@@ -4,8 +4,8 @@ milestone: v1.2
 milestone_name: Precision & CI
 status: executing
 stopped_at: Phase 12 context gathered
-last_updated: "2026-06-09T19:33:38.405Z"
-last_activity: 2026-06-09 -- Phase 12 planning complete
+last_updated: "2026-06-10T18:06:32.919Z"
+last_activity: 2026-06-10 -- Phase 12 execution started
 progress:
   total_phases: 3
   completed_phases: 0
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-09)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Defining requirements for v1.2
+**Current focus:** Phase 12 — prompt-precision
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-06-09 -- Phase 12 planning complete
+Phase: 12 (prompt-precision) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 12
+Last activity: 2026-06-10 -- Phase 12 execution started
 
 ## Accumulated Context
 

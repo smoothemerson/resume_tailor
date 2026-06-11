@@ -107,5 +107,5 @@ Plans:
 | 10. Integration Tests | v1.1 | 1/1 | Complete | 2026-06-07 |
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
 | 12. Prompt Precision | v1.2 | 2/2 | Complete    | 2026-06-13 |
-| 13. Guard Expansion | v1.2 | 1/3 | In Progress|  |
+| 13. Guard Expansion | v1.2 | 2/3 | In Progress|  |
 | 14. Infrastructure | v1.2 | 0/1 | Pending | — |

@@ -77,7 +77,9 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         - Project anchors: the \href{url}{\textbf{ProjectName}} and \hfill date on each project line
         - Section headers: all \header{...} commands
         - All LaTeX commands and environments: \documentclass, \usepackage, \newcommand definitions,
-        \begin, \end, \vspace, \hfill, \textbf, \textit, \href, and all other structural commands
+        \begin, \end, \vspace, \hfill, \textbf, \textit, \href, and all other structural commands —
+        the commands themselves never change; only text content inside the elements listed in
+        <ALLOWED> may be reworded
         - Bullet point count: do not add or remove \item entries in any list
 
         TECHNOLOGY FIDELITY:

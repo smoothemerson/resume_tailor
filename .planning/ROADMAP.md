@@ -44,6 +44,7 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 **Requirements:** PRMP-01, PRMP-02, PRMP-03
 
 **Success criteria:**
+
 1. System prompt has a clearly labeled ALLOWED section listing exactly which LaTeX elements may be rewritten
 2. System prompt has a clearly labeled MUST NOT CHANGE section listing protected elements
 3. System prompt states the anti-fabrication rule: technologies present in original must appear; absent technologies must not appear
@@ -58,6 +59,7 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 **Requirements:** GARD-05, GARD-06, GARD-07, TEST-12, TEST-13
 
 **Success criteria:**
+
 1. `run_guards()` calls both new guards and cannot raise
 2. `_check_technology_substitution` warns correctly for substitution, removal-only, addition-only; silent for identical or no skills section
 3. `_check_protected_sections` warns correctly for each protected element type; silent when all sections match
@@ -73,6 +75,7 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 **Requirements:** PKG-01, CI-01, TEST-14, TEST-15, TEST-16, REPO-01
 
 **Success criteria:**
+
 1. `uv build` wheel includes `jd_analyzer.py` and `keyword_matcher.py`
 2. CI workflow is valid YAML, triggers on push/PR to main, no secrets
 3. All 11 new unit tests tagged `@pytest.mark.unit` and pass with `pytest -m unit`
@@ -80,11 +83,12 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 5. `.gitignore` contains `.claude/`
 6. All existing tests continue to pass
 
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
-- [ ] 14-01-PLAN.md — Fix pyproject.toml wheel include list (PKG-01) and create GitHub Actions CI workflow (CI-01)
-- [ ] 14-02-PLAN.md — Create src/jd_analyzer_test.py, src/resume_reader_test.py, src/resume_writer_test.py (TEST-14, TEST-15, TEST-16)
+
+- [x] 14-01-PLAN.md — Fix pyproject.toml wheel include list (PKG-01) and create GitHub Actions CI workflow (CI-01)
+- [x] 14-02-PLAN.md — Create src/jd_analyzer_test.py, src/resume_reader_test.py, src/resume_writer_test.py (TEST-14, TEST-15, TEST-16)
 - [ ] 14-03-PLAN.md — Replace .gitignore with standard Python ignore file and untrack .claude/ from git index (REPO-01)
 
 ---
@@ -106,4 +110,4 @@ Plans:
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
 | 12. Prompt Precision | v1.2 | 0/1 | Pending | — |
 | 13. Guard Expansion | v1.2 | 0/1 | Pending | — |
-| 14. Infrastructure | v1.2 | 0/3 | Pending | — |
+| 14. Infrastructure | v1.2 | 2/3 | In Progress|  |

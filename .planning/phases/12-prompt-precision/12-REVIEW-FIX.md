@@ -1,59 +1,39 @@
 ---
 phase: 12-prompt-precision
-fixed_at: 2026-06-11T19:23:23Z
+fixed_at: 2026-06-11T21:20:21Z
 review_path: .planning/phases/12-prompt-precision/12-REVIEW.md
 iteration: 1
-findings_in_scope: 4
-fixed: 4
+findings_in_scope: 1
+fixed: 1
 skipped: 0
 status: all_fixed
 ---
 
 # Phase 12: Code Review Fix Report
 
-**Fixed at:** 2026-06-11T19:23:23Z
+**Fixed at:** 2026-06-11T21:20:21Z
 **Source review:** .planning/phases/12-prompt-precision/12-REVIEW.md
 **Iteration:** 1
 
 **Summary:**
-- Findings in scope: 4 (fix_scope: critical_warning — IN-01, IN-02, IN-03 excluded)
-- Fixed: 4
+- Findings in scope: 1 (fix_scope: critical_warning — IN-01 through IN-05 excluded)
+- Fixed: 1
 - Skipped: 0
 
 ## Fixed Issues
 
-### CR-01: ALLOWED title line directly contradicts MUST-NOT-CHANGE contact block
+### WR-01: ALLOWED skills pattern is unscoped and byte-identical to protected Languages lines
 
 **Files modified:** `src/llm_client.py`
-**Commit:** b342794
-**Applied fix:** Carved the professional title line out of the contact-block protection in `<CONSTRAINTS>` — removed the word "entire", added "name" to the protected element list, and appended an EXCEPT clause naming the exact `\ {AI Engineer}\\` pattern as the only rewritable line inside `\begin{center}`. Mirrored the concrete pattern in `<ALLOWED>`: title line entry now cites `the \ {Title}\\ line in the \begin{center} contact header`. This also resolves IN-01 (title line now has a concrete LaTeX pattern) as a side effect.
+**Commit:** 7d9fa6e
+**Applied fix:** Scoped the `<ALLOWED>` skills entry to its section. The line "Skills content: the technology lists on \noindent\textbf{Category:} lines" now reads "... lines under \header{Skills} only — the \noindent\textbf{...:} lines under \header{Languages} use the same pattern and are protected", removing the ambiguity between the rewritable Skills lines and the byte-identical protected Languages lines (which `<CONSTRAINTS>` already locks via "everything under \header{Languages}"). Verified with `python3 ast.parse` syntax check; raw-string LaTeX escapes remain literal.
 
-### CR-02: OUTPUT_FORMAT carries stale scope list that contradicts ALLOWED
+## Skipped Issues
 
-**Files modified:** `src/llm_client.py`
-**Commit:** 806a44c
-**Applied fix:** Replaced the leftover pre-phase checklist line "✅ Rewritten sections: professional summary, skills, and experience bullets only." with "✅ Rewritten content limited to the six elements listed in <ALLOWED>." — removing the nonexistent "professional summary" reference and the competing "only" scope list.
-
-### WR-01: Blanket "\textbf, \textit must not change" conflicts with rewriting tagline and skills content
-
-**Files modified:** `src/llm_client.py`
-**Commit:** bd3e178
-**Applied fix:** Appended the command-vs-argument qualifier to the blanket LaTeX-commands constraint: "— the commands themselves never change; only text content inside the elements listed in <ALLOWED> may be reworded." This restores the qualifier from 12-RESEARCH.md line 314 and states the distinction explicitly.
-
-### WR-02: OUTPUT_FORMAT implicitly licenses inserting LaTeX % comments
-
-**Files modified:** `src/llm_client.py`
-**Commit:** 1ea2441
-**Applied fix:** Replaced "❌ Explanations, comments, or annotations outside LaTeX comment syntax (%)." with "❌ Explanations, annotations, or comments of any kind — including LaTeX % comment lines." — closing the loophole that permitted inserted `%` annotation lines.
-
-## Verification
-
-- Tier 1: Re-read the full `<ALLOWED>`/`<CONSTRAINTS>`/`<OUTPUT_FORMAT>` sections after all edits — all four fixes present, surrounding raw-string content intact.
-- Tier 2: `python3 -c "import ast; ast.parse(...)"` run after each individual fix — all passed.
-- Full test suite: 104 passed, 3 skipped (Ollama-dependent tests) — matches pre-fix baseline. Gating tag-presence tests (`<PERSONA>`, `<CONSTRAINTS>`) unaffected; all required tags remain.
+None — all in-scope findings were fixed. Info findings IN-01 through IN-05 were out of fix scope (critical_warning).
 
 ---
 
-_Fixed: 2026-06-11T19:23:23Z_
+_Fixed: 2026-06-11T21:20:21Z_
 _Fixer: Claude (gsd-code-fixer)_
 _Iteration: 1_

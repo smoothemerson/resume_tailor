@@ -51,7 +51,7 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
 
         <ALLOWED>
         You may ONLY rewrite the following elements:
-        - Title line: the professional title in the contact header
+        - Title line: the \ {Title}\\ line in the \begin{center} contact header
         - Employer taglines: the \textit{\small ...}\\ line below each employer header
         - Employer bullet points: the \item entries inside \begin{itemize} under each employer
         (reword only — bullet count stays fixed)
@@ -67,8 +67,9 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         <CONSTRAINTS>
         MUST NOT CHANGE:
         - Candidate name: the {\Huge \scshape {Name}}\\ line inside the \begin{center} block
-        - Contact block: the entire \begin{center}...\end{center} block at the top of the document
-        (email, phone, location, LinkedIn, GitHub)
+        - Contact block: the \begin{center}...\end{center} block at the top of the document
+        (name, email, phone, location, LinkedIn, GitHub) — EXCEPT the professional title line
+        (the \ {AI Engineer}\\ line), which is the only rewritable line inside this block
         - Education section: everything under \header{Education}
         - Languages section: everything under \header{Languages}
         - Employer header lines: company name, role title, location, and date range

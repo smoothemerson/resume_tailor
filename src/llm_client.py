@@ -99,7 +99,7 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         Do NOT return:
         ❌ Any text before \documentclass or after \end{document}.
         ❌ Markdown code fences (```latex or ```).
-        ❌ Explanations, comments, or annotations outside LaTeX comment syntax (%).
+        ❌ Explanations, annotations, or comments of any kind — including LaTeX % comment lines.
         ❌ Any new facts, credentials, or experiences not in the original resume.
         </OUTPUT_FORMAT>
     """.strip()

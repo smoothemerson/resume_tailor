@@ -24,11 +24,11 @@
 
 ### Packaging
 
-- [ ] **PKG-01**: `jd_analyzer.py` and `keyword_matcher.py` are added to the `[tool.hatch.build.targets.wheel]` include list in `pyproject.toml`
+- [x] **PKG-01**: `jd_analyzer.py` and `keyword_matcher.py` are added to the `[tool.hatch.build.targets.wheel]` include list in `pyproject.toml`
 
 ### CI
 
-- [ ] **CI-01**: `.github/workflows/ci.yml` triggers on push and pull_request to main, uses ubuntu-latest + Python 3.13, installs deps with uv, runs `ruff check src/` and `pytest -m unit`
+- [x] **CI-01**: `.github/workflows/ci.yml` triggers on push and pull_request to main, uses ubuntu-latest + Python 3.13, installs deps with uv, runs `ruff check src/` and `pytest -m unit`
 
 ### Test Coverage
 
@@ -38,7 +38,7 @@
 
 ### Repository Hygiene
 
-- [ ] **REPO-01**: `.claude/` is added to `.gitignore` and untracked from git history so the directory is no longer versioned
+- [x] **REPO-01**: `.claude/` is added to `.gitignore` and untracked from git history so the directory is no longer versioned
 
 ## v2 Requirements
 
@@ -74,14 +74,15 @@
 | GARD-07 | Phase 13 | Pending |
 | TEST-12 | Phase 13 | Pending |
 | TEST-13 | Phase 13 | Pending |
-| PKG-01 | Phase 14 | Pending |
-| CI-01 | Phase 14 | Pending |
+| PKG-01 | Phase 14 | Complete |
+| CI-01 | Phase 14 | Complete |
 | TEST-14 | Phase 14 | Complete |
 | TEST-15 | Phase 14 | Complete |
 | TEST-16 | Phase 14 | Complete |
-| REPO-01 | Phase 14 | Pending |
+| REPO-01 | Phase 14 | Complete |
 
 **Coverage:**
+
 - v1.2 requirements: 14 total
 - Mapped to phases: 14
 - Unmapped: 0 ✓

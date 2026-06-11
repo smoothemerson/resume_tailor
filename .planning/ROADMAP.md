@@ -110,4 +110,4 @@ Plans:
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
 | 12. Prompt Precision | v1.2 | 0/1 | Pending | — |
 | 13. Guard Expansion | v1.2 | 0/1 | Pending | — |
-| 14. Infrastructure | v1.2 | 3/3 | Complete   | 2026-06-11 |
+| 14. Infrastructure | v1.2 | 3/3 | Complete    | 2026-06-11 |

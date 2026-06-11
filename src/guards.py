@@ -109,3 +109,5 @@ def run_guards(original_text: str, tailored_text: str, fences_stripped: bool = F
     _check_missing_sections(original_text, tailored_text)
     _check_format_violations(tailored_text, fences_stripped)
     _check_hallucinated_employers(original_text, tailored_text)
+    _check_technology_substitution(original_text, tailored_text)
+    _check_protected_sections(original_text, tailored_text)

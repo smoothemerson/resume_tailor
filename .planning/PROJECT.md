@@ -46,10 +46,10 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07) — Phase 9: Unit Test Gaps
 - [x] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09) — Phase 10: Integration Tests
 - [x] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11) — Phase 11: E2E Tests
+- [x] `_build_messages()` system prompt uses explicit ALLOWED/MUST-NOT-CHANGE rules matching real resume LaTeX patterns (PRMP-01 to PRMP-03) — Validated in Phase 12: Prompt Precision
 
 ### Active
 
-- [ ] Update `_build_messages()` with precise ALLOWED/PROTECTED LaTeX rewriting rules
 - [ ] Add `_check_technology_substitution` guard to `guards.py`
 - [ ] Add `_check_protected_sections` guard to `guards.py`
 - [ ] Unit tests for new guards in `guards_test.py`
@@ -118,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-09 — v1.2 milestone started*
+*Last updated: 2026-06-11 — Phase 12 complete: prompt precision (ALLOWED/PROTECTED rules shipped)*

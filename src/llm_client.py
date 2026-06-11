@@ -91,7 +91,7 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         <OUTPUT_FORMAT>
         Return:
         ✅ A single, complete, compilable LaTeX document.
-        ✅ Rewritten sections: professional summary, skills, and experience bullets only.
+        ✅ Rewritten content limited to the six elements listed in <ALLOWED>.
         ✅ All LaTeX commands, environments, and structure intact.
 
         Do NOT return:

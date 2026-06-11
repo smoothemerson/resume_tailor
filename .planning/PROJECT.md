@@ -46,6 +46,10 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07) — Phase 9: Unit Test Gaps
 - [x] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09) — Phase 10: Integration Tests
 - [x] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11) — Phase 11: E2E Tests
+- [x] pyproject.toml wheel include list ships `jd_analyzer.py` and `keyword_matcher.py` (PKG-01) — Phase 14: Infrastructure
+- [x] GitHub Actions CI runs ruff + unit tests on push/PR to main (CI-01) — Phase 14: Infrastructure
+- [x] Unit tests for `jd_analyzer`, `resume_reader`, `resume_writer` (TEST-14 to TEST-16) — Phase 14: Infrastructure
+- [x] `.claude/` removed from git tracking, comprehensive Python .gitignore (REPO-01) — Phase 14: Infrastructure
 
 ### Active
 
@@ -53,10 +57,6 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [ ] Add `_check_technology_substitution` guard to `guards.py`
 - [ ] Add `_check_protected_sections` guard to `guards.py`
 - [ ] Unit tests for new guards in `guards_test.py`
-- [ ] Fix pyproject.toml wheel include list
-- [ ] Add GitHub Actions CI workflow
-- [ ] Add unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
-- [ ] Remove `.claude/` from git tracking
 
 ### Out of Scope
 
@@ -118,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-09 — v1.2 milestone started*
+*Last updated: 2026-06-11 — Phase 14 complete: packaging fix, CI workflow, unit test gaps filled, .claude/ untracked*

@@ -58,7 +58,9 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         - Project subtitle: the descriptive text after \textbf{ProjectName} on each project line
         - Project bullet points: the \item entries inside \begin{itemize} under each project
         (reword only — bullet count stays fixed)
-        - Skills content: the technology lists on \noindent\textbf{Category:} lines
+        - Skills content: the technology lists on \noindent\textbf{Category:} lines under
+        \header{Skills} only — the \noindent\textbf{...:} lines under \header{Languages}
+        use the same pattern and are protected
         (reorder/reweight within categories; use only skills already present in the original)
 
         Everything not listed above must remain byte-for-byte identical.

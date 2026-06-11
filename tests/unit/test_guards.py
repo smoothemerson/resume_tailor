@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 
-from guards import _check_technology_substitution, _check_protected_sections
+from guards import _check_technology_substitution, _check_protected_sections, run_guards
 
 
 @pytest.mark.unit
@@ -115,3 +115,19 @@ def test_protected_sections_silent_when_unchanged():
 @pytest.mark.unit
 def test_protected_sections_empty_strings_no_raise():
     _check_protected_sections("", "")
+
+
+@pytest.mark.unit
+def test_run_guards_calls_technology_substitution():
+    original = r"\header{Skills}" + "\nPython, Java\n" + r"\header{Education}"
+    tailored = r"\header{Skills}" + "\nPython, Go\n" + r"\header{Education}"
+    with patch("guards.logger") as mock_logger:
+        run_guards(original, tailored)
+        calls = [str(c) for c in mock_logger.warning.call_args_list]
+        assert any("Java" in c for c in calls)
+        assert any("Go" in c for c in calls)
+
+
+@pytest.mark.unit
+def test_run_guards_new_guards_never_raise():
+    run_guards(None, None)

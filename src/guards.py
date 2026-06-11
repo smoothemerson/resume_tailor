@@ -1,5 +1,4 @@
 import re
-import sys
 
 from log_manager import logger
 
@@ -42,6 +41,37 @@ def _check_hallucinated_employers(original: str, tailored: str) -> None:
                 logger.warning(f'Employer "{name}" in tailored output was not in original resume — possible hallucination.')
     except Exception as exc:
         logger.warning(f"Employer check failed: {exc}")
+
+
+def _extract_section(text: str, section_name: str) -> str | None:
+    pattern = rf'\\header\{{{re.escape(section_name)}\}}(.*?)(?=\\header\{{|$)'
+    m = re.search(pattern, text, re.DOTALL)
+    return m.group(1) if m else None
+
+
+def _extract_technologies(section_text: str) -> set[str]:
+    cleaned = re.sub(r'\\[a-zA-Z]+\{([^}]*)\}', r'\1', section_text)
+    return {t.strip() for t in cleaned.split(',') if t.strip()}
+
+
+def _check_technology_substitution(original: str, tailored: str) -> None:
+    try:
+        original_section = _extract_section(original, 'Skills')
+        tailored_section = _extract_section(tailored, 'Skills')
+        if original_section is None or tailored_section is None:
+            return
+        original_techs = _extract_technologies(original_section)
+        tailored_techs = _extract_technologies(tailored_section)
+        removed = original_techs - tailored_techs
+        added = tailored_techs - original_techs
+        if removed and added:
+            logger.warning(f"Technology substitution in Skills: removed {sorted(removed)}, added {sorted(added)}")
+        elif removed:
+            logger.warning(f"Technologies removed from Skills: {sorted(removed)}")
+        elif added:
+            logger.warning(f"Technologies added to Skills not in original: {sorted(added)}")
+    except Exception as exc:
+        logger.warning(f"Technology substitution check failed: {exc}")
 
 
 def run_guards(original_text: str, tailored_text: str, fences_stripped: bool = False) -> None:

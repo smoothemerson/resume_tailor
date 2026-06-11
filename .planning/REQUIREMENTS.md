@@ -32,9 +32,9 @@
 
 ### Test Coverage
 
-- [ ] **TEST-14**: `src/jd_analyzer_test.py` covers `_parse_analysis_response`: valid JSON, missing key, non-list value, fenced JSON, non-JSON string, empty string
-- [ ] **TEST-15**: `src/resume_reader_test.py` covers `read_resume`: existing file returns content, missing file raises `FileNotFoundError`
-- [ ] **TEST-16**: `src/resume_writer_test.py` covers `write_resume`: file created in given dir, filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex`, file content matches input
+- [x] **TEST-14**: `src/jd_analyzer_test.py` covers `_parse_analysis_response`: valid JSON, missing key, non-list value, fenced JSON, non-JSON string, empty string
+- [x] **TEST-15**: `src/resume_reader_test.py` covers `read_resume`: existing file returns content, missing file raises `FileNotFoundError`
+- [x] **TEST-16**: `src/resume_writer_test.py` covers `write_resume`: file created in given dir, filename matches `tailored_resume_YYYYMMDD_HHMMSS.tex`, file content matches input
 
 ### Repository Hygiene
 
@@ -76,9 +76,9 @@
 | TEST-13 | Phase 13 | Pending |
 | PKG-01 | Phase 14 | Pending |
 | CI-01 | Phase 14 | Pending |
-| TEST-14 | Phase 14 | Pending |
-| TEST-15 | Phase 14 | Pending |
-| TEST-16 | Phase 14 | Pending |
+| TEST-14 | Phase 14 | Complete |
+| TEST-15 | Phase 14 | Complete |
+| TEST-16 | Phase 14 | Complete |
 | REPO-01 | Phase 14 | Pending |
 
 **Coverage:**

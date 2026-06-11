@@ -1,5 +1,20 @@
-**/__pycache__
-.venv
-uv.lock
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+
+# Virtual environments
+.venv/
+
+# Tools
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Project-specific
 resumes/
-.claude/settings.local.json
+uv.lock
+
+# Claude Code workspace
+.claude/

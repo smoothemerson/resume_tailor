@@ -20,6 +20,8 @@ include = [
     "src/config.py",
     "src/diff_view.py",
     "src/guards.py",
+    "src/jd_analyzer.py",
+    "src/keyword_matcher.py",
     "src/llm_client.py",
     "src/log_manager.py",
     "src/resume_reader.py",

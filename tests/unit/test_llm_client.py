@@ -228,3 +228,72 @@ def test_build_messages_with_analysis_includes_jd_analysis_tag():
 def test_build_messages_without_analysis_omits_jd_analysis_tag():
     result = _build_messages("r", "jd")
     assert "<jd_analysis>" not in result[1]["content"]
+
+
+def _system_constraints_block() -> str:
+    content = _build_messages("resume text", "job description")[0]["content"]
+    return content[content.index("<CONSTRAINTS>") : content.index("</CONSTRAINTS>")]
+
+
+@pytest.mark.unit
+def test_build_messages_system_contains_allowed_tag():
+    result = _build_messages("resume text", "job description")
+    assert "<ALLOWED>" in result[0]["content"]
+    assert "</ALLOWED>" in result[0]["content"]
+
+
+@pytest.mark.unit
+def test_build_messages_allowed_section_names_six_rewritable_elements():
+    content = _build_messages("resume text", "job description")[0]["content"]
+    allowed = content[content.index("<ALLOWED>") : content.index("</ALLOWED>")]
+    assert "Title line" in allowed
+    assert "Employer taglines" in allowed
+    assert "Employer bullet points" in allowed
+    assert "Project subtitle" in allowed
+    assert "Project bullet points" in allowed
+    assert "Skills content" in allowed
+
+
+@pytest.mark.unit
+def test_build_messages_allowed_section_closes_with_byte_identical_rule():
+    content = _build_messages("resume text", "job description")[0]["content"]
+    allowed = content[content.index("<ALLOWED>") : content.index("</ALLOWED>")]
+    assert "Everything not listed above must remain byte-for-byte identical." in allowed
+
+
+@pytest.mark.unit
+def test_build_messages_system_omits_legacy_instructions_tag():
+    result = _build_messages("resume text", "job description")
+    assert "<INSTRUCTIONS>" not in result[0]["content"]
+    assert "</INSTRUCTIONS>" not in result[0]["content"]
+
+
+@pytest.mark.unit
+def test_build_messages_constraints_contain_must_not_change_list():
+    assert "MUST NOT CHANGE:" in _system_constraints_block()
+
+
+@pytest.mark.unit
+def test_build_messages_constraints_name_protected_elements_by_latex_pattern():
+    constraints = _system_constraints_block()
+    assert r"{\Huge \scshape {Name}}\\" in constraints
+    assert r"\begin{center}...\end{center}" in constraints
+    assert r"\header{Education}" in constraints
+    assert r"\header{Languages}" in constraints
+    assert r"\textbf{EMPLOYER}\textbf{ | ROLE} \hfill LOCATION\ $\cdot$\ DATES\\" in constraints
+    assert r"\href{url}{\textbf{ProjectName}}" in constraints
+    assert r"\header{...}" in constraints
+    assert r"\documentclass" in constraints
+    assert r"Bullet point count: do not add or remove \item entries in any list" in constraints
+
+
+@pytest.mark.unit
+def test_build_messages_constraints_contain_technology_fidelity_rule():
+    assert "TECHNOLOGY FIDELITY:" in _system_constraints_block()
+
+
+@pytest.mark.unit
+def test_build_messages_technology_fidelity_includes_azure_aws_example():
+    constraints = _system_constraints_block()
+    assert "if the resume mentions Azure, Azure must remain" in constraints
+    assert "AWS, AWS must not be added" in constraints

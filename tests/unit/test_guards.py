@@ -129,5 +129,10 @@ def test_run_guards_calls_technology_substitution():
 
 
 @pytest.mark.unit
-def test_run_guards_new_guards_never_raise():
-    run_guards(None, None)
+def test_run_guards_warns_on_contact_block_removed():
+    original = r"\begin{center}Name A\nEmail A\end{center}"
+    tailored = "No contact block here"
+    with patch("guards.logger") as mock_logger:
+        run_guards(original, tailored)
+        calls = [str(c) for c in mock_logger.warning.call_args_list]
+        assert any("contact" in c.lower() for c in calls)

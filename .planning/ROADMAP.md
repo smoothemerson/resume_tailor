@@ -43,10 +43,11 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 
 **Requirements:** PRMP-01, PRMP-02, PRMP-03
 
-**Plans:** 1/1 plans complete
+**Plans:** 1/2 plans complete
 Plans:
 
 - [x] 12-01-PLAN.md — Rewrite _build_messages() system_prompt with ALLOWED/MUST-NOT-CHANGE/TECHNOLOGY FIDELITY sections
+- [ ] 12-02-PLAN.md — Gap closure (UAT test 1): temperature option, jd_analysis priming defusal, technology-fidelity guard
 
 **Success criteria:**
 

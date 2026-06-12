@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 12-prompt-precision
 source: [12-VERIFICATION.md]
 started: 2026-06-11T00:00:00Z
@@ -38,7 +38,17 @@ blocked: 0
   reason: "User reported: sometimes it does fabricate technologies that I do not have experience and it did put there cause of the JD"
   severity: major
   test: 1
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Anti-fabrication relies solely on a soft prompt instruction (TECHNOLOGY FIDELITY rule) whose compliance is probabilistic; compounded by (1) <jd_analysis> injecting an unconstrained JD-technology list that primes the model to insert those names, (2) no temperature/seed in Ollama options so default sampling makes compliance vary run-to-run (the intermittent 'sometimes'), and (3) no post-generation technology-fidelity guard in guards.py so violations pass silently"
+  artifacts:
+    - path: "src/llm_client.py"
+      issue: "<jd_analysis> technologies list injected with no usage instruction (lines 117-128); no temperature/seed in payload options (line 167); fidelity constraint single-sited on Skills element only, not reinforced at bullet/tagline rewrite instructions"
+    - path: "src/guards.py"
+      issue: "run_guards checks sections, format, and employers only — no technology-fidelity check comparing output tokens against base-resume content"
+    - path: "src/jd_analyzer.py"
+      issue: "produces the JD technology list that becomes the priming vector; its output is fed into the prompt unconstrained"
+  missing:
+    - "Set options.temperature to 0 or ~0.2 (optionally fixed seed) in the tailoring payload"
+    - "System-prompt rule explaining <jd_analysis>: technologies absent from the resume are relevance-ranking signals only and must never appear in output (or pre-filter the list to the intersection with base-resume content)"
+    - "Repeat the fidelity constraint at the bullet/tagline items in <ALLOWED>"
+    - "Post-generation guard in guards.py flagging (or retrying) when output contains JD-analysis technology tokens absent from the base resume"
+  debug_session: ".planning/debug/fabricated-technologies.md"

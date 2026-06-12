@@ -46,13 +46,13 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Unit tests cover _build_messages(), _check_ollama_health(), reader, writer (TEST-04 to TEST-07) — Phase 9: Unit Test Gaps
 - [x] Integration tests verify real Ollama call with structural LaTeX assertions (TEST-08 to TEST-09) — Phase 10: Integration Tests
 - [x] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11) — Phase 11: E2E Tests
+- [x] `_check_technology_substitution` warns when Skills section swaps technologies (GARD-05, TEST-12) — Phase 13: Guard Expansion
+- [x] `_check_protected_sections` warns when contact block, education, languages, employer headers, or project anchors mutate (GARD-06, TEST-13) — Phase 13: Guard Expansion
+- [x] Both new guards wired into `run_guards()` and cannot raise (GARD-07) — Phase 13: Guard Expansion
 
 ### Active
 
 - [ ] Update `_build_messages()` with precise ALLOWED/PROTECTED LaTeX rewriting rules
-- [ ] Add `_check_technology_substitution` guard to `guards.py`
-- [ ] Add `_check_protected_sections` guard to `guards.py`
-- [ ] Unit tests for new guards in `guards_test.py`
 - [ ] Fix pyproject.toml wheel include list
 - [ ] Add GitHub Actions CI workflow
 - [ ] Add unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
@@ -79,7 +79,7 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - Output: timestamped `.tex` files under `resumes/output/`; user compiles with pdflatex; diff shown on TTY
 - Tech stack: Python 3.11+, requests>=2.32.0, hatchling build backend, uv packaging, pytest dev dep
 - Codebase: ~12 Python source files + test suite; installable via `uv tool install .`
-- Test coverage: 107 tests (63 unit in src/, 36 unit in tests/unit/, 2 integration, 2 e2e) — 3 skipped when Ollama absent
+- Test coverage: 121 tests (63 unit in src/, 50 unit in tests/unit/, 2 integration, 2 e2e) — 3 skipped when Ollama absent (14 new unit tests added in Phase 13)
 - Project doubles as a portfolio artifact: minimal deps, auditable code, clean separation of concerns
 
 ## Constraints
@@ -99,6 +99,8 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 | hatchling build backend | PyPA-maintained, uv's default, required for `uv tool install .` to register shell command | ✓ Good — install worked on first try after adding [build-system] |
 | Timestamped output filenames | Prevents overwrites, preserves history of tailored versions | ✓ Good — clean output; user can compare runs by timestamp |
 | System prompt as guardrail | Simplest approach; diff review can be added later without changing architecture | ✓ Good — separating fence stripping and LaTeX validation as code guards (not prompt-only) was the right call |
+| Module-private helpers `_extract_section` / `_extract_technologies` | Extracted from `_check_technology_substitution` to enable reuse by `_check_protected_sections`; keeps guard logic readable | ✓ Good — Plan 02 reused `_extract_section` directly with no rework |
+| Project anchors compared as `(url, name)` tuples only | Dates and subtitles in project entries can legitimately be tailored (D-08); comparing only identity fields avoids false positives | ✓ Good — guard fires on anchor removal, not on cosmetic tailoring |
 
 ## Evolution
 
@@ -118,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-09 — v1.2 milestone started*
+*Last updated: 2026-06-12 — after Phase 13*

@@ -98,10 +98,6 @@ def _check_protected_sections(original: str, tailored: str) -> None:
                 logger.warning("Languages section was removed from tailored output.")
             elif original_languages.strip() != tailored_languages.strip():
                 logger.warning("Languages section was modified in tailored output.")
-        original_headers = set(_EMPLOYER_PATTERN.findall(original))
-        tailored_headers = set(_EMPLOYER_PATTERN.findall(tailored))
-        for header in original_headers - tailored_headers:
-            logger.warning(f'Employer header changed or removed: "{header[0]}"')
         _project_pattern = r'\\href\{([^}]+)\}\{\\textbf\{([^}]+)\}\}'
         original_projects = set(re.findall(_project_pattern, original))
         tailored_projects = set(re.findall(_project_pattern, tailored))

@@ -89,11 +89,11 @@ def test_protected_sections_warns_on_languages_diff():
 
 
 @pytest.mark.unit
-def test_protected_sections_warns_on_employer_header_change():
+def test_run_guards_warns_on_employer_header_change():
     original = r"\employer{Acme Corp}{2022}{Engineer}"
     tailored = r"\employer{Beta Corp}{2022}{Engineer}"
     with patch("guards.logger") as mock_logger:
-        _check_protected_sections(original, tailored)
+        run_guards(original, tailored)
         calls = [str(c) for c in mock_logger.warning.call_args_list]
         assert any("Acme Corp" in c for c in calls)
 

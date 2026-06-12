@@ -1,10 +1,11 @@
 ---
 phase: 12
 slug: prompt-precision
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-09
+audited: 2026-06-12
 ---
 
 # Phase 12 — Validation Strategy
@@ -38,9 +39,9 @@ created: 2026-06-09
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 12-01-01 | 01 | 1 | PRMP-01 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x` | ✅ | ⬜ pending |
-| 12-01-02 | 01 | 1 | PRMP-02 | — | N/A | unit | `pytest tests/unit/test_llm_client.py::test_build_messages_system_contains_constraints_tag -x` | ✅ | ⬜ pending |
-| 12-01-03 | 01 | 1 | PRMP-03 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x` | ✅ | ⬜ pending |
+| 12-01-01 | 01 | 1 | PRMP-01 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "allowed or legacy_instructions"` | ✅ | ✅ green |
+| 12-01-02 | 01 | 1 | PRMP-02 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "constraints"` | ✅ | ✅ green |
+| 12-01-03 | 01 | 1 | PRMP-03 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "technology_fidelity"` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -60,11 +61,25 @@ All phase behaviors have automated verification via existing test suite.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved via /gsd-validate-phase audit, 2026-06-12
+
+---
+
+## Validation Audit 2026-06-12
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 3 |
+| Resolved | 3 |
+| Escalated | 0 |
+
+Gap detail: PRMP-01 (MISSING — no `<ALLOWED>` assertions), PRMP-02 (PARTIAL — only tag-boundary asserted), PRMP-03 (MISSING — no TECHNOLOGY FIDELITY assertions). Resolved with 8 new unit tests in `tests/unit/test_llm_client.py`, scoped to the extracted `<CONSTRAINTS>` block and asserting actual LaTeX patterns. Full suite: 112 passed, 3 skipped (Ollama-dependent).
+
+Environment note: `/workspace/.venv/bin/python` is a broken symlink; run tests via `PYTHONPATH=/workspace/.venv/lib/python3.13/site-packages python3 -m pytest`.

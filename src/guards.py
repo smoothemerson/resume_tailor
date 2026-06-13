@@ -44,7 +44,27 @@ def _check_hallucinated_employers(original: str, tailored: str) -> None:
         logger.warning(f"Employer check failed: {exc}")
 
 
-def run_guards(original_text: str, tailored_text: str, fences_stripped: bool = False) -> None:
+def _check_fabricated_technologies(original: str, tailored: str, jd_technologies: list | None) -> None:
+    if not jd_technologies:
+        return
+    try:
+        for tech in jd_technologies:
+            if not isinstance(tech, str) or len(tech.strip()) < 2:
+                continue
+            pattern = re.compile(
+                r'(?<![A-Za-z0-9])' + re.escape(tech.strip()) + r'(?![A-Za-z0-9])',
+                re.IGNORECASE,
+            )
+            if not pattern.search(original) and pattern.search(tailored):
+                logger.warning(
+                    f'Technology "{tech}" appears in tailored output but not in base resume — possible fabrication.'
+                )
+    except Exception as exc:
+        logger.warning(f"Technology fidelity check failed: {exc}")
+
+
+def run_guards(original_text: str, tailored_text: str, fences_stripped: bool = False, jd_technologies: list | None = None) -> None:
     _check_missing_sections(original_text, tailored_text)
     _check_format_violations(tailored_text, fences_stripped)
     _check_hallucinated_employers(original_text, tailored_text)
+    _check_fabricated_technologies(original_text, tailored_text, jd_technologies)

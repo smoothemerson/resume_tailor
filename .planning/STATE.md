@@ -3,31 +3,31 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Precision & CI
 status: executing
-stopped_at: Phase 12 context gathered
-last_updated: "2026-06-13T14:00:52.420Z"
+stopped_at: Phase 12 complete, ready to plan Phase 13
+last_updated: "2026-06-13T14:31:22.513Z"
 last_activity: 2026-06-13
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 33
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-09)
+See: .planning/PROJECT.md (updated 2026-06-13)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Phase 12 — prompt-precision
+**Current focus:** Phase 13 — guard-expansion
 
 ## Current Position
 
 Phase: 13
 Plan: Not started
-Status: Executing Phase 12
+Status: Ready to plan
 Last activity: 2026-06-13
 
 ## Accumulated Context
@@ -35,6 +35,8 @@ Last activity: 2026-06-13
 ### Decisions
 
 All v1.0 and v1.1 decisions logged in PROJECT.md Key Decisions table with outcomes.
+
+Phase 12 decisions: temperature=0.2 over greedy decoding (repetition risk on 14B model); dict-unpacking kwarg pattern for conditional jd_technologies pass to preserve existing call assertions; JD ANALYSIS USAGE rule co-located with TECHNOLOGY FIDELITY in CONSTRAINTS.
 
 ### Pending Todos
 
@@ -56,7 +58,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-09T19:19:38.965Z
-Stopped at: Phase 12 context gathered
-Resume file: .planning/phases/12-prompt-precision/12-CONTEXT.md
-Next: `/gsd-plan-phase [N]` after roadmap is approved
+Last session: 2026-06-13
+Stopped at: Phase 12 complete, ready to plan Phase 13
+Resume file: None
+Next: `/gsd-plan-phase 13`

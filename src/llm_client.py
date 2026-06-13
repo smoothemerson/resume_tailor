@@ -1,4 +1,5 @@
 import re
+import textwrap
 from typing import NamedTuple
 
 import requests
@@ -24,7 +25,7 @@ def _check_ollama_health() -> None:
 
 
 def _build_messages(resume_text: str, job_description: str, analysis: dict | None = None) -> list[dict]:
-    system_prompt = r"""
+    system_prompt = textwrap.dedent(r"""
         <PERSONA>
         You are Alexandra, a senior technical recruiter and resume strategist with 10+ years of
         experience placing software engineers and AI/ML professionals at top-tier tech companies.
@@ -113,7 +114,7 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         ❌ Explanations, annotations, or comments of any kind — including LaTeX % comment lines.
         ❌ Any new facts, credentials, or experiences not in the original resume.
         </OUTPUT_FORMAT>
-    """.strip()
+    """).strip()
 
     user_message = (
         "<job_description>\n"

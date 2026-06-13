@@ -132,9 +132,9 @@ def test_validate_latex_raises_on_missing_end_document():
 
 
 @pytest.mark.unit
-def test_validate_latex_returns_text_on_valid_input():
+def test_validate_latex_does_not_raise_on_valid_input():
     valid = "\\documentclass{article}\nbody\n\\end{document}"
-    assert _validate_latex(valid) == valid
+    assert _validate_latex(valid) is None
 
 
 @pytest.mark.unit

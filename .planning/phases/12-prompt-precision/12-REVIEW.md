@@ -1,86 +1,201 @@
 ---
 phase: 12-prompt-precision
-reviewed: 2026-06-11T21:17:40Z
+reviewed: 2026-06-13T00:00:00Z
 depth: standard
-files_reviewed: 1
+files_reviewed: 5
 files_reviewed_list:
+  - src/cli.py
+  - src/guards.py
+  - src/guards_test.py
   - src/llm_client.py
+  - tests/unit/test_llm_client.py
 findings:
-  critical: 0
-  warning: 1
-  info: 5
-  total: 6
+  critical: 1
+  warning: 3
+  info: 3
+  total: 7
 status: issues_found
 ---
 
 # Phase 12: Code Review Report
 
-**Reviewed:** 2026-06-11T21:17:40Z
+**Reviewed:** 2026-06-13
 **Depth:** standard
-**Files Reviewed:** 1
+**Files Reviewed:** 5
 **Status:** issues_found
 
 ## Summary
 
-Fresh re-review of `src/llm_client.py` after the iteration-1 fixes (12-REVIEW-FIX.md, commits b342794, 806a44c, bd3e178, 1ea2441). All four previously blocking/warning findings are verified resolved in the current file:
+Five files were reviewed: the CLI entry point (`src/cli.py`), the output-quality guard module (`src/guards.py`), its co-located test file (`src/guards_test.py`), the LLM client (`src/llm_client.py`), and the unit tests for the LLM client (`tests/unit/test_llm_client.py`).
 
-- **CR-01 resolved** — `<CONSTRAINTS>` (lines 70-72) no longer says "entire" and carries an EXCEPT clause naming the `\ {AI Engineer}\\` title line as the only rewritable line inside `\begin{center}`; `<ALLOWED>` line 54 mirrors the pattern. No contradiction remains.
-- **CR-02 resolved** — `<OUTPUT_FORMAT>` line 96 now reads "Rewritten content limited to the six elements listed in <ALLOWED>." The stale "professional summary, skills, and experience bullets only" checklist is gone.
-- **WR-01 resolved** — the blanket LaTeX-commands constraint (lines 79-82) now carries the command-vs-argument qualifier: "the commands themselves never change; only text content inside the elements listed in <ALLOWED> may be reworded."
-- **WR-02 resolved** — line 102 forbids "comments of any kind — including LaTeX % comment lines," closing the `%` annotation loophole.
+The implementation is generally clean. Error handling in the guard functions is consistent: every sub-function wraps its body in `try/except Exception` so malformed inputs (including `None`) never propagate to callers. The prompt structure in `_build_messages` is thorough and well-organized. The `_validate_latex` and `_strip_fences` helpers are small and focused.
 
-Structural verification: all six prompt tags (`<PERSONA>`, `<TASK>`, `<CONTEXT>`, `<ALLOWED>`, `<CONSTRAINTS>`, `<OUTPUT_FORMAT>`) are present and balanced; the raw string renders all LaTeX escapes literally; the prompt correctly references the resume's actual inline patterns (`\textbf{EMPLOYER}\textbf{ | ROLE} \hfill ...`, `\textit{\small ...}\\`, `{\Huge \scshape ...}\\`) rather than the unused `\employer{}{}{}` macro form, matching the 12-RESEARCH.md findings (lines 122, 128, 217). The gating tag-presence tests in `tests/unit/test_llm_client.py` (lines 30-31, 37-38) remain satisfied.
-
-One new precision gap was found in the rewrite-scope instructions (WR-01 below): the `<ALLOWED>` skills entry cites the `\noindent\textbf{Category:}` pattern without scoping it to the Skills section, and the protected Languages section uses the byte-identical pattern. Two prior Info items (project subtitle wrapper, `_validate_latex` return) were out of the iteration-1 fix scope and remain open; three new Info items were found. Tests could not be executed in this environment (no pytest, no requests module); all verification was static.
-
-## Warnings
-
-### WR-01: ALLOWED skills pattern is unscoped and byte-identical to protected Languages lines
-
-**File:** `src/llm_client.py:61-62` (conflicts with `src/llm_client.py:74`)
-**Issue:** `<ALLOWED>` grants: "Skills content: the technology lists on \noindent\textbf{Category:} lines." Per 12-RESEARCH.md, the Skills section uses `\noindent\textbf{AI:} LangChain, ChromaDB, ...\\` (line 141) — but the Languages section uses the byte-identical pattern: `\noindent\textbf{English:} Professional Working Proficiency\\` (line 144). The ALLOWED entry does not scope the pattern to the Skills section, so a model pattern-matching `\noindent\textbf{X:}` lines will see the Languages entries as rewritable "Category:" lines. `<CONSTRAINTS>` line 74 protects "everything under \header{Languages}", so the two instructions collide on the same lines — the same ambiguity class as the fixed WR-01/CR-01: a model weighting ALLOWED over CONSTRAINTS may "reorder/reweight" the Languages entries, corrupting protected content. The phase goal was eliminating exactly this kind of scope imprecision.
-**Fix:** Scope the pattern to its section:
-```text
-- Skills content: the technology lists on \noindent\textbf{Category:} lines under
-\header{Skills} only — the \noindent\textbf{...:} lines under \header{Languages}
-use the same pattern and are protected
-(reorder/reweight within categories; use only skills already present in the original)
-```
-
-## Info
-
-### IN-01: Project subtitle pattern still omits the actual `\text{ | ...}` wrapper (carried from prior IN-02)
-
-**File:** `src/llm_client.py:58`
-**Issue:** Unchanged from the prior review (it was outside the critical_warning fix scope). The entry reads "the descriptive text after \textbf{ProjectName} on each project line," but per 12-RESEARCH.md line 295 the subtitle lives inside a `\text{ | subtitle}` wrapper following the `\href{...}{\textbf{Name}}` anchor. Naming the wrapper would tell the model exactly which braces it may edit inside and would protect the literal `| ` separator.
-**Fix:** `- Project subtitle: the text inside \text{ | ...} after the \href{...}{\textbf{ProjectName}} anchor on each project line`
-
-### IN-02: `_validate_latex` return value discarded at call site (carried from prior IN-03)
-
-**File:** `src/llm_client.py:201` (function at `src/llm_client.py:141-151`)
-**Issue:** Unchanged from the prior review. `_validate_latex` returns `text` but the only call site uses it purely for its raise-on-invalid side effect, discarding the return. Harmless, but the signature overpromises.
-**Fix:** Either use the return (`content = _validate_latex(content)`) or change the return type to `None` and drop the `return text`.
-
-### IN-03: Mixed placeholder vs concrete values across the title-line references
-
-**File:** `src/llm_client.py:54` (vs `src/llm_client.py:72`)
-**Issue:** `<ALLOWED>` cites the title line as `\ {Title}\\` (generic placeholder) while `<CONSTRAINTS>` cites the same line as `\ {AI Engineer}\\` (concrete value from the resume). Line 69 similarly uses the `{Name}` placeholder. A model has to infer that `{Title}` and `{AI Engineer}` denote the same physical line; using the concrete pattern in both places (or placeholders in both) removes the inference step.
-**Fix:** Use `\ {AI Engineer}\\` in the ALLOWED entry as well, matching the CONSTRAINTS wording.
-
-### IN-04: Hardcoded `num_ctx: 8192` magic number
-
-**File:** `src/llm_client.py:165`
-**Issue:** `"options": {"num_ctx": 8192}` embeds a model-tuning constant in the request-building code while all other runtime constants (`OLLAMA_MODEL`, `TIMEOUT`, `OLLAMA_BASE_URL`) live in `config.py`. If the resume plus job description outgrow this window, the only signal is the `done_reason == "length"` failure; adjusting the limit requires editing client code instead of config.
-**Fix:** Add `NUM_CTX: int = 8192` to `src/config.py` and reference it in the payload.
-
-### IN-05: Every system-prompt line carries 8 spaces of source indentation
-
-**File:** `src/llm_client.py:27-105`
-**Issue:** The raw string is indented to match the function body, and `.strip()` only removes leading/trailing whitespace of the whole string — verified statically: every non-empty line after the first reaches the model with an 8-space prefix. This is harmless to meaning but adds token noise on ~75 lines and prefixes the literal LaTeX patterns the model is told to match.
-**Fix:** Dedent at build time with stdlib: `textwrap.dedent(...)` (move the prompt's body one indent level into the raw string margins), or store the prompt as a module-level constant with no indentation.
+One blocker was found: `pyproject.toml` omits two modules that `cli.py` directly imports at the top level, which makes the installed package non-functional. Three warnings address a fence-stripping gap that can silently write invalid LaTeX, a test-file placement inconsistency, and a fragile dict-key access in the CLI. Three info items cover minor duplication, an orphaned return value, and an unused import.
 
 ---
 
-_Reviewed: 2026-06-11T21:17:40Z_
+## Critical Issues
+
+### CR-01: `jd_analyzer` and `keyword_matcher` missing from the wheel include list
+
+**File:** `pyproject.toml:18-27`
+
+**Issue:** The `[tool.hatch.build.targets.wheel]` `include` list names eight source files but omits `src/jd_analyzer.py` and `src/keyword_matcher.py`. Both are imported unconditionally in `cli.py` at lines 8-9:
+
+```python
+from jd_analyzer import analyze_job_description
+from keyword_matcher import show_keyword_match
+```
+
+Any user who installs the package via `pip install` or `uv pip install` receives a wheel that is missing these two modules. The CLI fails immediately on startup with `ModuleNotFoundError: No module named 'jd_analyzer'` before any user input is processed. The package is non-functional as distributed.
+
+**Fix:**
+
+```toml
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
+include = [
+    "src/cli.py",
+    "src/config.py",
+    "src/diff_view.py",
+    "src/guards.py",
+    "src/jd_analyzer.py",
+    "src/keyword_matcher.py",
+    "src/llm_client.py",
+    "src/log_manager.py",
+    "src/resume_reader.py",
+    "src/resume_writer.py",
+]
+```
+
+---
+
+## Warnings
+
+### WR-01: `_strip_fences` only removes leading/trailing fences; embedded fences pass `_validate_latex` and are written to disk
+
+**File:** `src/llm_client.py:145-149, 210-212`
+
+**Issue:** `_strip_fences` applies one anchored substitution at the start (`^`) and one at the end (`$`) of the text. If the LLM emits a fence block in the interior of the response — for example, an explanation sentence before `\documentclass`, a fence opening, valid LaTeX, a fence closing, then trailing prose — the outer anchors do not match and the middle backticks remain in `content`.
+
+`_validate_latex` only checks that the stripped text starts with `\documentclass` and ends with `\end{document}`. A response like:
+
+```
+```latex
+\documentclass{article}
+\end{document}
+```
+
+Extra note here.
+```
+
+after stripping the leading fence produces `\documentclass{article}\n\end{document}\n\`\`\`\n\nExtra note here.` — this fails `_validate_latex` (trailing prose). But a response where the content itself starts and ends with valid LaTeX markers but contains an interior fence block passes validation silently, and the file with embedded backtick markers is written to the output directory.
+
+The guards' `_check_format_violations` logs a warning for `"```" in tailored` (line 23) but does not prevent the write; cli.py line 59 calls `write_resume` after `run_guards`.
+
+**Fix:** Add an explicit check in `generate_tailored_resume` after fence-stripping, before `_validate_latex`:
+
+```python
+content = _strip_fences(raw)
+if "```" in content:
+    raise ValueError(
+        "LLM response contains residual markdown fences after stripping — output is not valid LaTeX."
+    )
+_validate_latex(content)
+```
+
+`ValueError` is already caught by cli.py line 64, so this produces a clean error message instead of a silently malformed file.
+
+---
+
+### WR-02: `guards_test.py` is in `src/` with a redundant `sys.path.insert`; inconsistent with project test layout
+
+**File:** `src/guards_test.py:1-6`
+
+**Issue:** All other test modules reside under `tests/unit/`. `guards_test.py` is placed in `src/` alongside production code and manually patches the import path with:
+
+```python
+sys.path.insert(0, str(Path(__file__).parent))
+```
+
+This is redundant: `pyproject.toml` already sets `pythonpath = ["src"]` and `testpaths = ["src", "tests"]`, so pytest resolves the import without any manual path manipulation. The non-standard location creates several problems: the file is co-located with production modules inside the directory that is the wheel's source root, `--import-mode=importlib` (enabled in `addopts`) can cause double-registration issues for files discovered from two roots, and the convention that `src/` contains only production code is broken.
+
+**Fix:** Move `src/guards_test.py` to `tests/unit/test_guards.py`, remove the `sys.path.insert` block and the now-unused `sys` and `Path` imports. Pytest's existing configuration resolves the import correctly.
+
+---
+
+### WR-03: `cli.py` uses a direct dict key lookup on `analysis` that is not caught by the surrounding `except` clause
+
+**File:** `src/cli.py:58`
+
+**Issue:**
+
+```python
+run_guards(resume_text, result.content, result.fences_stripped,
+           **{"jd_technologies": analysis["technologies"]} if analysis else {})
+```
+
+When `analysis is not None`, `analysis["technologies"]` is accessed with a direct subscript. Today this is safe because `jd_analyzer._parse_analysis_response` validates the presence of `"technologies"` before returning. However, a `KeyError` from this line would not be caught by the `except (RuntimeError, ValueError, OSError)` handler on line 64 — it would propagate as an unhandled exception, printing a raw traceback to the user instead of a clean error message.
+
+**Fix:** Use `.get()` to decouple from the analyzer's internal key name:
+
+```python
+jd_techs = analysis.get("technologies") if analysis else None
+run_guards(resume_text, result.content, result.fences_stripped, jd_technologies=jd_techs)
+```
+
+---
+
+## Info
+
+### IN-01: `_strip_fences` is called twice in `generate_tailored_resume`
+
+**File:** `src/llm_client.py:210-211`
+
+**Issue:**
+
+```python
+fences_stripped = raw.strip() != _strip_fences(raw)
+content = _strip_fences(raw)
+```
+
+`_strip_fences` runs the same two `re.sub` calls twice on the same immutable input. The second call always produces the same result as the first. This is harmless but needlessly duplicates work.
+
+**Fix:**
+
+```python
+content = _strip_fences(raw)
+fences_stripped = raw.strip() != content
+```
+
+---
+
+### IN-02: `_validate_latex` return value is always discarded at its only call site
+
+**File:** `src/llm_client.py:152-162, 212`
+
+**Issue:** `_validate_latex` returns `text` unchanged (line 162) after validation. The call site at line 212 discards the return value: `_validate_latex(content)`. The function is used solely for its raise-on-invalid side effect; returning the input is misleading.
+
+**Fix:** Either make the return value explicit at the call site:
+
+```python
+content = _validate_latex(content)
+```
+
+or change the function to return `None` and remove the `return text` statement.
+
+---
+
+### IN-03: `sys` and `Path` imports in `guards_test.py` exist solely to support the redundant `sys.path.insert`
+
+**File:** `src/guards_test.py:1-6`
+
+**Issue:** `import sys` (line 1) and `from pathlib import Path` (line 5) are both used only to construct `sys.path.insert(0, str(Path(__file__).parent))` on line 6. Once WR-02 is resolved (move the file; delete the path manipulation), both imports become unused and should be removed. If the file is not moved, ruff will flag these as unused after the `sys.path.insert` line is removed.
+
+**Fix:** Resolve WR-02 first; the unused imports disappear as a side effect.
+
+---
+
+_Reviewed: 2026-06-13_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_

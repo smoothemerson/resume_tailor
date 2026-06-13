@@ -1,18 +1,18 @@
 ---
 phase: 14-infrastructure
-reviewed: 2026-06-11T21:22:07Z
+reviewed: 2026-06-13T00:00:00Z
 depth: standard
 files_reviewed: 6
 files_reviewed_list:
   - .github/workflows/ci.yml
-  - .gitignore
   - pyproject.toml
+  - .gitignore
   - src/jd_analyzer_test.py
   - src/resume_reader_test.py
   - src/resume_writer_test.py
 findings:
-  critical: 0
-  warning: 5
+  critical: 2
+  warning: 3
   info: 4
   total: 9
 status: issues_found
@@ -20,53 +20,126 @@ status: issues_found
 
 # Phase 14: Code Review Report
 
-**Reviewed:** 2026-06-11T21:22:07Z
+**Reviewed:** 2026-06-13T00:00:00Z
 **Depth:** standard
 **Files Reviewed:** 6
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the phase 14 infrastructure deliverables: CI workflow, .gitignore rewrite, pyproject wheel-include fix, and three new src-colocated test files. All new test assertions were traced against the actual implementations (`_parse_analysis_response`, `read_resume`, `write_resume`) and are logically correct — every expected outcome matches the real code paths, and all three files compile. No critical defects found.
+This phase delivered CI workflow, project metadata (`pyproject.toml`), `.gitignore`, and three test files co-located in `src/`. Two blockers are present. First, `uv.lock` is excluded from version control by `.gitignore`, meaning `uv sync` in CI resolves fresh dependencies on every run — defeating the reproducibility guarantee that is the primary reason to use `uv`. Second, the three test files in `src/` are duplicates of (or overlap with) tests already in `tests/unit/`, and because `testpaths = ["src", "tests"]`, both sets are collected and run together, causing doubled test execution, two competing test layout conventions, and a test in `tests/unit/test_jd_analyzer.py` whose name directly contradicts what it asserts.
 
-However, the headline deliverable claim of "12 new unit tests" does not hold up: `src/resume_reader_test.py` and `src/resume_writer_test.py` are byte-for-byte identical copies of pre-existing `tests/unit/test_resume_reader.py` and `tests/unit/test_resume_writer.py` (verified with `diff`), and `src/jd_analyzer_test.py` largely re-covers behaviors already exercised by `tests/unit/test_jd_analyzer.py` at a different layer. Because `testpaths = ["src", "tests"]`, the duplicated tests run twice in every CI invocation and must now be maintained in two places. Additional warnings concern CI reproducibility (no lock file), missing workflow permissions hardening, and a recurrence-prone wheel include allowlist.
+Additional warnings cover a manual wheel include allowlist that guarantees recurrence of the exact bug this phase fixed, flat top-level module layout that risks namespace collisions in the installed wheel, and missing workflow permissions hardening. All test assertions were traced against the actual implementations and are logically correct where they run at all — the defects are structural, not semantic.
 
-## Narrative Findings (AI reviewer)
+---
 
-## Warnings
+## Critical Issues
 
-### WR-01: Six of the twelve "new" unit tests are verbatim duplicates of existing tests
+### CR-01: `uv.lock` gitignored — CI resolves unpinned deps on every run
 
-**File:** `src/resume_reader_test.py:1-16`, `src/resume_writer_test.py:1-33`, `src/jd_analyzer_test.py:1-39`
-**Issue:** `src/resume_reader_test.py` and `src/resume_writer_test.py` are byte-identical to `tests/unit/test_resume_reader.py` and `tests/unit/test_resume_writer.py` respectively (confirmed via `diff` — zero differing lines, including identical test function names). `src/jd_analyzer_test.py` re-covers fenced-JSON, non-JSON, and missing-key behavior already tested in `tests/unit/test_jd_analyzer.py` through `analyze_job_description` with mocked `requests.post`. With `testpaths = ["src", "tests"]` in pyproject.toml, every duplicated test is collected and executed twice per run, and any behavior change now requires editing two files. The repo now has two competing test layout conventions (src-colocated `*_test.py` vs `tests/unit/test_*.py`) with no rule about which wins.
-**Fix:** Pick one layout and delete the other copy. If src-colocation is the convention going forward, delete `tests/unit/test_resume_reader.py`, `tests/unit/test_resume_writer.py`, and migrate the unique `analyze_job_description` mock tests from `tests/unit/test_jd_analyzer.py` into `src/jd_analyzer_test.py`; otherwise delete the three new src files.
+**File:** `.gitignore:17`, `.github/workflows/ci.yml:21`
 
-### WR-02: CI dependency resolution is unpinned — uv.lock is gitignored, so every CI run resolves fresh
+**Issue:** `uv.lock` is listed in `.gitignore`, so it is never committed. `uv sync` without a lockfile resolves the latest compatible versions from the network at the moment each CI run starts. Two concrete failure modes:
 
-**File:** `.github/workflows/ci.yml:21`, `.gitignore:17`
-**Issue:** `uv sync` in CI resolves dependencies from scratch on every run because `uv.lock` is listed in `.gitignore` and not committed. A new release of `requests`, `pytest`, or `ruff` can break or change CI behavior with zero repo changes, making failures non-reproducible locally. This also directly contradicts the project's own stack documentation in CLAUDE.md: "pyproject.toml + uv.lock is the correct packaging baseline even for a single-dep project." Particularly risky for `ruff format --check`, where a new ruff version with changed formatting rules will fail CI on untouched code.
-**Fix:** Remove `uv.lock` from `.gitignore`, commit the lock file, and change the CI step to:
+1. A new release of `ruff` with changed formatting rules causes `ruff format --check` to fail on untouched code with no indication of what changed.
+2. A new release of `pytest` that drops a behavior used by the test suite silently breaks CI without any repo change, and the failure is non-reproducible locally if the developer still has an older version installed.
+
+The project's own `CLAUDE.md` stack documentation explicitly states: "pyproject.toml + uv.lock is the correct packaging baseline even for a single-dep project." Ignoring the lockfile directly contradicts this documented intent and removes the reproducibility guarantee that is the primary reason to choose `uv` over plain `pip`.
+
+**Fix:** Remove `uv.lock` from `.gitignore` and add `--locked` to the install step:
+
+```diff
+ # Project-specific
+ resumes/
+-uv.lock
+```
+
 ```yaml
 - name: Install dependencies
   run: uv sync --locked
 ```
 
-### WR-03: Workflow has no permissions block — GITHUB_TOKEN gets default (potentially write) scope
+Then generate and commit the lockfile:
 
-**File:** `.github/workflows/ci.yml:9`
-**Issue:** No `permissions:` key is declared at workflow or job level, so the job's `GITHUB_TOKEN` inherits the repository default, which is read/write on many repos. A lint+test job needs only read access to checkout. If any step (or a compromised third-party action — see IN-04) is subverted, the token could push commits or tamper with the repo. Least-privilege token scoping is the baseline GitHub Actions hardening control.
-**Fix:**
-```yaml
-permissions:
-  contents: read
+```bash
+uv lock
+git add uv.lock
+git commit -m "chore: commit uv.lock for reproducible installs"
 ```
-at the top level of the workflow, below `on:`.
 
-### WR-04: Wheel include allowlist is the exact failure mode this phase just fixed
+---
+
+### CR-02: Duplicate test files cause doubled test execution and divergent coverage
+
+**File:** `src/jd_analyzer_test.py:1`, `src/resume_reader_test.py:1`, `src/resume_writer_test.py:1`
+
+**Issue:** `pyproject.toml` sets `testpaths = ["src", "tests"]` (line 39). Pytest collects both `test_*.py` and `*_test.py` by default. The three files in `src/` overlap with or duplicate files already in `tests/unit/`:
+
+- `src/resume_reader_test.py` is byte-for-byte identical to `tests/unit/test_resume_reader.py` (confirmed with `diff` — zero differing lines).
+- `src/resume_writer_test.py` is byte-for-byte identical to `tests/unit/test_resume_writer.py`.
+- `src/jd_analyzer_test.py` covers overlapping behaviors (fenced JSON, non-JSON, missing keys) but via the private helper `_parse_analysis_response` rather than the public `analyze_job_description`. Both files are collected.
+
+Consequences of this state:
+
+1. Every test in the duplicate files runs twice per `pytest -m unit` invocation. The doubled pass count creates a false impression of test coverage breadth.
+2. The `src/jd_analyzer_test.py` copy tests a private function (`_parse_analysis_response`) not the public API. If that private function is renamed or inlined, the `src/` tests break without any change in observable behavior.
+3. The codebase now has two competing test layout conventions (`src/*_test.py` vs `tests/unit/test_*.py`) with no stated rule about which is authoritative. Any new contributor must choose one arbitrarily or maintain both.
+
+**Fix:** Delete the three stale files from `src/`. The canonical test suite is in `tests/unit/`. After deletion, remove `"src"` from `testpaths` if no test files remain there:
+
+```bash
+rm src/jd_analyzer_test.py src/resume_reader_test.py src/resume_writer_test.py
+```
+
+```toml
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+```
+
+---
+
+## Warnings
+
+### WR-01: Test name asserts the opposite of what the test verifies
+
+**File:** `tests/unit/test_jd_analyzer.py:77`
+
+**Issue:** The function is named `test_analyze_job_description_returns_none_on_fence_wrapped_valid_json`, explicitly stating that the function should return `None` for fence-wrapped JSON. The body asserts `isinstance(result, dict)` and `result is not None` (lines 86-87) — the exact opposite. The implementation is correct (fence stripping works); only the name is wrong. However, the name is the primary form of documentation for a test: any developer reading the test suite will form the wrong model of how `analyze_job_description` handles LLM responses that include markdown fences. If fence-stripping is ever broken by a refactor, someone may incorrectly assume the test already covers the `None` case and skip adding a regression.
+
+**Fix:** Rename the test to match its assertions:
+
+```python
+def test_analyze_job_description_returns_dict_on_fence_wrapped_valid_json(mock_post):
+```
+
+---
+
+### WR-02: Wheel include allowlist will cause the same bug again on the next new module
 
 **File:** `pyproject.toml:18-29`
-**Issue:** The bug this phase fixed (broken wheel because `jd_analyzer.py` and `keyword_matcher.py` were absent from the include list) is guaranteed to recur: the fix keeps the manual per-file allowlist, so the next module added to `src/` will silently be omitted from the wheel again. Nothing in CI builds or installs the wheel, so the breakage would again go undetected until install time.
-**Fix:** Replace the enumerated list with a pattern that cannot drift:
+
+**Issue:** The include list explicitly enumerates every source file:
+
+```toml
+include = [
+    "src/cli.py",
+    "src/config.py",
+    "src/diff_view.py",
+    "src/guards.py",
+    "src/jd_analyzer.py",
+    "src/keyword_matcher.py",
+    "src/llm_client.py",
+    "src/log_manager.py",
+    "src/resume_reader.py",
+    "src/resume_writer.py",
+]
+```
+
+This is the same structural pattern that caused the bug this phase was created to fix (missing `jd_analyzer.py` and `keyword_matcher.py`). Adding any new module to `src/` without updating this list silently excludes it from the wheel. There is no CI step that builds and installs the wheel and runs the test suite from the installed package, so the breakage will not be detected until a user installs from PyPI or a distribution artifact.
+
+**Fix:** Replace the enumerated list with a glob pattern:
+
 ```toml
 [tool.hatch.build.targets.wheel]
 sources = ["src"]
@@ -74,40 +147,85 @@ include = ["src/*.py"]
 exclude = ["src/*_test.py"]
 ```
 
-### WR-05: Wheel installs generic top-level module names into site-packages
+---
 
-**File:** `pyproject.toml:16-29`
-**Issue:** With `sources = ["src"]` and flat modules, installing this wheel places `cli.py`, `config.py`, `guards.py`, etc. as top-level modules in site-packages. Names like `config` and `cli` are highly collision-prone: any other package in the same environment that ships or imports a top-level `config` will silently get this project's module (or vice versa), and the entry point `resume-tailor = "cli:main"` breaks if anything shadows `cli`. Pre-existing structure, but the include list was the subject of this phase's change and the defect ships with every wheel built from this file.
-**Fix:** Move modules into a package directory (`src/resume_tailor/`), set `packages = ["src/resume_tailor"]`, and change the script to `resume-tailor = "resume_tailor.cli:main"`. If deferred, record it as a known limitation requiring isolated installs (`uv tool install` / pipx).
+### WR-03: CI workflow declares no permissions — `GITHUB_TOKEN` defaults to read/write
 
-## Info
+**File:** `.github/workflows/ci.yml:9`
 
-### IN-01: Timestamp filename assertion is not end-anchored
+**Issue:** No `permissions:` key is declared at the workflow or job level. GitHub's default for `GITHUB_TOKEN` when no permissions block is present is repository-dependent and is read/write on many repos (specifically when the organization/repository setting "Default permissions" has not been changed from the GitHub default). A lint-and-test job needs only `contents: read` to check out code. If a step or a third-party action (see IN-04) is compromised, a read/write token allows pushing commits, creating tags, or modifying releases.
 
-**File:** `src/resume_writer_test.py:26`
-**Issue:** `re.match(r"tailored_resume_\d{8}_\d{6}\.tex", result.name)` anchors only the start; a filename like `tailored_resume_20260611_212207.tex.bak` would also pass. The current implementation cannot produce such a name, but the assertion is weaker than intended for a regression test.
-**Fix:** Use `re.fullmatch(...)`.
+**Fix:** Add a permissions block immediately after the `on:` section:
 
-### IN-02: Fenced-JSON test asserts only non-None, not parsed content
-
-**File:** `src/jd_analyzer_test.py:27-29`
-**Issue:** `test_parse_fenced_json_returns_dict` asserts `is not None` but never checks that the fences were actually stripped and the values survived parsing. A regression that returned `{"technologies": [], "requirements": [], "emphasis_areas": []}` (or otherwise mangled values) would still pass.
-**Fix:** `assert _parse_analysis_response(content) == {"technologies": ["Go"], "requirements": ["3 yrs"], "emphasis_areas": ["backend"]}`
-
-### IN-03: CI lint and format checks skip the tests/ tree
-
-**File:** `.github/workflows/ci.yml:24-26`
-**Issue:** `ruff check src/` and `ruff format --check src/` exclude `tests/`, so the conftest and the test files under `tests/` (which CI executes) are never linted or format-checked.
-**Fix:** Run `uv run ruff check .` and `uv run ruff format --check .` (ruff respects .gitignore by default).
-
-### IN-04: Third-party action pinned to mutable tag instead of commit SHA
-
-**File:** `.github/workflows/ci.yml:16`
-**Issue:** `astral-sh/setup-uv@v8.2.0` is a tag reference, which the publisher can move or which can be replaced if the repo is compromised; `actions/checkout@v4` is a floating major tag. SHA-pinning is the supply-chain hardening standard for non-GitHub-owned actions especially.
-**Fix:** Pin to the full commit SHA, e.g. `astral-sh/setup-uv@<40-char-sha> # v8.2.0`.
+```yaml
+permissions:
+  contents: read
+```
 
 ---
 
-_Reviewed: 2026-06-11T21:22:07Z_
+## Info
+
+### IN-01: CI lint and format checks do not cover the `tests/` directory
+
+**File:** `.github/workflows/ci.yml:24-26`
+
+**Issue:** The lint step runs `ruff check src/` and `ruff format --check src/`, explicitly scoping to `src/`. Test files in `tests/` — including the incorrectly-named test in WR-01 and the import issues in `tests/unit/test_jd_analyzer.py` — are never linted. CI executes those test files but never checks their quality.
+
+**Fix:** Replace the scoped paths with the project root so ruff's own `.gitignore`-awareness handles exclusions:
+
+```yaml
+- name: Lint
+  run: |
+    uv run ruff check .
+    uv run ruff format --check .
+```
+
+---
+
+### IN-02: Third-party action pinned to mutable tag, not immutable SHA
+
+**File:** `.github/workflows/ci.yml:16`
+
+**Issue:** `astral-sh/setup-uv@v8.2.0` is a tag reference. Tags on GitHub can be force-moved by the publisher or are vulnerable to account compromise. `actions/checkout@v4` is a floating major tag — even less specific. SHA-pinning is the supply-chain security baseline for GitHub Actions workflows.
+
+**Fix:** Pin to the commit SHA that corresponds to each tag:
+
+```yaml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+- uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb  # v8.2.0
+```
+
+Obtain exact SHAs with: `gh api /repos/astral-sh/setup-uv/git/ref/tags/v8.2.0`
+
+---
+
+### IN-03: Timestamp filename regex assertion is not end-anchored
+
+**File:** `src/resume_writer_test.py:26`, `tests/unit/test_resume_writer.py:26`
+
+**Issue:** `re.match(r"tailored_resume_\d{8}_\d{6}\.tex", result.name)` anchors only the start of the filename. A name like `tailored_resume_20260613_000000.tex.bak` or `tailored_resume_20260613_000000.tex extra` would satisfy the pattern. `re.match` anchors at the start but not the end; without a `$` or use of `re.fullmatch`, the assertion is weaker than intended.
+
+**Fix:** Use `re.fullmatch`:
+
+```python
+assert re.fullmatch(r"tailored_resume_\d{8}_\d{6}\.tex", result.name)
+```
+
+(Applies to both copies; after CR-02 is resolved only one copy should exist.)
+
+---
+
+### IN-04: Wheel installs flat top-level modules into site-packages — collision-prone names
+
+**File:** `pyproject.toml:16-17`
+
+**Issue:** With `sources = ["src"]` and no package directory, the built wheel installs all `src/*.py` modules as top-level names in site-packages: `cli`, `config`, `guards`, `log_manager`, etc. `config` and `cli` are extremely common top-level names; any other installed package shipping a `config` module will silently shadow this one (or be shadowed by it), and the entry point `resume-tailor = "cli:main"` becomes unreliable in any non-isolated environment.
+
+**Fix:** Wrap modules in a package: `src/resume_tailor/__init__.py` plus all existing modules moved inside. Update the entry point to `resume-tailor = "resume_tailor.cli:main"`. If this is deferred, document that the tool must be used in an isolated environment (`uv tool install` or `pipx`).
+
+---
+
+_Reviewed: 2026-06-13T00:00:00Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_

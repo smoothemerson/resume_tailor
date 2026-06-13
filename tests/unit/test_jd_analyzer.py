@@ -74,7 +74,7 @@ def test_analyze_job_description_returns_none_on_truncation(mock_post):
 
 @pytest.mark.unit
 @patch("jd_analyzer.requests.post")
-def test_analyze_job_description_returns_none_on_fence_wrapped_valid_json(mock_post):
+def test_analyze_job_description_returns_dict_on_fence_wrapped_valid_json(mock_post):
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
     mock_response.json.return_value = {

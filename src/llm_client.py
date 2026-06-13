@@ -24,6 +24,10 @@ def _check_ollama_health() -> None:
         raise RuntimeError(f"Ollama health check failed with HTTP error: {exc}") from exc
 
 
+def _format_list(items: list) -> str:
+    return ", ".join(str(i) for i in items) if items else "(none)"
+
+
 def _build_messages(resume_text: str, job_description: str, analysis: dict | None = None) -> list[dict]:
     system_prompt = textwrap.dedent(r"""
         <PERSONA>
@@ -130,9 +134,9 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         areas = analysis.get("emphasis_areas", [])
         analysis_block = (
             "<jd_analysis>\n"
-            f"technologies: {techs}\n"
-            f"requirements: {reqs}\n"
-            f"emphasis_areas: {areas}\n"
+            f"technologies: {_format_list(techs)}\n"
+            f"requirements: {_format_list(reqs)}\n"
+            f"emphasis_areas: {_format_list(areas)}\n"
             "</jd_analysis>\n\n"
         )
         user_message = analysis_block + user_message

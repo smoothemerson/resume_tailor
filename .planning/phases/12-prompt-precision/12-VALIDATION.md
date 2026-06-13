@@ -5,7 +5,7 @@ status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-06-09
-audited: 2026-06-12
+audited: 2026-06-13
 ---
 
 # Phase 12 — Validation Strategy
@@ -42,6 +42,8 @@ audited: 2026-06-12
 | 12-01-01 | 01 | 1 | PRMP-01 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "allowed or legacy_instructions"` | ✅ | ✅ green |
 | 12-01-02 | 01 | 1 | PRMP-02 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "constraints"` | ✅ | ✅ green |
 | 12-01-03 | 01 | 1 | PRMP-03 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q -k "technology_fidelity"` | ✅ | ✅ green |
+| 12-02-01 | 02 | 2 | PRMP-03 | — | N/A | unit | `pytest tests/unit/test_llm_client.py -x -q && pytest src/llm_client_test.py -x -q` | ✅ | ✅ green |
+| 12-02-02 | 02 | 2 | PRMP-03 | T-12.02-01 | re.escape neutralizes LLM-supplied regex metacharacters; guard never raises | unit | `pytest src/guards_test.py -x -q && pytest src/cli_test.py -x -q && pytest -x -q` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -83,3 +85,15 @@ All phase behaviors have automated verification via existing test suite.
 Gap detail: PRMP-01 (MISSING — no `<ALLOWED>` assertions), PRMP-02 (PARTIAL — only tag-boundary asserted), PRMP-03 (MISSING — no TECHNOLOGY FIDELITY assertions). Resolved with 8 new unit tests in `tests/unit/test_llm_client.py`, scoped to the extracted `<CONSTRAINTS>` block and asserting actual LaTeX patterns. Full suite: 112 passed, 3 skipped (Ollama-dependent).
 
 Environment note: `/workspace/.venv/bin/python` is a broken symlink; run tests via `PYTHONPATH=/workspace/.venv/lib/python3.13/site-packages python3 -m pytest`.
+
+---
+
+## Validation Audit 2026-06-13
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 2 |
+| Resolved | 2 |
+| Escalated | 0 |
+
+Gap detail: 12-02-01 had two PARTIAL test assertions (`test_validate_latex_returns_text_on_valid_input` in `tests/unit/test_llm_client.py` and `test_valid_latex_returns_text` in `src/llm_client_test.py`) that still asserted the old return value of `_validate_latex` after the WR-02 fix changed it to a pure validator returning `None`. Both tests renamed and assertions updated to `is None`. Full suite: 125 passed, 3 skipped (Ollama-dependent).

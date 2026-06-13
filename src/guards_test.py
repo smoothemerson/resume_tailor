@@ -82,18 +82,16 @@ class TestCheckHallucinatedEmployers(unittest.TestCase):
             mock_logger.warning.assert_not_called()
 
     def test_employer_in_original_missing_from_tailored_triggers_warning(self):
-        original = "\\employer{Acme Corp}{2022}{Engineer}"
-        tailored = "\\documentclass{article}\n\\end{document}"
+        original = r"\textbf{Acme Corp}\textbf{ | Engineer}"
+        tailored = r"\documentclass{article}\n\end{document}"
         with patch("guards.logger") as mock_logger:
             run_guards(original, tailored)
             calls = [str(c) for c in mock_logger.warning.call_args_list]
-            self.assertTrue(
-                any("Acme Corp" in c for c in calls)
-            )
+            self.assertTrue(any("Acme Corp" in c for c in calls))
 
     def test_employer_in_both_original_and_tailored_no_warning(self):
-        original = "\\employer{Acme Corp}{2022}{Engineer}"
-        tailored = "\\employer{Acme Corp}{2022}{Engineer}"
+        original = r"\textbf{Acme Corp}\textbf{ | Engineer}"
+        tailored = r"\textbf{Acme Corp}\textbf{ | Engineer}"
         with patch("guards.logger") as mock_logger:
             run_guards(original, tailored)
             mock_logger.warning.assert_not_called()

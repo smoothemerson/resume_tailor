@@ -3,7 +3,9 @@ import sys
 
 from log_manager import logger
 
-_EMPLOYER_PATTERN = re.compile(r'\\employer\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}')
+_EMPLOYER_PATTERN = re.compile(
+    r'\\textbf\{([^}]+)\}\\textbf\{\s*\|\s*([^}]+)\}'
+)
 
 
 def _check_missing_sections(original: str, tailored: str) -> None:
@@ -34,12 +36,12 @@ def _check_hallucinated_employers(original: str, tailored: str) -> None:
     try:
         original_employers = _EMPLOYER_PATTERN.findall(original)
         tailored_employers = _EMPLOYER_PATTERN.findall(tailored)
-        for name, dates, title in original_employers:
-            if (name, dates, title) not in tailored_employers:
-                logger.warning(f'Employer "{name}" from original resume not found in tailored output.')
-        for name, dates, title in tailored_employers:
-            if (name, dates, title) not in original_employers:
-                logger.warning(f'Employer "{name}" in tailored output was not in original resume — possible hallucination.')
+        for company, role in original_employers:
+            if (company, role) not in tailored_employers:
+                logger.warning(f'Employer "{company}" from original resume not found in tailored output.')
+        for company, role in tailored_employers:
+            if (company, role) not in original_employers:
+                logger.warning(f'Employer "{company}" in tailored output was not in original resume — possible hallucination.')
     except Exception as exc:
         logger.warning(f"Employer check failed: {exc}")
 

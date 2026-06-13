@@ -14,7 +14,6 @@ dist/
 
 # Project-specific
 resumes/
-uv.lock
 
 # Claude Code workspace
 .claude/

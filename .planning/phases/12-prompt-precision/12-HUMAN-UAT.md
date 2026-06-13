@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: partial
 phase: 12-prompt-precision
 source: [12-VERIFICATION.md]
 started: 2026-06-11T00:00:00Z
-updated: 2026-06-12T00:00:00Z
+updated: 2026-06-13T00:00:00Z
 ---
 
 ## Current Test
@@ -12,10 +12,10 @@ updated: 2026-06-12T00:00:00Z
 
 ## Tests
 
-### 1. End-to-end tailoring run with live Ollama
-expected: Run the CLI against a real job description with Ollama running. Protected sections (contact block, section headers, `\header{...}`, `\href{url}{\textbf{ProjectName}}`) are byte-identical in the output; only ALLOWED elements (title line, employer taglines/bullets, project subtitle/bullets, skills content) differ; no fabricated technologies appear.
-result: issue
-reported: "yes, did not modify contact, section headers. only did modified allowed elements. but sometimes it does fabricate techenologies that I do not have experience and it did put there cause of the JD."
+### 1. End-to-end tailoring run with live Ollama (re-run after gap closure)
+expected: Run the CLI against a real job description with Ollama running. Protected sections (contact block, section headers, `\header{...}`, `\href{url}{\textbf{ProjectName}}`) are byte-identical in the output; only ALLOWED elements (title line, employer taglines/bullets, project subtitle/bullets, skills content) differ; no fabricated technologies appear. If the model slips through, a WARNING log entry names the specific technology and contains "possible fabrication".
+result: pending
+note: "Three-layer defense implemented in 12-02: temperature=0.2 in payload, JD ANALYSIS USAGE rule in system prompt + inline fidelity reminders on 4 ALLOWED bullets, _check_fabricated_technologies guard in guards.py wired from cli.py. Live re-run needed to confirm gap is closed in practice."
 severity: major
 
 ### 2. Contradiction behavior check (CR-01 / CR-02)
@@ -26,29 +26,24 @@ result: pass
 
 total: 2
 passed: 1
-issues: 1
-pending: 0
+issues: 0
+pending: 1
 skipped: 0
 blocked: 0
 
 ## Gaps
 
 - truth: "No fabricated technologies appear in the tailored output; only experience the user actually has is surfaced, even when the job description lists technologies absent from the base resume"
-  status: failed
-  reason: "User reported: sometimes it does fabricate technologies that I do not have experience and it did put there cause of the JD"
+  status: pending
+  reason: "Three-layer defense implemented in 12-02 (temperature=0.2, JD ANALYSIS USAGE rule, inline reminders x4, _check_fabricated_technologies guard). All 4 missing items from diagnosis implemented. Live re-run pending."
   severity: major
   test: 1
-  root_cause: "Anti-fabrication relies solely on a soft prompt instruction (TECHNOLOGY FIDELITY rule) whose compliance is probabilistic; compounded by (1) <jd_analysis> injecting an unconstrained JD-technology list that primes the model to insert those names, (2) no temperature/seed in Ollama options so default sampling makes compliance vary run-to-run (the intermittent 'sometimes'), and (3) no post-generation technology-fidelity guard in guards.py so violations pass silently"
-  artifacts:
+  resolved_by: "12-02-PLAN"
+  resolution_artifacts:
     - path: "src/llm_client.py"
-      issue: "<jd_analysis> technologies list injected with no usage instruction (lines 117-128); no temperature/seed in payload options (line 167); fidelity constraint single-sited on Skills element only, not reinforced at bullet/tagline rewrite instructions"
+      change: "temperature=0.2 in options payload; JD ANALYSIS USAGE rule in CONSTRAINTS; inline reminder on 4 ALLOWED bullets"
     - path: "src/guards.py"
-      issue: "run_guards checks sections, format, and employers only — no technology-fidelity check comparing output tokens against base-resume content"
-    - path: "src/jd_analyzer.py"
-      issue: "produces the JD technology list that becomes the priming vector; its output is fed into the prompt unconstrained"
-  missing:
-    - "Set options.temperature to 0 or ~0.2 (optionally fixed seed) in the tailoring payload"
-    - "System-prompt rule explaining <jd_analysis>: technologies absent from the resume are relevance-ranking signals only and must never appear in output (or pre-filter the list to the intersection with base-resume content)"
-    - "Repeat the fidelity constraint at the bullet/tagline items in <ALLOWED>"
-    - "Post-generation guard in guards.py flagging (or retrying) when output contains JD-analysis technology tokens absent from the base resume"
+      change: "_check_fabricated_technologies() guard with token-boundary regex; wired as fourth check in run_guards()"
+    - path: "src/cli.py"
+      change: "passes analysis['technologies'] to run_guards via dict-unpacking when analysis is not None"
   debug_session: ".planning/debug/fabricated-technologies.md"

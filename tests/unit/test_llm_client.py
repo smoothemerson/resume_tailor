@@ -297,3 +297,40 @@ def test_build_messages_technology_fidelity_includes_azure_aws_example():
     constraints = _system_constraints_block()
     assert "if the resume mentions Azure, Azure must remain" in constraints
     assert "AWS, AWS must not be added" in constraints
+
+
+@pytest.mark.unit
+@patch("llm_client._check_ollama_health")
+@patch("llm_client.requests.post")
+def test_generate_tailored_resume_payload_includes_temperature(mock_post, mock_health):
+    valid_latex = "\\documentclass{article}\nbody\n\\end{document}"
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {
+        "done_reason": "stop",
+        "message": {"content": valid_latex},
+    }
+    mock_post.return_value = mock_response
+    generate_tailored_resume("resume", "job desc")
+    call_kwargs = mock_post.call_args[1]
+    assert call_kwargs["json"]["options"] == {"num_ctx": 8192, "temperature": 0.2}
+
+
+@pytest.mark.unit
+def test_build_messages_constraints_contain_jd_analysis_usage_label():
+    assert "JD ANALYSIS USAGE:" in _system_constraints_block()
+
+
+@pytest.mark.unit
+def test_build_messages_constraints_jd_analysis_uses_relevance_ranking_signals():
+    constraints = _system_constraints_block()
+    assert "relevance-ranking signals" in constraints
+    assert "must never appear in the output" in constraints
+
+
+@pytest.mark.unit
+def test_build_messages_allowed_inline_fidelity_reminder_appears_at_least_four_times():
+    content = _build_messages("resume text", "job description")[0]["content"]
+    allowed = content[content.index("<ALLOWED>") : content.index("</ALLOWED>")]
+    reminder = "only technologies already present in the original resume"
+    assert allowed.count(reminder) >= 4

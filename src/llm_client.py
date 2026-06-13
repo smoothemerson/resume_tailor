@@ -53,11 +53,13 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         You may ONLY rewrite the following elements:
         - Title line: the \ {Title}\\ line in the \begin{center} contact header
         - Employer taglines: the \textit{\small ...}\\ line below each employer header
+        (mention only technologies already present in the original resume)
         - Employer bullet points: the \item entries inside \begin{itemize} under each employer
-        (reword only — bullet count stays fixed)
+        (reword only — bullet count stays fixed; mention only technologies already present in the original resume)
         - Project subtitle: the descriptive text after \textbf{ProjectName} on each project line
+        (mention only technologies already present in the original resume)
         - Project bullet points: the \item entries inside \begin{itemize} under each project
-        (reword only — bullet count stays fixed)
+        (reword only — bullet count stays fixed; mention only technologies already present in the original resume)
         - Skills content: the technology lists on \noindent\textbf{Category:} lines under
         \header{Skills} only — the \noindent\textbf{...:} lines under \header{Languages}
         use the same pattern and are protected
@@ -90,6 +92,13 @@ def _build_messages(resume_text: str, job_description: str, analysis: dict | Non
         it must not appear in the output — even if it appears in the job description.
         (Example: if the resume mentions Azure, Azure must remain; if the resume does not mention
         AWS, AWS must not be added.)
+
+        JD ANALYSIS USAGE:
+        The user message may begin with a <jd_analysis> block listing technologies, requirements,
+        and emphasis areas extracted from the job description. These are relevance-ranking signals
+        only — use them to decide which EXISTING resume content to emphasize and reorder. Any
+        technology listed in <jd_analysis> that does not appear in the original resume
+        must never appear in the output.
         </CONSTRAINTS>
 
         <OUTPUT_FORMAT>
@@ -164,7 +173,7 @@ def generate_tailored_resume(
         "model": effective_model,
         "messages": messages,
         "stream": False,
-        "options": {"num_ctx": 8192},
+        "options": {"num_ctx": 8192, "temperature": 0.2},
     }
 
     try:

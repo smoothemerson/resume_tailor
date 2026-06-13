@@ -150,7 +150,7 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def _validate_latex(text: str) -> str:
+def _validate_latex(text: str) -> None:
     stripped = text.rstrip()
     if not stripped.lstrip().startswith("\\documentclass"):
         raise ValueError(
@@ -160,7 +160,6 @@ def _validate_latex(text: str) -> str:
         raise ValueError(
             "LLM response does not end with \\end{document} — output may be truncated or contain trailing prose."
         )
-    return text
 
 
 def generate_tailored_resume(

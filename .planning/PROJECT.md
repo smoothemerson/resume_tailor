@@ -51,9 +51,12 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 
 ### Active
 
-- [ ] Add `_check_technology_substitution` guard to `guards.py`
-- [ ] Add `_check_protected_sections` guard to `guards.py`
-- [ ] Unit tests for new guards in `guards_test.py`
+- [x] `_check_technology_substitution` warns when Skills section swaps technologies (GARD-05, TEST-12) — Phase 13: Guard Expansion
+- [x] `_check_protected_sections` warns when contact block, education, languages, employer headers, or project anchors mutate (GARD-06, TEST-13) — Phase 13: Guard Expansion
+- [x] Both new guards wired into `run_guards()` and cannot raise (GARD-07) — Phase 13: Guard Expansion
+
+### Active
+
 - [ ] Fix pyproject.toml wheel include list
 - [ ] Add GitHub Actions CI workflow
 - [ ] Add unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`

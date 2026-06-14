@@ -1,4 +1,3 @@
-import sys
 import unittest
 from unittest.mock import patch
 
@@ -17,7 +16,10 @@ class TestShowDiffTTYGate(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             printed = []
-            with patch("builtins.print", side_effect=lambda *a: printed.append(a[0] if a else "")):
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a: printed.append(a[0] if a else ""),
+            ):
                 show_diff("line 1\nline 2", "line 1\nline 2 changed")
             self.assertTrue(any("line 2 changed" in line for line in printed))
 
@@ -51,7 +53,10 @@ class TestShowDiffColors(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             printed = []
-            with patch("builtins.print", side_effect=lambda *a: printed.append(a[0] if a else "")):
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a: printed.append(a[0] if a else ""),
+            ):
                 show_diff("line one", "line two")
             self.assertTrue(any(line.startswith("\033[32m") for line in printed))
 
@@ -59,7 +64,10 @@ class TestShowDiffColors(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             printed = []
-            with patch("builtins.print", side_effect=lambda *a: printed.append(a[0] if a else "")):
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a: printed.append(a[0] if a else ""),
+            ):
                 show_diff("line one", "line two")
             self.assertTrue(any(line.startswith("\033[31m") for line in printed))
 
@@ -67,7 +75,10 @@ class TestShowDiffColors(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             printed = []
-            with patch("builtins.print", side_effect=lambda *a: printed.append(a[0] if a else "")):
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a: printed.append(a[0] if a else ""),
+            ):
                 show_diff("a", "b")
             self.assertTrue(any(line == "+++ tailored" for line in printed))
 
@@ -75,7 +86,10 @@ class TestShowDiffColors(unittest.TestCase):
         with patch("sys.stdout") as mock_stdout:
             mock_stdout.isatty.return_value = True
             printed = []
-            with patch("builtins.print", side_effect=lambda *a: printed.append(a[0] if a else "")):
+            with patch(
+                "builtins.print",
+                side_effect=lambda *a: printed.append(a[0] if a else ""),
+            ):
                 show_diff("a", "b")
             self.assertTrue(any(line == "--- original" for line in printed))
 

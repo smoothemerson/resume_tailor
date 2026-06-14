@@ -3,7 +3,12 @@ from unittest.mock import MagicMock, patch
 
 import requests
 
-from llm_client import TailorResult, _strip_fences, _validate_latex, generate_tailored_resume
+from llm_client import (
+    TailorResult,
+    _strip_fences,
+    _validate_latex,
+    generate_tailored_resume,
+)
 
 
 def test_strip_latex_fence():
@@ -121,7 +126,9 @@ def test_fences_stripped_true_when_raw_had_fences(mock_get, mock_post):
     mock_response = MagicMock()
     mock_response.json.return_value = {
         "done_reason": "stop",
-        "message": {"content": "```latex\n\\documentclass{article}\n\\end{document}\n```"},
+        "message": {
+            "content": "```latex\n\\documentclass{article}\n\\end{document}\n```"
+        },
     }
     mock_response.raise_for_status.return_value = None
     mock_post.return_value = mock_response
@@ -136,7 +143,9 @@ def test_content_field_is_stripped_latex(mock_get, mock_post):
     mock_response = MagicMock()
     mock_response.json.return_value = {
         "done_reason": "stop",
-        "message": {"content": "```latex\n\\documentclass{article}\n\\end{document}\n```"},
+        "message": {
+            "content": "```latex\n\\documentclass{article}\n\\end{document}\n```"
+        },
     }
     mock_response.raise_for_status.return_value = None
     mock_post.return_value = mock_response

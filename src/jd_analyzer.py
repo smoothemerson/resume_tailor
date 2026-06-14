@@ -13,11 +13,7 @@ def _build_analysis_messages(job_description: str) -> list[dict]:
         "technologies (list of strings), requirements (list of strings), "
         "emphasis_areas (list of strings). No explanation, no markdown, no prose."
     )
-    user_message = (
-        "<job_description>\n"
-        f"{job_description}\n"
-        "</job_description>"
-    )
+    user_message = f"<job_description>\n{job_description}\n</job_description>"
     return [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_message},
@@ -43,7 +39,9 @@ def _parse_analysis_response(content: str) -> dict | None:
     return {k: parsed[k] for k in required_keys}
 
 
-def analyze_job_description(job_description: str, model: str | None = None) -> dict | None:
+def analyze_job_description(
+    job_description: str, model: str | None = None
+) -> dict | None:
     effective_model = model or OLLAMA_MODEL
     messages = _build_analysis_messages(job_description)
     payload = {

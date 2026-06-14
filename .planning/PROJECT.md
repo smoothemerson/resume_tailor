@@ -48,19 +48,13 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] E2E tests verify CLI subprocess exit codes, output file, error paths (TEST-10 to TEST-11) — Phase 11: E2E Tests
 - [x] `_build_messages()` system prompt uses explicit ALLOWED/MUST-NOT-CHANGE rules matching real resume LaTeX patterns (PRMP-01 to PRMP-03) — Validated in Phase 12: Prompt Precision
 - [x] Anti-fabrication three-layer defense: temperature=0.2, JD ANALYSIS USAGE rule in system prompt, `_check_fabricated_technologies` guard wired from cli.py (PRMP-03 extension) — Validated in Phase 12 gap closure
-
-### Active
-
 - [x] `_check_technology_substitution` warns when Skills section swaps technologies (GARD-05, TEST-12) — Phase 13: Guard Expansion
 - [x] `_check_protected_sections` warns when contact block, education, languages, employer headers, or project anchors mutate (GARD-06, TEST-13) — Phase 13: Guard Expansion
 - [x] Both new guards wired into `run_guards()` and cannot raise (GARD-07) — Phase 13: Guard Expansion
-
-### Active
-
-- [ ] Fix pyproject.toml wheel include list
-- [ ] Add GitHub Actions CI workflow
-- [ ] Add unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
-- [ ] Remove `.claude/` from git tracking
+- [x] pyproject.toml wheel include list ships `jd_analyzer.py` and `keyword_matcher.py` (PKG-01) — Phase 14: Infrastructure
+- [x] GitHub Actions CI runs ruff + unit tests on push/PR to main (CI-01) — Phase 14: Infrastructure
+- [x] Unit tests for `jd_analyzer`, `resume_reader`, `resume_writer` (TEST-14 to TEST-16) — Phase 14: Infrastructure
+- [x] `.claude/` removed from git tracking, comprehensive Python .gitignore (REPO-01) — Phase 14: Infrastructure
 
 ### Out of Scope
 
@@ -122,4 +116,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-13 — Phase 12 complete: prompt precision + anti-fabrication gap closure (three-layer defense: temperature, JD ANALYSIS USAGE rule, _check_fabricated_technologies guard)*
+*Last updated: 2026-06-14 — v1.2 complete: Phase 12 prompt precision, Phase 13 guard expansion, Phase 14 packaging/CI/test gaps/repo hygiene*

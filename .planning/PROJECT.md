@@ -8,19 +8,11 @@ A Python CLI tool that reads a LaTeX resume, accepts a job description via termi
 
 Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job — not just syntactically valid but actually usable.
 
-## Current Milestone: v1.2 Precision & CI
+## Milestone History
 
-**Goal:** Harden the LLM prompt with exact allowed/protected rules, expand output guards to catch technology substitution and protected-section mutations, fix a packaging gap, ship a CI pipeline, and fill remaining unit test gaps.
-
-**Target features:**
-- Update `_build_messages()` with explicit ALLOWED/PROTECTED section rules matching real resume LaTeX patterns
-- New guard: `_check_technology_substitution` — warns when Skills section swaps technologies
-- New guard: `_check_protected_sections` — warns if contact block, education, languages, employer headers, or project anchors are mutated
-- Unit tests for both new guards in `guards_test.py`
-- Fix pyproject.toml wheel include list (add `jd_analyzer.py`, `keyword_matcher.py`)
-- GitHub Actions CI: ruff + `pytest -m unit` on push/PR to main
-- Unit tests for `jd_analyzer`, `resume_reader`, `resume_writer`
-- Remove `.claude/` from git tracking and add to `.gitignore`
+- ✅ **v1.0 MVP** — Phases 1-3 (shipped 2026-05-29)
+- ✅ **v1.1 Output Quality + Test Coverage** — Phases 4-11 (shipped 2026-06-08)
+- ✅ **v1.2 Precision & CI** — Phases 12-14 (shipped 2026-06-14)
 
 ## Requirements
 
@@ -56,28 +48,38 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 - [x] Unit tests for `jd_analyzer`, `resume_reader`, `resume_writer` (TEST-14 to TEST-16) — Phase 14: Infrastructure
 - [x] `.claude/` removed from git tracking, comprehensive Python .gitignore (REPO-01) — Phase 14: Infrastructure
 
+### Active (v2 candidates)
+
+- [ ] Per-section change magnitude warning (GARD-08)
+- [ ] Structured output schema enforcement via Ollama `json_schema` (GARD-09)
+- [ ] `--no-diff` opt-in flag to suppress diff output (WORK-01)
+- [ ] Persistent keyword match history across runs (WORK-02)
+- [ ] Interactive accept/reject of individual changes (WORK-03)
+
 ### Out of Scope
 
 - LangChain or other LLM frameworks — keep deps to stdlib + requests only
 - Web server or GUI — CLI only
 - Auto-compilation to PDF — user runs pdflatex themselves
-- Hallucination guardrail beyond prompt — diff review step deferred to later
 - Multi-resume management — single base resume for now
 
 ## Context
 
-**v1.1 shipped 2026-06-08 — full test pyramid in place**
+**v1.2 shipped 2026-06-14 — hardened prompt, five guards, CI live**
 
 - Directory: `en-cv-ai-engineer` — this is the owner's own AI engineer resume
 - Base `.tex` resume exists at `resumes/english.tex`; config.py points to it via Path(__file__) anchoring
 - Ollama must be running locally before execution; tool health-checks at startup and fails fast
 - Default model: `qwen3:14b` — swappable via `OLLAMA_MODEL` in config.py
-- System prompt: structured XML prompt with Alexandra persona (surgeon-precise tailoring instructions)
+- System prompt: structured XML prompt with `<ALLOWED>` whitelist (6 LaTeX element types) and `<CONSTRAINTS>` MUST-NOT-CHANGE list (9 protected patterns) + TECHNOLOGY FIDELITY rule
+- Anti-fabrication: three-layer defense (temperature=0.2, JD ANALYSIS USAGE rule, `_check_fabricated_technologies` guard)
+- Guards: 5 total — section missing, markdown leak, hallucinated field, technology substitution, protected section mutation
 - Pipeline: two-pass (JD analysis → tailoring with extracted requirements injected)
 - Output: timestamped `.tex` files under `resumes/output/`; user compiles with pdflatex; diff shown on TTY
+- CI: GitHub Actions on push/PR to main (ruff + `pytest -m unit`, ubuntu-latest + Python 3.13)
 - Tech stack: Python 3.11+, requests>=2.32.0, hatchling build backend, uv packaging, pytest dev dep
-- Codebase: ~12 Python source files + test suite; installable via `uv tool install .`
-- Test coverage: 107 tests (63 unit in src/, 36 unit in tests/unit/, 2 integration, 2 e2e) — 3 skipped when Ollama absent
+- Codebase: 14 Python source files + test suite; installable via `uv tool install .`
+- Test coverage: 142 tests (src/ unit tests + tests/unit/ + 2 integration + 2 e2e) — 3 skipped when Ollama absent
 - Project doubles as a portfolio artifact: minimal deps, auditable code, clean separation of concerns
 
 ## Constraints
@@ -97,6 +99,13 @@ Given a job description, produce a ready-to-compile LaTeX resume that is genuine
 | hatchling build backend | PyPA-maintained, uv's default, required for `uv tool install .` to register shell command | ✓ Good — install worked on first try after adding [build-system] |
 | Timestamped output filenames | Prevents overwrites, preserves history of tailored versions | ✓ Good — clean output; user can compare runs by timestamp |
 | System prompt as guardrail | Simplest approach; diff review can be added later without changing architecture | ✓ Good — separating fence stripping and LaTeX validation as code guards (not prompt-only) was the right call |
+| Raw string literal for system prompt | New `<ALLOWED>` content includes `\usepackage` — hard SyntaxError in non-raw strings; `\textit`/`\noindent` silently corrupt | ✓ Good — `r"""` is the correct fix; `\d` and `\e` in unchanged sections render identically |
+| temperature=0.2 for tailoring | Avoids degenerate repetition on full-document LaTeX rewrite with a 14B local model; 0.2 collapses most sampling variance | ✓ Good — anti-fabrication layer 1; confirmed stable in UAT |
+| `**{k: v} if cond else {}` dict-unpacking for optional kwargs | Conditionally passes `jd_technologies` only when analysis is not None, preserving existing `assert_called_once_with(3 positional args)` test assertions | ✓ Good — avoids breaking test contracts without modifying tests |
+| Module-private `_extract_section` / `_extract_technologies` helpers | Extracted during Phase 13 Plan 01 for reuse by both new guards; avoids duplication | ✓ Good — Plan 02 reused both helpers without modification |
+| Project anchors as `(url, name)` tuples only | Excluding dates/subtitles from comparison prevents false positives on legitimate tailoring | ✓ Good — right scope for protected sections |
+| `astral-sh/setup-uv@v8.2.0` full semver pin | Astral stopped publishing moving major-version tags at v8.0.0 (March 2025); `@v4` reference was stale | ✓ Good — CI stable; full semver prevents silent regressions |
+| Untrack-without-delete atomic commit | `.gitignore` glob + `git rm --cached` in one commit — no window where `.claude/` is untracked but not ignored | ✓ Good — clean execution; `git check-ignore` confirmed active |
 
 ## Evolution
 
@@ -116,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-14 — v1.2 complete: Phase 12 prompt precision, Phase 13 guard expansion, Phase 14 packaging/CI/test gaps/repo hygiene*
+*Last updated: 2026-06-14 after v1.2 milestone — Precision & CI shipped*

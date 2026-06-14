@@ -67,4 +67,38 @@ Upgraded the tailoring pipeline with output reliability guards, a normalized dif
 
 ---
 
-*Next: `/gsd-new-milestone` to plan v1.2*
+## v1.2 Precision & CI
+
+**Shipped:** 2026-06-14
+**Phases:** 12–14
+**Plans:** 8
+**Requirements:** 14/14 v1.2 requirements completed
+
+### Delivered
+
+Hardened the anti-fabrication posture from "prompt-only hope" to a three-layer defense; added two new deterministic guards (technology substitution, protected-section mutation); shipped the first CI pipeline; fixed a packaging gap that was silently omitting two modules from built wheels; added 35 new unit tests; and permanently untracked `.claude/` from git.
+
+### Key Accomplishments
+
+1. `_build_messages()` system prompt rewritten with explicit `<ALLOWED>` whitelist (6 LaTeX element types with exact inline patterns) and `<CONSTRAINTS>` MUST-NOT-CHANGE list (9 protected patterns) — eliminates model guesswork
+2. Three-layer anti-fabrication defense: temperature=0.2 (sampling variance), JD ANALYSIS USAGE rule (jd_analysis framing), `_check_fabricated_technologies` guard (post-generation token-boundary detection)
+3. `_check_technology_substitution` guard: extracts Skills section, warns on substituted / removed-only / added-only technology sets
+4. `_check_protected_sections` guard: contact block, Education, Languages, employer header lines, project anchors — all five element types compared via set-diff
+5. GitHub Actions CI: ruff lint/format-check + `pytest -m unit` on push/PR to main; `pyproject.toml` wheel include list fixed to ship all 10 modules
+6. 35 new unit tests (13 for new guards, 12 for jd_analyzer/resume_reader/resume_writer, 10 for fabrication guard + prompt assertions); 429 `.claude/` files untracked
+
+### Stats
+
+- Phases: 12–14 (3 phases) | Plans: 8 | Timeline: 5 days (2026-06-09 → 2026-06-14)
+- Python source: 1,739 LOC across 14 files
+- Total tests: 142 (up from 107)
+- Commits: ~60 during v1.2 (3 PRs merged)
+
+### Archived Artifacts
+
+- `.planning/milestones/v1.2-ROADMAP.md` — full phase details
+- `.planning/milestones/v1.2-REQUIREMENTS.md` — all requirements with outcomes
+
+---
+
+*Next: `/gsd-new-milestone` to plan v2.0 (or next minor)*

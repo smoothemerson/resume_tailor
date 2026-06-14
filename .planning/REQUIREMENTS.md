@@ -13,14 +13,14 @@
 
 ### Guards
 
-- [ ] **GARD-05**: `_check_technology_substitution(original, tailored)` extracts the Skills section from each text and warns when technologies are substituted, only removed, or only added
-- [ ] **GARD-06**: `_check_protected_sections(original, tailored)` warns when any of the following differ between original and tailored: contact block, education section, languages section, employer header lines, project anchors (name/URL/date)
-- [ ] **GARD-07**: Both new guards are called from `run_guards()` and never raise — all exceptions are caught and logged as warnings
+- [x] **GARD-05**: `_check_technology_substitution(original, tailored)` extracts the Skills section from each text and warns when technologies are substituted, only removed, or only added
+- [x] **GARD-06**: `_check_protected_sections(original, tailored)` warns when any of the following differ between original and tailored: contact block, education section, languages section, employer header lines, project anchors (name/URL/date)
+- [x] **GARD-07**: Both new guards are called from `run_guards()` and never raise — all exceptions are caught and logged as warnings
 
 ### Guard Tests
 
-- [ ] **TEST-12**: Unit tests cover `_check_technology_substitution`: substitution, removal-only, addition-only, identical, no-skills-section, malformed input
-- [ ] **TEST-13**: Unit tests cover `_check_protected_sections`: contact block diff, education diff, languages diff, employer header changed, unchanged, empty strings passed
+- [x] **TEST-12**: Unit tests cover `_check_technology_substitution`: substitution, removal-only, addition-only, identical, no-skills-section, malformed input
+- [x] **TEST-13**: Unit tests cover `_check_protected_sections`: contact block diff, education diff, languages diff, employer header changed, unchanged, empty strings passed
 
 ### Packaging
 
@@ -69,11 +69,11 @@
 | PRMP-01 | Phase 12 | Complete |
 | PRMP-02 | Phase 12 | Complete |
 | PRMP-03 | Phase 12 | Complete |
-| GARD-05 | Phase 13 | Pending |
-| GARD-06 | Phase 13 | Pending |
-| GARD-07 | Phase 13 | Pending |
-| TEST-12 | Phase 13 | Pending |
-| TEST-13 | Phase 13 | Pending |
+| GARD-05 | Phase 13 | Complete |
+| GARD-06 | Phase 13 | Complete |
+| GARD-07 | Phase 13 | Complete |
+| TEST-12 | Phase 13 | Complete |
+| TEST-13 | Phase 13 | Complete |
 | PKG-01 | Phase 14 | Complete |
 | CI-01 | Phase 14 | Complete |
 | TEST-14 | Phase 14 | Complete |
@@ -89,4 +89,4 @@
 
 ---
 *Requirements defined: 2026-06-09*
-*Last updated: 2026-06-09 after initial definition*
+*Last updated: 2026-06-14 — all 14 v1.2 requirements complete*

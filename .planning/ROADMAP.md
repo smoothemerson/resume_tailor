@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 MVP** — Phases 1-3 (shipped 2026-05-29)
 - ✅ **v1.1 Output Quality + Test Coverage** — Phases 4-11 (shipped 2026-06-08)
-- 🔄 **v1.2 Precision & CI** — Phases 12-14 (in progress)
+- ✅ **v1.2 Precision & CI** — Phases 12-14 (shipped 2026-06-14)
 
 ## Phases
 
@@ -35,69 +35,16 @@ Full archive: `.planning/milestones/v1.1-ROADMAP.md`
 
 </details>
 
-## v1.2 Precision & CI (Phases 12–14)
+<details>
+<summary>✅ v1.2 Precision & CI (Phases 12–14) — SHIPPED 2026-06-14</summary>
 
-### Phase 12: Prompt Precision
+- [x] Phase 12: Prompt Precision (2/2 plans) — completed 2026-06-13
+- [x] Phase 13: Guard Expansion (3/3 plans) — completed 2026-06-14
+- [x] Phase 14: Infrastructure (3/3 plans) — completed 2026-06-11
 
-**Goal:** Replace INSTRUCTIONS + CONSTRAINTS in `_build_messages()` with explicit ALLOWED/PROTECTED rules matching actual resume LaTeX patterns.
+Full archive: `.planning/milestones/v1.2-ROADMAP.md`
 
-**Requirements:** PRMP-01, PRMP-02, PRMP-03
-
-**Plans:** 2/2 plans complete
-Plans:
-
-- [x] 12-01-PLAN.md — Rewrite _build_messages() system_prompt with ALLOWED/MUST-NOT-CHANGE/TECHNOLOGY FIDELITY sections
-- [x] 12-02-PLAN.md — Gap closure (UAT test 1): temperature option, jd_analysis priming defusal, technology-fidelity guard
-
-**Success criteria:**
-
-1. System prompt has a clearly labeled ALLOWED section listing exactly which LaTeX elements may be rewritten
-2. System prompt has a clearly labeled MUST NOT CHANGE section listing protected elements
-3. System prompt states the anti-fabrication rule: technologies present in original must appear; absent technologies must not appear
-4. All existing tests pass without modification
-
----
-
-### Phase 13: Guard Expansion
-
-**Goal:** Add two new guards that catch technology substitution and protected-section mutations, and ship unit tests for both.
-
-**Requirements:** GARD-05, GARD-06, GARD-07, TEST-12, TEST-13
-
-**Success criteria:**
-
-1. `run_guards()` calls both new guards and cannot raise
-2. `_check_technology_substitution` warns correctly for substitution, removal-only, addition-only; silent for identical or no skills section
-3. `_check_protected_sections` warns correctly for each protected element type; silent when all sections match
-4. All new tests tagged `@pytest.mark.unit` and pass with `pytest -m unit`
-5. All existing tests continue to pass
-
----
-
-### Phase 14: Infrastructure
-
-**Goal:** Fix the packaging gap, ship CI, fill unit test gaps, and remove `.claude/` from git tracking.
-
-**Requirements:** PKG-01, CI-01, TEST-14, TEST-15, TEST-16, REPO-01
-
-**Success criteria:**
-
-1. `uv build` wheel includes `jd_analyzer.py` and `keyword_matcher.py`
-2. CI workflow is valid YAML, triggers on push/PR to main, no secrets
-3. All 11 new unit tests tagged `@pytest.mark.unit` and pass with `pytest -m unit`
-4. `git ls-files .claude/` returns nothing
-5. `.gitignore` contains `.claude/`
-6. All existing tests continue to pass
-
-**Plans:** 3/3 plans complete
-
-Plans:
-
-- [x] 14-01-PLAN.md — Fix pyproject.toml wheel include list (PKG-01) and create GitHub Actions CI workflow (CI-01)
-- [x] 14-02-PLAN.md — Create src/jd_analyzer_test.py, src/resume_reader_test.py, src/resume_writer_test.py (TEST-14, TEST-15, TEST-16)
-- [x] 14-03-PLAN.md — Replace .gitignore with standard Python ignore file and untrack .claude/ from git index (REPO-01)
-
----
+</details>
 
 ## Progress
 

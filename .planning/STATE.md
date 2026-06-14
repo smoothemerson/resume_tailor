@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Precision & CI
-status: Phase 14 shipped — PR #4
-stopped_at: Phase 14 shipped — v1.2 milestone complete
+status: v1.2 ARCHIVED — milestone complete
+stopped_at: v1.2 complete — archived 2026-06-14
 last_updated: "2026-06-14T00:00:00Z"
 last_activity: 2026-06-14
 progress:
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** v1.2 milestone complete — all 3 phases shipped
+**Current focus:** v1.2 archived — planning next milestone
 
 ## Current Position
 
-Phase: 14 (Infrastructure) — SHIPPED PR #4
-Plan: All 3 complete
-Status: Phase 14 shipped — v1.2 Precision & CI milestone complete
+Phase: v1.2 complete (Phases 12–14 all shipped)
+Plan: All 8 plans complete
+Status: v1.2 ARCHIVED 2026-06-14
 Last activity: 2026-06-14
 
 ## Accumulated Context
@@ -61,6 +61,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-06-14
-Stopped at: Phase 14 shipped — PR #4
+Stopped at: v1.2 milestone archived
 Resume file: None
-Next: `/gsd-complete-milestone` to close v1.2
+Next: `/gsd-new-milestone` to plan next version

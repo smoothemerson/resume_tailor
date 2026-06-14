@@ -1,10 +1,25 @@
 import re
 import sys
 
-STOP_WORDS: frozenset[str] = frozenset({
-    "a", "an", "the", "and", "or", "of", "in", "to", "for", "with",
-    "is", "are", "be", "on", "at",
-})
+STOP_WORDS: frozenset[str] = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "of",
+        "in",
+        "to",
+        "for",
+        "with",
+        "is",
+        "are",
+        "be",
+        "on",
+        "at",
+    }
+)
 
 
 def show_keyword_match(analysis: dict, tailored_text: str) -> None:

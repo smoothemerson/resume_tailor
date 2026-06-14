@@ -21,14 +21,18 @@ def _check_ollama_health() -> None:
     except requests.Timeout as exc:
         raise RuntimeError("Ollama health check timed out") from exc
     except requests.HTTPError as exc:
-        raise RuntimeError(f"Ollama health check failed with HTTP error: {exc}") from exc
+        raise RuntimeError(
+            f"Ollama health check failed with HTTP error: {exc}"
+        ) from exc
 
 
 def _format_list(items: list) -> str:
     return ", ".join(str(i) for i in items) if items else "(none)"
 
 
-def _build_messages(resume_text: str, job_description: str, analysis: dict | None = None) -> list[dict]:
+def _build_messages(
+    resume_text: str, job_description: str, analysis: dict | None = None
+) -> list[dict]:
     system_prompt = textwrap.dedent(r"""
         <PERSONA>
         You are Alexandra, a senior technical recruiter and resume strategist with 10+ years of
@@ -167,7 +171,10 @@ def _validate_latex(text: str) -> None:
 
 
 def generate_tailored_resume(
-    resume_text: str, job_description: str, model: str | None = None, analysis: dict | None = None
+    resume_text: str,
+    job_description: str,
+    model: str | None = None,
+    analysis: dict | None = None,
 ) -> TailorResult:
     effective_model = model or OLLAMA_MODEL
     _check_ollama_health()

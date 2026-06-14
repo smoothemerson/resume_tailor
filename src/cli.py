@@ -7,7 +7,7 @@ from diff_view import show_diff
 from guards import run_guards
 from jd_analyzer import analyze_job_description
 from keyword_matcher import show_keyword_match
-from llm_client import TailorResult, generate_tailored_resume
+from llm_client import generate_tailored_resume
 from resume_reader import read_resume
 from resume_writer import write_resume
 
@@ -17,9 +17,15 @@ def main() -> None:
         prog="resume-tailor",
         description="Tailor a LaTeX resume to a job description using a local Ollama LLM.",
     )
-    parser.add_argument("--model", default=None, help="Ollama model name (overrides config)")
-    parser.add_argument("--resume", type=Path, default=None, help="Path to base .tex resume file")
-    parser.add_argument("--output-dir", type=Path, default=None, help="Directory for output files")
+    parser.add_argument(
+        "--model", default=None, help="Ollama model name (overrides config)"
+    )
+    parser.add_argument(
+        "--resume", type=Path, default=None, help="Path to base .tex resume file"
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, default=None, help="Directory for output files"
+    )
     args = parser.parse_args()
 
     resume_path = args.resume or BASE_RESUME_PATH
@@ -51,11 +57,20 @@ def main() -> None:
         print("Analyzing job description...", flush=True)
         analysis = analyze_job_description(job_description, model=args.model)
         if analysis is None:
-            print("Warning: JD analysis failed; proceeding with single-pass tailoring.", file=sys.stderr)
+            print(
+                "Warning: JD analysis failed; proceeding with single-pass tailoring.",
+                file=sys.stderr,
+            )
         print("Tailoring resume — this may take a minute...", flush=True)
-        result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
-        run_guards(resume_text, result.content, result.fences_stripped,
-                   **{"jd_technologies": analysis["technologies"]} if analysis else {})
+        result = generate_tailored_resume(
+            resume_text, job_description, analysis=analysis, model=args.model
+        )
+        run_guards(
+            resume_text,
+            result.content,
+            result.fences_stripped,
+            **{"jd_technologies": analysis["technologies"]} if analysis else {},
+        )
         output_path = write_resume(result.content, output_dir)
         show_diff(resume_text, result.content)
         if analysis is not None:

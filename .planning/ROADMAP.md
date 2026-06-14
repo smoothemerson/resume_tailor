@@ -89,6 +89,14 @@ Plans:
 5. `.gitignore` contains `.claude/`
 6. All existing tests continue to pass
 
+**Plans:** 3/3 plans complete
+
+Plans:
+
+- [x] 14-01-PLAN.md — Fix pyproject.toml wheel include list (PKG-01) and create GitHub Actions CI workflow (CI-01)
+- [x] 14-02-PLAN.md — Create src/jd_analyzer_test.py, src/resume_reader_test.py, src/resume_writer_test.py (TEST-14, TEST-15, TEST-16)
+- [x] 14-03-PLAN.md — Replace .gitignore with standard Python ignore file and untrack .claude/ from git index (REPO-01)
+
 ---
 
 ## Progress
@@ -106,6 +114,6 @@ Plans:
 | 9. Unit Test Gaps | v1.1 | 2/2 | Complete | 2026-06-04 |
 | 10. Integration Tests | v1.1 | 1/1 | Complete | 2026-06-07 |
 | 11. E2E Tests | v1.1 | 1/1 | Complete | 2026-06-08 |
-| 12. Prompt Precision | v1.2 | 2/2 | Complete    | 2026-06-13 |
-| 13. Guard Expansion | v1.2 | 3/3 | Complete   | 2026-06-11 |
-| 14. Infrastructure | v1.2 | 0/1 | Pending | — |
+| 12. Prompt Precision | v1.2 | 2/2 | Complete | 2026-06-13 |
+| 13. Guard Expansion | v1.2 | 3/3 | Complete | 2026-06-14 |
+| 14. Infrastructure | v1.2 | 3/3 | Complete | 2026-06-11 |

@@ -34,13 +34,15 @@ def show_diff(original: str, tailored: str) -> None:
         return
     norm_orig = _normalize(original)
     norm_tail = _normalize(tailored)
-    diff = list(difflib.unified_diff(
-        norm_orig.splitlines(),
-        norm_tail.splitlines(),
-        fromfile="original",
-        tofile="tailored",
-        lineterm="",
-    ))
+    diff = list(
+        difflib.unified_diff(
+            norm_orig.splitlines(),
+            norm_tail.splitlines(),
+            fromfile="original",
+            tofile="tailored",
+            lineterm="",
+        )
+    )
     if not diff:
         return
     for line in diff:

@@ -10,7 +10,9 @@ class TestCheckMissingSections(unittest.TestCase):
         tailored = "\\header{Experience}"
         with patch("guards.logger") as mock_logger:
             run_guards(original, tailored)
-            mock_logger.warning.assert_called_once_with('Section "Skills" missing from tailored output.')
+            mock_logger.warning.assert_called_once_with(
+                'Section "Skills" missing from tailored output.'
+            )
 
     def test_no_missing_sections_no_warning(self):
         original = "\\header{Skills}\n\\header{Experience}"
@@ -40,27 +42,21 @@ class TestCheckFormatViolations(unittest.TestCase):
         with patch("guards.logger") as mock_logger:
             run_guards("", tailored, fences_stripped=True)
             calls = [str(c) for c in mock_logger.warning.call_args_list]
-            self.assertTrue(
-                any("LLM returned markdown fences" in c for c in calls)
-            )
+            self.assertTrue(any("LLM returned markdown fences" in c for c in calls))
 
     def test_inline_code_fence_triggers_warning(self):
         tailored = "\\documentclass{article}\n```python\ncode\n```\n\\end{document}"
         with patch("guards.logger") as mock_logger:
             run_guards("", tailored, fences_stripped=False)
             calls = [str(c) for c in mock_logger.warning.call_args_list]
-            self.assertTrue(
-                any("inline code fences" in c for c in calls)
-            )
+            self.assertTrue(any("inline code fences" in c for c in calls))
 
     def test_markdown_heading_triggers_warning(self):
         tailored = "\\documentclass{article}\n# Heading\n\\end{document}"
         with patch("guards.logger") as mock_logger:
             run_guards("", tailored, fences_stripped=False)
             calls = [str(c) for c in mock_logger.warning.call_args_list]
-            self.assertTrue(
-                any("markdown heading markers" in c for c in calls)
-            )
+            self.assertTrue(any("markdown heading markers" in c for c in calls))
 
     def test_clean_latex_no_warnings(self):
         tailored = "\\documentclass{article}\n\\begin{document}\n\\end{document}"

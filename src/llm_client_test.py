@@ -26,10 +26,10 @@ def test_no_op_on_clean_input():
     assert result == "\\documentclass{article}"
 
 
-def test_valid_latex_returns_text():
+def test_valid_latex_does_not_raise():
     text = "\\documentclass{article}\n\\end{document}"
     result = _validate_latex(text)
-    assert result == text
+    assert result is None
 
 
 def test_missing_end_document_raises():

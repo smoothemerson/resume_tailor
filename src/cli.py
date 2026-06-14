@@ -54,7 +54,8 @@ def main() -> None:
             print("Warning: JD analysis failed; proceeding with single-pass tailoring.", file=sys.stderr)
         print("Tailoring resume — this may take a minute...", flush=True)
         result = generate_tailored_resume(resume_text, job_description, analysis=analysis, model=args.model)
-        run_guards(resume_text, result.content, result.fences_stripped)
+        run_guards(resume_text, result.content, result.fences_stripped,
+                   **{"jd_technologies": analysis["technologies"]} if analysis else {})
         output_path = write_resume(result.content, output_dir)
         show_diff(resume_text, result.content)
         if analysis is not None:

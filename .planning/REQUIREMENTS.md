@@ -7,9 +7,9 @@
 
 ### Prompt Precision
 
-- [ ] **PRMP-01**: `_build_messages()` system prompt defines an explicit ALLOWED list: title line, employer taglines, employer bullets, project subtitle and bullets, skills reordering/reweighting
-- [ ] **PRMP-02**: `_build_messages()` system prompt defines an explicit MUST-NOT-CHANGE list: candidate name, contact block, education section, languages section, employer header lines, project name/URL/date, all LaTeX structural commands
-- [ ] **PRMP-03**: System prompt includes an anti-fabrication rule: do not substitute one named technology for another — if Azure is in the original it must appear in output; if AWS is not in the original it must not appear
+- [x] **PRMP-01**: `_build_messages()` system prompt defines an explicit ALLOWED list: title line, employer taglines, employer bullets, project subtitle and bullets, skills reordering/reweighting
+- [x] **PRMP-02**: `_build_messages()` system prompt defines an explicit MUST-NOT-CHANGE list: candidate name, contact block, education section, languages section, employer header lines, project name/URL/date, all LaTeX structural commands
+- [x] **PRMP-03**: System prompt includes an anti-fabrication rule: do not substitute one named technology for another — if Azure is in the original it must appear in output; if AWS is not in the original it must not appear
 
 ### Guards
 
@@ -66,9 +66,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRMP-01 | Phase 12 | Pending |
-| PRMP-02 | Phase 12 | Pending |
-| PRMP-03 | Phase 12 | Pending |
+| PRMP-01 | Phase 12 | Complete |
+| PRMP-02 | Phase 12 | Complete |
+| PRMP-03 | Phase 12 | Complete |
 | GARD-05 | Phase 13 | Pending |
 | GARD-06 | Phase 13 | Pending |
 | GARD-07 | Phase 13 | Pending |

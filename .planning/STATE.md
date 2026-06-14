@@ -1,41 +1,42 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Output Quality + Test Coverage
-status: archived
-stopped_at: v1.1 milestone shipped — PR #1 open
-last_updated: "2026-06-08T00:00:00.000Z"
-last_activity: 2026-06-08
+milestone: v1.2
+milestone_name: Precision & CI
+status: "Phase 12 shipped — PR #2"
+stopped_at: Phase 12 complete, ready to plan Phase 13
+last_updated: "2026-06-13T14:57:39.642Z"
+last_activity: 2026-06-13
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 18
-  completed_plans: 18
-  percent: 100
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-08 after v1.1 milestone)
+See: .planning/PROJECT.md (updated 2026-06-13)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
-**Current focus:** Planning next milestone (v1.2)
+**Current focus:** Phase 13 — guard-expansion
 
 ## Current Position
 
-Phase: 11 (complete — v1.1 archived)
-Status: Milestone archived, ready for next milestone
-Last activity: 2026-06-08
-
-Progress: [████████████████████] 18/18 plans (100%) — v1.1 SHIPPED (PR #1)
+Phase: 13
+Plan: Not started
+Status: Phase 12 shipped — PR #2
+Last activity: 2026-06-13
 
 ## Accumulated Context
 
 ### Decisions
 
 All v1.0 and v1.1 decisions logged in PROJECT.md Key Decisions table with outcomes.
+
+Phase 12 decisions: temperature=0.2 over greedy decoding (repetition risk on 14B model); dict-unpacking kwarg pattern for conditional jd_technologies pass to preserve existing call assertions; JD ANALYSIS USAGE rule co-located with TECHNOLOGY FIDELITY in CONSTRAINTS.
 
 ### Pending Todos
 
@@ -57,7 +58,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-08
-Stopped at: v1.1 milestone complete and archived
+Last session: 2026-06-13
+Stopped at: Phase 12 complete, ready to plan Phase 13
 Resume file: None
-Next: `/gsd-new-milestone` to plan v1.2
+Next: `/gsd-plan-phase 13`

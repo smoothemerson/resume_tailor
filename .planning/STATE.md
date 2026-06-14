@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Precision & CI
-status: executing
+status: "Phase 13 shipped — PR #3"
 stopped_at: Phase 13 complete, ready to plan Phase 14
-last_updated: "2026-06-12T18:35:00Z"
-last_activity: 2026-06-12 -- Phase 13 UAT passed (7/7), phase marked complete
+last_updated: "2026-06-14T00:00:00.000Z"
+last_activity: 2026-06-14
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-09)
+See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** Given a job description, produce a ready-to-compile LaTeX resume that is genuinely better aligned with that job
 **Current focus:** Phase 14 — Infrastructure
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-06-09)
 
 Phase: 14 (Infrastructure) — READY TO PLAN
 Plan: Not started
-Status: Ready to plan Phase 14
-Last activity: 2026-06-12 -- Phase 13 complete (UAT 7/7 passed)
+Status: Phase 13 shipped — PR #3
+Last activity: 2026-06-14
 
 ## Accumulated Context
 
@@ -37,6 +37,8 @@ Last activity: 2026-06-12 -- Phase 13 complete (UAT 7/7 passed)
 - Phase 13: `_extract_section` / `_extract_technologies` extracted as module-private helpers — reusable across both new guards
 - Phase 13: Project anchors compared as `(url, name)` tuples only — dates/subtitles excluded to avoid false positives on legitimate tailoring
 - Full decision log in PROJECT.md Key Decisions table.
+
+Phase 12 decisions: temperature=0.2 over greedy decoding (repetition risk on 14B model); dict-unpacking kwarg pattern for conditional jd_technologies pass to preserve existing call assertions; JD ANALYSIS USAGE rule co-located with TECHNOLOGY FIDELITY in CONSTRAINTS.
 
 ### Pending Todos
 
@@ -58,6 +60,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-12
-Stopped at: Phase 13 complete, ready to plan Phase 14
+Last session: 2026-06-14
+Stopped at: Phase 13 shipped — PR #3
 Resume file: None
+Next: `/gsd-plan-phase 14`
